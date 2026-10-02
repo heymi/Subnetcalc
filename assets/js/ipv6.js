@@ -86,10 +86,21 @@ const updateEui = () => {
   syncUrl();
   updateSummaryButton();
 };
+// The download button only works when the full list was generated; disable it otherwise.
+function syncSplitDownload() {
+  const b = $('[data-download-split]');
+  if (!b) return;
+  const ready = Boolean(document.querySelector('#split-out [data-copy]'));
+  b.disabled = !ready;
+  if (ready) b.removeAttribute('title');
+  else b.title = 'The full list is too large to generate; narrow the split first';
+}
+
 const updateSplit = () => {
   show($('#split-out'), renderSplit(splitIn.value, Number(splitTo.value)));
   syncUrl();
   updateSummaryButton();
+  syncSplitDownload();
 };
 
 function setUla(value) {
@@ -170,5 +181,6 @@ if (n !== null && n !== '') splitTo.value = n;
 if (v6.value !== DEFAULTS.addr) updateAddr();
 if (mac.value !== DEFAULTS.mac || euiPrefix.value !== DEFAULTS.eui) updateEui();
 if (splitIn.value !== DEFAULTS.split || Number(splitTo.value) !== DEFAULTS.newPrefix) updateSplit();
+else syncSplitDownload();
 setUla(validUla(u) ?? generateUla());
 flushUrl();

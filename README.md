@@ -43,10 +43,12 @@ netmask, and the result has `maskAmbiguous: true`. Pass `{ maskAs: 'wildcard' }`
 - **/31** follows RFC 3021: 2 usable hosts, no broadcast. **/32** has 1 host.
 - **IPv6** has no broadcast. Every address counts as usable, so the first host is the network address.
 - **VLSM** assigns the largest request first (ties keep input order), packs from the start of the
-  parent, and gives 2 hosts a /30 unless `allowSlash31` is set. Only IPv4 is supported.
+  parent, gives 2 hosts a /30 unless `allowSlash31` is set, and gives 1 host a /30 unless
+  `allowSlash32` is set. Only IPv4 is supported.
 - **Capacity rules** are options, not hard-coded policy: `requiredPrefix()` and `planVlsm()` accept
-  `reservedHosts` and `minPrefix`, so AWS-style (5 reserved, /28) and Azure-style (5 reserved, /29)
-  planning uses the same rule for allocation, the results table and the exports.
+  `reservedHosts` and `minPrefix`, so AWS-style (5 reserved, /28), Azure-style (5 reserved, /29)
+  and GCP-style (4 reserved, /29) planning uses the same rule for allocation, the results table
+  and the exports.
 - **Special-purpose** data comes from the IANA registries and lives in
   [`lib/data/special-purpose.json`](lib/data/special-purpose.json), with source URLs and the retrieval date.
   Scope and IPv6 type describe the entered address, even when its prefix spans other scopes.
@@ -56,7 +58,9 @@ netmask, and the result has `maskAmbiguous: true`. Pass `{ maskAs: 'wildcard' }`
 
 ## Exports
 
-`subnetcalc/export` formats results as text, JSON (BigInt values become strings) and CSV.
+`subnetcalc/export` formats results as text, JSON (BigInt values become strings) and CSV, and VLSM
+plans as CSV, JSON, Markdown, Terraform `cidrsubnet()`, AWS/Azure/GCP CIDR lists, CloudFormation,
+Bicep, Cisco IOS interface snippets, OSPF network statements, ACL entries and a summary route.
 
 ## Website
 
@@ -67,7 +71,8 @@ header, footer and pre-rendered results inside the committed HTML in sync. Run i
 partial or a renderer.
 
 Every tool saves its input in the URL, so a copied link reproduces the same result. Invalid input disables
-copy, download and export controls until it is fixed; share links always reproduce the typed state.
+copy, download and export controls until it is fixed; share links always reproduce the typed state. The
+VLSM planner can also save plans in `localStorage` and export/import the list as JSON.
 
 ```sh
 python3 -m http.server 8080          # serve the repo root locally

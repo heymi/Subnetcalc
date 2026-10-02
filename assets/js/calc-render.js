@@ -1,7 +1,18 @@
 // HTML renderers for the subnet calculator. Pure functions (string in, string out) so the
 // same code fills the page in the browser and pre-renders the default result at build time.
-import { binaryBreakdown, formatAddress, prefixToMask } from '../../lib/subnet.js';
+import { binaryBreakdown, formatAddress, networkOf, prefixToMask } from '../../lib/subnet.js';
 import { esc, group, count, sup } from './ui.js';
+
+const v4Octets = (v) => [24n, 16n, 8n, 0n].map((s) => String((v >> s) & 0xffn));
+
+/** PTR name for one IPv4 address: 37.1.168.192.in-addr.arpa */
+export const reverseNameV4 = (value) => v4Octets(value).reverse().join('.') + '.in-addr.arpa';
+
+/** Reverse zone for an octet-aligned IPv4 prefix, or null when it needs several zones. */
+export function reverseZoneV4(network, prefix) {
+  if (prefix === 0 || prefix === 32 || prefix % 8 !== 0) return null;
+  return v4Octets(network).slice(0, prefix / 8).reverse().join('.') + '.in-addr.arpa';
+}
 
 function row(label, value, { copy = value, sub = '', em = false, html = false } = {}) {
   const v = html ? value : esc(value);
@@ -83,6 +94,9 @@ export function renderResults(info, extra = []) {
     );
     const v = info.parsed.value;
     secondary.push(row('Integer', String(v), { sub: `0x${v.toString(16).toUpperCase().padStart(8, '0')}` }));
+    secondary.push(row('Reverse (PTR)', reverseNameV4(v)));
+    const zone = reverseZoneV4(networkOf(info.parsed).value, info.prefix);
+    if (zone) secondary.push(row('Reverse zone', zone));
   } else {
     primary.push(row('Address', info.address));
     primary.push(row('Network', info.cidr, { em: true }));
@@ -102,7 +116,8 @@ export function renderResults(info, extra = []) {
   const e = info.embedded;
   if (e) {
     const val = e.kind === 'teredo' ? `server ${e.server} · client ${e.client} · port ${e.port}` : `${e.ipv4}`;
-    secondary.push(row(e.kind === 'teredo' ? 'Teredo' : `Embedded IPv4`, val, { copy: e.kind === 'teredo' ? e.client : e.ipv4 }));
+    const sub = e.kind === '6to4' ? 'deprecated by RFC 7526' : e.kind === 'teredo' ? 'legacy transition mechanism' : '';
+    secondary.push(row(e.kind === 'teredo' ? 'Teredo' : `Embedded IPv4`, val, { copy: e.kind === 'teredo' ? e.client : e.ipv4, sub }));
   }
   for (const x of extra) secondary.push(row(x.label, x.value));
   const more = secondary.length

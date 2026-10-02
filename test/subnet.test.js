@@ -399,6 +399,37 @@ describe('capacity rules (application policy)', () => {
     assertCode(() => requiredPrefix(1, { reservedHosts: 1.5 }), 'INVALID_RESERVATION');
     assertCode(() => requiredPrefix(1, { minPrefix: 33 }), 'INVALID_RESERVATION');
   });
+  test('/32 single-host option', () => {
+    assert.equal(requiredPrefix(1, { allowSlash32: true }), 32);
+    assert.equal(requiredPrefix(2, { allowSlash32: true }), 30);
+    assert.equal(requiredPrefix(1, { allowSlash31: true, allowSlash32: true }), 32);
+    assert.equal(requiredPrefix(2, { allowSlash31: true, allowSlash32: true }), 31);
+    // cloud rules keep their minimum even when /32 is requested
+    assert.equal(requiredPrefix(1, { allowSlash32: true, reservedHosts: 5, minPrefix: 28 }), 28);
+  });
+  test('planVlsm allocates a /32 host route with no broadcast', () => {
+    const p = planVlsm(
+      '10.0.0.0/30',
+      [
+        { name: 'Lo0', hosts: 1 },
+        { name: 'Link', hosts: 2 },
+      ],
+      { allowSlash31: true, allowSlash32: true },
+    ).plan;
+    assert.deepEqual(
+      p.allocations.map((a) => [a.name, a.cidr, a.prefix]),
+      [
+        ['Link', '10.0.0.0/31', 31],
+        ['Lo0', '10.0.0.2/32', 32],
+      ],
+    );
+    const lo = p.allocations[1];
+    assert.equal(String(lo.usableHosts), '1');
+    assert.equal(lo.broadcast, null);
+    assert.equal(lo.firstHost, '10.0.0.2');
+    assert.equal(lo.lastHost, '10.0.0.2');
+    assert.deepEqual(p.free.map(formatCidr), ['10.0.0.3/32']);
+  });
   test('planVlsm records and applies the provider rule', () => {
     const p = planVlsm('10.0.0.0/24', [{ name: 'Edge', hosts: 60 }], { reservedHosts: 5, minPrefix: 28, provider: 'aws' }).plan;
     assert.equal(p.allocations[0].prefix, 25);

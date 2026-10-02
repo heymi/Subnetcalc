@@ -21,9 +21,10 @@ import {
   renderRange,
   rangeSummary,
 } from '../assets/js/cidr-render.js';
-import { renderResults } from '../assets/js/calc-render.js';
+import { renderResults, reverseNameV4, reverseZoneV4 } from '../assets/js/calc-render.js';
 import { ipv6SummaryText } from '../assets/js/ipv6-render.js';
 import { planCounts, renderPlan } from '../assets/js/ipv6-plan-render.js';
+import { MAX_PLANS, parsePlanList, removePlan, sanitizePlanName, serializePlans, upsertPlan } from '../assets/js/workspace.js';
 
 describe('VLSM paste parsing', () => {
   test('keeps every line in order and reports the unreadable one', () => {
@@ -84,11 +85,19 @@ describe('VLSM share query', () => {
 
   test('cloud capacity rule round-trips and unknown values fall back', () => {
     assert.equal(parseVlsmSearch('?p=10.0.0.0/24&c=aws').cloud, 'aws');
+    assert.equal(parseVlsmSearch('?p=10.0.0.0/24&c=gcp').cloud, 'gcp');
     assert.equal(parseVlsmSearch('?p=10.0.0.0/24&c=bogus').cloud, 'generic');
     assert.equal(parseVlsmSearch('?p=10.0.0.0/24').cloud, 'generic');
     assert.deepEqual(CLOUD_RULES.aws, { provider: 'aws', reservedHosts: 5, minPrefix: 28, label: 'AWS VPC' });
     assert.equal(CLOUD_RULES.azure.minPrefix, 29);
+    assert.deepEqual(CLOUD_RULES.gcp, { provider: 'gcp', reservedHosts: 4, minPrefix: 29, label: 'Google Cloud VPC' });
     assert.equal(CLOUD_RULES.generic.reservedHosts, 2);
+  });
+
+  test('the /32 option round-trips in the share query', () => {
+    assert.equal(parseVlsmSearch('?p=10.0.0.0/24&r=Lo0:1&s32=1').s32, true);
+    assert.equal(parseVlsmSearch('?p=10.0.0.0/24&r=Lo0:1').s32, false);
+    assert.equal(parseVlsmSearch('?p=10.0.0.0/24&r=Lo0:1&s31=1&s32=1').s32, true);
   });
 
   test('an empty or truncated r= is reported, not fatal', () => {
@@ -205,6 +214,53 @@ describe('IPv6 hierarchical plan', () => {
   });
 });
 
+describe('saved VLSM plans', () => {
+  test('sanitizes names and keeps a fallback', () => {
+    assert.equal(sanitizePlanName('  Sales   floor 2 '), 'Sales floor 2');
+    assert.equal(sanitizePlanName('', 'Untitled plan'), 'Untitled plan');
+    assert.equal(sanitizePlanName('x'.repeat(100)).length, 60);
+  });
+
+  test('parsePlanList rejects non-lists and drops unusable entries', () => {
+    assert.equal(parsePlanList('not json'), null);
+    assert.equal(parsePlanList('{"plans": 3}'), null);
+    const list = parsePlanList(
+      JSON.stringify({
+        version: 1,
+        plans: [
+          { id: 'a', name: 'Good', query: '?p=10.0.0.0/24&r=Sales:120', savedAt: '2026-10-03' },
+          { name: 'No query' },
+          { name: 'Bad query', query: 'p=10.0.0.0/24' },
+          null,
+        ],
+      }),
+    );
+    assert.equal(list.length, 1);
+    assert.deepEqual(list[0], { id: 'a', name: 'Good', query: '?p=10.0.0.0/24&r=Sales:120', savedAt: '2026-10-03' });
+  });
+
+  test('upsert, remove and serialize round-trip', () => {
+    let list = [];
+    list = upsertPlan(list, { id: 'a', name: 'A', query: '?p=10.0.0.0/24', savedAt: '2026-10-03' });
+    list = upsertPlan(list, { id: 'b', name: 'B', query: '?p=10.0.1.0/24', savedAt: '2026-10-03' });
+    assert.deepEqual(list.map((p) => p.id), ['b', 'a']);
+    list = upsertPlan(list, { id: 'a', name: 'A2', query: '?p=10.0.2.0/24', savedAt: '2026-10-03' });
+    assert.deepEqual(list.map((p) => p.name), ['A2', 'B']);
+    list = removePlan(list, 'b');
+    assert.deepEqual(list.map((p) => p.id), ['a']);
+    assert.deepEqual(parsePlanList(serializePlans(list)), list);
+  });
+
+  test('the list is capped', () => {
+    let list = [];
+    for (let i = 0; i < MAX_PLANS + 5; i++) {
+      list = upsertPlan(list, { id: `p${i}`, name: `P${i}`, query: '?p=10.0.0.0/24', savedAt: '' });
+    }
+    assert.equal(list.length, MAX_PLANS);
+    assert.equal(list[0].id, `p${MAX_PLANS + 4}`);
+  });
+});
+
 describe('result hierarchy and ticket summaries', () => {
   test('primary rows come first, detail rows fold away', () => {
     const html = renderResults(analyze('192.168.1.37/26').info);
@@ -217,6 +273,26 @@ describe('result hierarchy and ticket summaries', () => {
     const html = renderResults(analyze('2001:db8::/48').info, [{ label: 'Reverse (PTR)', value: 'x.ip6.arpa' }]);
     assert.match(html, /Reverse \(PTR\)/);
     assert.ok(html.indexOf('More details') < html.indexOf('Reverse (PTR)'));
+  });
+
+  test('IPv4 reverse DNS rows and transition-tech notes', () => {
+    const v = analyze('192.168.1.37').info.parsed.value;
+    assert.equal(reverseNameV4(v), '37.1.168.192.in-addr.arpa');
+    assert.equal(reverseZoneV4(analyze('192.168.1.0/24').info.parsed.value, 24), '1.168.192.in-addr.arpa');
+    assert.equal(reverseZoneV4(analyze('192.168.0.0/16').info.parsed.value, 16), '168.192.in-addr.arpa');
+    assert.equal(reverseZoneV4(analyze('192.0.0.0/8').info.parsed.value, 8), '192.in-addr.arpa');
+    assert.equal(reverseZoneV4(analyze('192.168.1.0/25').info.parsed.value, 25), null);
+    assert.equal(reverseZoneV4(0n, 0), null);
+    assert.equal(reverseZoneV4(v, 32), null);
+    const html = renderResults(analyze('192.168.1.37/26').info);
+    assert.match(html, /Reverse \(PTR\)/);
+    assert.match(html, /37\.1\.168\.192\.in-addr\.arpa/);
+    assert.ok(!/Reverse zone/.test(html), '/26 needs four reverse zones, so no single zone is shown');
+    const zoned = renderResults(analyze('192.168.1.37/24').info);
+    assert.match(zoned, /Reverse zone/);
+    assert.match(zoned, /1\.168\.192\.in-addr\.arpa/);
+    const sixto4 = renderResults(analyze('2002:c000:204::1').info);
+    assert.match(sixto4, /deprecated by RFC 7526/);
   });
 
   test('toExplain includes input, result and rule', () => {

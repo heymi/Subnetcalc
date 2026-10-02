@@ -7,14 +7,20 @@ import {
   planToTerraform,
   planToAWS,
   planToAzure,
+  planToGCP,
+  planToCloudFormation,
+  planToBicep,
   planToCisco,
+  planToOspf,
+  planToAcl,
+  planToRoute,
 } from '../../lib/export.js';
 import { esc, group } from './ui.js';
 
 /**
- * Parse a VLSM share query (?p=&r=&s31=&c=) defensively. Malformed percent escapes and
- * empty host counts never throw; they are reported so the page can ask for the value.
- * @returns {{ parent: string, entries: {name: string, hosts: number}[], s31: boolean, cloud: string, bad: string[], incomplete: boolean } | null}
+ * Parse a VLSM share query (?p=&r=&s31=&s32=&c=) defensively. Malformed percent escapes
+ * and empty host counts never throw; they are reported so the page can ask for the value.
+ * @returns {{ parent: string, entries: {name: string, hosts: number}[], s31: boolean, s32: boolean, cloud: string, bad: string[], incomplete: boolean } | null}
  */
 export function parseVlsmSearch(search) {
   const raw = String(search || '');
@@ -41,6 +47,7 @@ export function parseVlsmSearch(search) {
     parent: p ?? DEFAULT_PARENT,
     entries,
     s31: sp.get('s31') === '1',
+    s32: sp.get('s32') === '1',
     cloud: cloud && Object.hasOwn(CLOUD_RULES, cloud) ? cloud : 'generic',
     bad,
     incomplete: entries.some((e) => !Number.isFinite(e.hosts)),
@@ -71,6 +78,7 @@ export const CLOUD_RULES = {
   generic: { provider: null, reservedHosts: 2, minPrefix: 32, label: 'Generic' },
   aws: { provider: 'aws', reservedHosts: 5, minPrefix: 28, label: 'AWS VPC' },
   azure: { provider: 'azure', reservedHosts: 5, minPrefix: 29, label: 'Azure VNet' },
+  gcp: { provider: 'gcp', reservedHosts: 4, minPrefix: 29, label: 'Google Cloud VPC' },
 };
 
 /**
@@ -111,7 +119,13 @@ export const EXPORTS = [
   { id: 'tf', label: 'Terraform', ext: 'tf', type: 'text/plain', fn: planToTerraform },
   { id: 'aws', label: 'AWS', ext: 'txt', type: 'text/plain', fn: planToAWS },
   { id: 'azure', label: 'Azure', ext: 'txt', type: 'text/plain', fn: planToAzure },
+  { id: 'gcp', label: 'GCP', ext: 'txt', type: 'text/plain', fn: planToGCP },
+  { id: 'cfn', label: 'CloudFormation', ext: 'yaml', type: 'text/yaml', fn: planToCloudFormation },
+  { id: 'bicep', label: 'Bicep', ext: 'bicep', type: 'text/plain', fn: planToBicep },
   { id: 'cisco', label: 'Cisco IOS', ext: 'txt', type: 'text/plain', fn: planToCisco },
+  { id: 'ospf', label: 'OSPF', ext: 'txt', type: 'text/plain', fn: planToOspf },
+  { id: 'acl', label: 'ACL', ext: 'txt', type: 'text/plain', fn: planToAcl },
+  { id: 'route', label: 'Route', ext: 'txt', type: 'text/plain', fn: planToRoute },
 ];
 
 const pct = (a, b) => (Number((a * 1000n) / b) / 10).toFixed(1);

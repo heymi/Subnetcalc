@@ -17,13 +17,15 @@ import {
   renderTree,
   fittingPrefix,
 } from './vlsm-render.js';
-import { esc, debounce, copyText, download, setStale } from './ui.js';
+import { esc, debounce, copyText, download, setStale, toast } from './ui.js';
+import { parsePlanList, removePlan, sanitizePlanName, serializePlans, upsertPlan } from './workspace.js';
 import { track } from './analytics.js';
 
 const $ = (s) => document.querySelector(s);
 const form = $('[data-vlsm]');
 const parentIn = $('#parent');
 const s31 = $('#s31');
+const s32 = $('#s32');
 const cloudSel = $('#cloud');
 const reqs = $('#reqs');
 const status = $('#vlsm-status');
@@ -70,12 +72,62 @@ function queryString() {
   const r = readRows()
     .map((x) => `${enc(x.name)}:${Number.isFinite(x.hosts) ? x.hosts : ''}`)
     .join(',');
-  return `?p=${enc(parentIn.value.trim())}&r=${r}${s31.checked ? '&s31=1' : ''}${cloudSel.value !== 'generic' ? `&c=${cloudSel.value}` : ''}`;
+  return `?p=${enc(parentIn.value.trim())}&r=${r}${s31.checked ? '&s31=1' : ''}${s32.checked ? '&s32=1' : ''}${cloudSel.value !== 'generic' ? `&c=${cloudSel.value}` : ''}`;
 }
 
 function cloudRule() {
   return CLOUD_RULES[cloudSel.value] ?? CLOUD_RULES.generic;
 }
+
+// ── saved plans: localStorage only, no server and no account
+const STORAGE_KEY = 'subnetcalc.vlsm.plans.v1';
+let plans = loadPlans();
+
+function loadPlans() {
+  try {
+    return parsePlanList(localStorage.getItem(STORAGE_KEY)) ?? [];
+  } catch {
+    return [];
+  }
+}
+function storePlans() {
+  try {
+    localStorage.setItem(STORAGE_KEY, serializePlans(plans));
+  } catch {
+    /* storage can be full or blocked; the list still works for this session */
+  }
+}
+function renderSaved() {
+  const list = $('#plan-list');
+  if (!list) return;
+  list.innerHTML = plans.length
+    ? plans
+        .map(
+          (p) =>
+            `<li><span class="plan-name">${esc(p.name)}</span><span class="plan-date">${esc(p.savedAt)}</span><span class="plan-actions"><button type="button" class="btn btn-ghost" data-load-plan="${esc(p.id)}">Load</button><button type="button" class="btn btn-ghost" data-del-plan="${esc(p.id)}">Delete</button></span></li>`,
+        )
+        .join('')
+    : '<li class="plan-empty">No saved plans yet. Saving keeps the parent, subnets, capacity rule and options in this browser.</li>';
+}
+function applyQuery(query) {
+  const u = parseVlsmSearch(query);
+  if (!u) return false;
+  parentIn.value = u.parent;
+  s31.checked = u.s31;
+  s32.checked = u.s32;
+  cloudSel.value = u.cloud;
+  applyCloudUI();
+  setRows(
+    u.entries.length
+      ? u.entries.map((x) => ({ name: x.name, hosts: Number.isFinite(x.hosts) ? x.hosts : '' }))
+      : [{ name: '', hosts: '' }],
+  );
+  loadNotice = '';
+  collapsed = new Set();
+  render();
+  return true;
+}
+const newPlanId = () => `p${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
 function writeUrl() {
   const q = queryString();
   if (q !== location.search) history.replaceState(null, '', location.pathname + q);
@@ -105,7 +157,13 @@ function render() {
   const list = readRows();
   syncUrl();
   const rule = cloudRule();
-  const opts = { allowSlash31: s31.checked, reservedHosts: rule.reservedHosts, minPrefix: rule.minPrefix, provider: rule.provider };
+  const opts = {
+    allowSlash31: s31.checked,
+    allowSlash32: s32.checked,
+    reservedHosts: rule.reservedHosts,
+    minPrefix: rule.minPrefix,
+    provider: rule.provider,
+  };
   if (!parent.trim()) {
     status.innerHTML = loadNotice;
     plan = null;
@@ -179,18 +237,22 @@ form.addEventListener('submit', (e) => e.preventDefault());
 function applyCloudUI() {
   const generic = cloudSel.value === 'generic';
   s31.disabled = !generic;
-  if (!generic) s31.checked = false;
+  s32.disabled = !generic;
+  if (!generic) {
+    s31.checked = false;
+    s32.checked = false;
+  }
   if (!generic) {
     const tab = document.querySelector(`#export-tabs [data-fmt="${cloudSel.value}"]`);
     if (tab) selectTab(tab);
-  } else if (fmt === 'aws' || fmt === 'azure') {
+  } else if (fmt === 'aws' || fmt === 'azure' || fmt === 'gcp') {
     const tab = document.querySelector('#export-tabs [data-fmt="csv"]');
     if (tab) selectTab(tab);
   }
 }
 
 form.addEventListener('change', (e) => {
-  if (e.target === s31 || e.target === cloudSel) {
+  if (e.target === s31 || e.target === s32 || e.target === cloudSel) {
     dirty = true;
     loadNotice = '';
     if (e.target === cloudSel) applyCloudUI();
@@ -258,6 +320,28 @@ document.addEventListener('click', (e) => {
     writeUrl();
     copyText(location.href, 'Plan link copied');
     track('share', { tool: 'vlsm' });
+  } else if (t.closest('[data-save-plan]')) {
+    const name = sanitizePlanName($('#save-name').value, parentIn.value.trim() || 'Untitled plan');
+    plans = upsertPlan(plans, { id: newPlanId(), name, query: queryString(), savedAt: new Date().toISOString().slice(0, 10) });
+    storePlans();
+    renderSaved();
+    $('#save-name').value = '';
+    toast('Plan saved');
+    track('save', { tool: 'vlsm', kind: 'plan' });
+  } else if (t.closest('[data-load-plan]')) {
+    const saved = plans.find((p) => p.id === t.closest('[data-load-plan]').dataset.loadPlan);
+    if (saved && applyQuery(saved.query)) {
+      toast('Plan loaded');
+      track('load', { tool: 'vlsm', kind: 'plan' });
+    }
+  } else if (t.closest('[data-del-plan]')) {
+    plans = removePlan(plans, t.closest('[data-del-plan]').dataset.delPlan);
+    storePlans();
+    renderSaved();
+    toast('Plan deleted');
+  } else if (t.closest('[data-export-plans]')) {
+    download('subnetcalc-vlsm-plans.json', serializePlans(plans));
+    track('download', { tool: 'vlsm', format: 'plans' });
   } else if (t.closest('[data-copy-plan]') && plan) {
     copyText(planToText(plan), 'Plan summary copied');
     track('copy', { tool: 'vlsm', kind: 'summary' });
@@ -314,11 +398,32 @@ document.querySelector('#export-tabs').addEventListener('keydown', (e) => {
   selectTab(next);
 });
 
+$('#plans-import')?.addEventListener('change', async (e) => {
+  const file = e.target.files?.[0];
+  e.target.value = '';
+  if (!file) return;
+  const imported = parsePlanList(await file.text());
+  if (!imported) {
+    toast('That file is not a plan list');
+    return;
+  }
+  let n = 0;
+  for (const p of imported) {
+    plans = upsertPlan(plans, { ...p, id: newPlanId() + n++ });
+  }
+  storePlans();
+  renderSaved();
+  toast(`Imported ${n} plan${n === 1 ? '' : 's'}`);
+  track('save', { tool: 'vlsm', kind: 'import', count: n });
+});
+
 // ── start
+renderSaved();
 const fromUrl = parseVlsmSearch(location.search);
 if (fromUrl) {
   parentIn.value = fromUrl.parent;
   s31.checked = fromUrl.s31;
+  s32.checked = fromUrl.s32;
   cloudSel.value = fromUrl.cloud;
   applyCloudUI();
   setRows(
