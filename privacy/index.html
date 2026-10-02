@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Privacy and Data Handling – SubnetCalc</title>
+<meta name="description" content="What happens to the addresses you type: local calculation, what a share link contains, what analytics would collect, and what is never stored.">
+<link rel="canonical" href="https://subnetcalc.dev/privacy/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="SubnetCalc">
+<meta property="og:title" content="Privacy and Data Handling">
+<meta property="og:description" content="Local calculation, what share links contain, what analytics would collect, and what is never stored.">
+<meta property="og:url" content="https://subnetcalc.dev/privacy/">
+<meta property="og:image" content="https://subnetcalc.dev/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<!-- @head -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="/assets/fonts/ibm-plex-mono-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/ibm-plex-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/css/site.css">
+<meta name="theme-color" content="#f8f9fb" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#14171c" media="(prefers-color-scheme: dark)">
+<script>try{var t=localStorage.getItem('theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
+<script type="module" src="/assets/js/common.js"></script>
+<!-- /@head -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "SubnetCalc", "item": "https://subnetcalc.dev/" },
+        { "@type": "ListItem", "position": 2, "name": "Privacy", "item": "https://subnetcalc.dev/privacy/" }
+      ]
+    },
+    {
+      "@type": "WebPage",
+      "name": "Privacy and Data Handling",
+      "url": "https://subnetcalc.dev/privacy/",
+      "description": "Local calculation, what share links contain, what analytics would collect, and what is never stored."
+    }
+  ]
+}
+</script>
+</head>
+<body data-tool="privacy">
+<!-- @header -->
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="wrap bar">
+    <a class="brand" href="/"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>SubnetCalc</a>
+    <nav class="site-nav" aria-label="Main">
+      <ul>
+      <li><a href="/">Subnet</a></li>
+      <li><a href="/vlsm/">VLSM</a></li>
+      <li><a href="/cidr/">CIDR</a></li>
+      <li><a href="/ipv6/">IPv6</a></li>
+      <li><a href="/learn/">Learn</a></li>
+      </ul>
+    </nav>
+    <button type="button" class="btn btn-ghost icon-btn theme-toggle" data-theme-toggle aria-label="Switch theme"></button>
+  </div>
+</header>
+<!-- /@header -->
+<main id="main" class="wrap">
+  <div class="page-head">
+    <p class="eyebrow">Local math · share links · analytics</p>
+    <h1>Privacy and Data Handling</h1>
+    <p class="lede">The calculators are ordinary static pages: the arithmetic runs in your browser, and there is no account or database. The two places data can travel are share links and optional analytics, both described below.</p>
+  </div>
+
+  <div class="section prose">
+    <h2>Calculations are local</h2>
+    <p>Address parsing, subnet math, VLSM planning, aggregation and IPv6 tools all run as JavaScript in your browser. What you type is not posted to the site: there is no API call and no form submission behind the results. The page files themselves are served by a static host, and the site keeps no copy of your input.</p>
+
+    <h2>What a share link contains</h2>
+    <p>When you use a share button, the current inputs are placed in the link's query string, for example <code>/?q=192.168.1.0/26</code> or <code>/vlsm/?p=10.0.0.0/24&amp;r=Sales:120</code>. That is what makes the link reproduce your result.</p>
+    <p>Because the values are in the URL, opening the link sends them to the host serving the page as part of the request, where they may appear in standard server or CDN logs. This is normal web behavior, not something the site reads or stores itself. Treat a share link like the input it carries: do not post links containing addresses, department names or plans you would not share with the recipient.</p>
+
+    <h2>Analytics</h2>
+    <p>Analytics are off by default. The site is built to load Google Analytics 4 and Microsoft Clarity only on <code>subnetcalc.dev</code>, only after the page becomes idle, and only when measurement IDs are configured. At present no IDs are configured, so no analytics script is loaded.</p>
+    <p>If analytics are enabled, they record page views and a small set of events: a calculation completed, a copy, a share, a download, and the type of an input error. Event metadata is restricted to short fixed values such as the tool name, the event kind, an error code, a format name or a count. Addresses, MAC addresses, subnet names, host counts and full parameter URLs are never sent as event data. The providers may set their own cookies or identifiers; see the <a href="https://policies.google.com/privacy">Google privacy policy</a> and the <a href="https://privacy.microsoft.com/privacystatement">Microsoft privacy statement</a>.</p>
+
+    <h2>Local storage and hosting</h2>
+    <p>The site stores one preference in your browser: the chosen theme (system, light or dark). It is kept in <code>localStorage</code> and can be removed by clearing site data.</p>
+    <p>Hosting is static, with no accounts, no cookies set by the site itself and no server-side database. The hosting provider processes standard request data (such as IP address, user agent and requested path) to serve and protect the site under its own terms.</p>
+
+    <h2>Contact</h2>
+    <p>Questions or corrections: open an issue at <a href="https://github.com/heymi/Subnetcalc/issues">github.com/heymi/Subnetcalc/issues</a>. The <a href="/verification/">verification page</a> explains how results are checked and how to report a wrong one.</p>
+  </div>
+</main>
+<!-- @footer -->
+<footer class="site-footer">
+  <div class="wrap footer-grid">
+    <div>
+      <h2>SubnetCalc</h2>
+      <p class="footer-note">Every calculation runs in your browser. Share links carry the inputs you put in them.</p>
+    </div>
+    <div>
+      <h2>Tools</h2>
+      <ul>
+        <li><a href="/">Subnet calculator</a></li>
+        <li><a href="/vlsm/">VLSM planner</a></li>
+        <li><a href="/cidr/">CIDR aggregation &amp; overlaps</a></li>
+        <li><a href="/ip-range-to-cidr/">IP range to CIDR</a></li>
+        <li><a href="/cidr-overlap-checker/">CIDR overlap checker</a></li>
+        <li><a href="/ipv6/">IPv6 tools</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Learn</h2>
+      <ul>
+        <li><a href="/learn/subnetting/">Subnetting, step by step</a></li>
+        <li><a href="/learn/cidr-cheat-sheet/">CIDR cheat sheet</a></li>
+        <li><a href="/learn/ipv6-subnetting/">IPv6 subnetting</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Engine</h2>
+      <ul>
+        <li><a href="/lib/subnet.js">lib/subnet.js</a> · MIT</li>
+        <li><a href="/lib/data/special-purpose.json">IANA special-purpose data</a></li>
+        <li><a href="/verification/">How results are verified</a></li>
+        <li><a href="/privacy/">Privacy</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+<!-- /@footer -->
+</body>
+</html>

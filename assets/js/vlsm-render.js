@@ -11,6 +11,40 @@ import {
 } from '../../lib/export.js';
 import { esc, group } from './ui.js';
 
+/**
+ * Parse a VLSM share query (?p=&r=&s31=) defensively. Malformed percent escapes and
+ * empty host counts never throw; they are reported so the page can ask for the value.
+ * @returns {{ parent: string, entries: {name: string, hosts: number}[], s31: boolean, bad: string[], incomplete: boolean } | null}
+ */
+export function parseVlsmSearch(search) {
+  const raw = String(search || '');
+  const sp = new URLSearchParams(raw.replace(/\+/g, '%2B'));
+  const p = sp.get('p');
+  const hasR = sp.has('r');
+  if (p === null && !hasR) return null;
+  const rRaw = hasR ? (/[?&]r(?:=([^&]*))?/.exec(raw)?.[1] ?? '') : null;
+  const bad = [];
+  const entries = [];
+  for (const item of (rRaw || '').split(',').filter(Boolean)) {
+    const i = item.lastIndexOf(':');
+    let name = i === -1 ? item : item.slice(0, i);
+    try {
+      name = decodeURIComponent(name);
+    } catch {
+      bad.push(name);
+    }
+    const hostsRaw = i === -1 ? '' : item.slice(i + 1);
+    entries.push({ name, hosts: /^\d+$/.test(hostsRaw) ? Number(hostsRaw) : NaN });
+  }
+  return {
+    parent: p ?? DEFAULT_PARENT,
+    entries,
+    s31: sp.get('s31') === '1',
+    bad,
+    incomplete: entries.some((e) => !Number.isFinite(e.hosts)),
+  };
+}
+
 export const DEFAULT_PARENT = '192.168.1.0/24';
 export const DEFAULT_REQUESTS = [
   { name: 'Sales', hosts: 120 },
@@ -18,6 +52,44 @@ export const DEFAULT_REQUESTS = [
   { name: 'Mgmt', hosts: 10 },
   { name: 'P2P', hosts: 2 },
 ];
+
+/** Fixed capacity example: four /26 requests do not fit a /28. */
+export const CAPACITY_PARENT = '10.0.0.0/28';
+export const CAPACITY_REQUESTS = [
+  { name: 'Office', hosts: 20 },
+  { name: 'Lab', hosts: 20 },
+];
+
+/**
+ * Read pasted "name hosts" lines. Every non-empty line is kept: unreadable lines come
+ * back in `entries` as errors so the caller can show them instead of dropping them.
+ * @returns {{ entries: ({name: string, hosts: number} | {error: true, line: number, text: string})[], rows: object[], errors: object[] }}
+ */
+export function parseRequestList(text) {
+  const entries = [];
+  String(text)
+    .split(/\r?\n/)
+    .forEach((raw, i) => {
+      const t = raw.trim();
+      if (!t) return;
+      let m = t.match(/^(.*?)[\s,;:=|]+(\d+)\s*(?:hosts?)?$/i);
+      if (m && m[1]) {
+        entries.push({ name: m[1].replace(/[,;:=|]+$/, '').trim(), hosts: Number(m[2]) });
+        return;
+      }
+      m = t.match(/^(\d+)[\s,;:=|]+(.+)$/);
+      if (m) {
+        entries.push({ name: m[2].trim(), hosts: Number(m[1]) });
+        return;
+      }
+      entries.push({ error: true, line: i + 1, text: t });
+    });
+  return {
+    entries,
+    rows: entries.filter((e) => !e.error),
+    errors: entries.filter((e) => e.error),
+  };
+}
 
 export const EXPORTS = [
   { id: 'csv', label: 'CSV', ext: 'csv', type: 'text/csv', fn: planToCSV },
@@ -33,12 +105,16 @@ const pct = (a, b) => (Number((a * 1000n) / b) / 10).toFixed(1);
 
 export function renderSummary(plan) {
   const total = plan.usedAddresses + plan.freeAddresses;
+  const first = plan.allocations[0];
+  const why = first
+    ? `<p class="hint">Largest first: <b>${esc(first.name)}</b> takes the first /${first.prefix} (${group(1n << BigInt(32 - first.prefix))} addresses), so every smaller block that follows starts on a multiple of its own size with no gaps.</p>`
+    : '';
   return `<p class="summary-line">
 <span>parent <b>${esc(formatCidr(plan.parent))}</b></span>
 <span>subnets <b>${plan.allocations.length}</b></span>
 <span>allocated <b>${group(plan.usedAddresses)}</b> of ${group(total)} (${pct(plan.usedAddresses, total)}%)</span>
 <span>free <b>${group(plan.freeAddresses)}</b></span>
-</p>`;
+</p>${why}`;
 }
 
 /** Proportional bar of the parent block: allocations in network blue, free space hatched. */

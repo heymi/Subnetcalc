@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>CIDR Overlap Checker: Find Overlapping Subnets – SubnetCalc</title>
+<meta name="description" content="Check a list of CIDR blocks for overlaps. Every pair where one subnet contains another, or two are identical, is listed. IPv4 and IPv6, with copyable results.">
+<link rel="canonical" href="https://subnetcalc.dev/cidr-overlap-checker/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="SubnetCalc">
+<meta property="og:title" content="CIDR Overlap Checker">
+<meta property="og:description" content="Find overlapping or duplicate CIDR blocks in a list. IPv4 and IPv6, with copyable results.">
+<meta property="og:url" content="https://subnetcalc.dev/cidr-overlap-checker/">
+<meta property="og:image" content="https://subnetcalc.dev/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<!-- @head -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="/assets/fonts/ibm-plex-mono-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/ibm-plex-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/css/site.css">
+<meta name="theme-color" content="#f8f9fb" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#14171c" media="(prefers-color-scheme: dark)">
+<script>try{var t=localStorage.getItem('theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
+<script type="module" src="/assets/js/common.js"></script>
+<!-- /@head -->
+<link rel="modulepreload" href="/assets/js/cidr-overlap.js">
+<link rel="modulepreload" href="/assets/js/cidr-render.js">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebApplication",
+      "name": "SubnetCalc CIDR Overlap Checker",
+      "url": "https://subnetcalc.dev/cidr-overlap-checker/",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Any",
+      "browserRequirements": "Requires JavaScript",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "featureList": ["Overlap and containment check for CIDR lists", "Duplicate subnet detection", "IPv4 and IPv6", "Invalid line reporting", "Copy, share and download the result"]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "SubnetCalc", "item": "https://subnetcalc.dev/" },
+        { "@type": "ListItem", "position": 2, "name": "CIDR tools", "item": "https://subnetcalc.dev/cidr/" },
+        { "@type": "ListItem", "position": 3, "name": "CIDR overlap checker", "item": "https://subnetcalc.dev/cidr-overlap-checker/" }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        { "@type": "Question", "name": "What counts as an overlap between two CIDR blocks?", "acceptedAnswer": { "@type": "Answer", "text": "Two CIDR blocks either do not overlap at all or one fully contains the other. There is no partial overlap: if the blocks share even one address, the smaller block lies entirely inside the larger one. Identical blocks are also reported." } },
+        { "@type": "Question", "name": "Why do overlapping subnets matter?", "acceptedAnswer": { "@type": "Answer", "text": "An overlap usually means a duplicate route, a VPC or VNet peering conflict, or a subnet that was carved out twice. Routers pick one of the two paths, so traffic can go somewhere you did not plan." } },
+        { "@type": "Question", "name": "Does the checker find duplicate networks?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Two identical blocks are reported as equal. A network that appears twice with the same prefix, such as 10.0.0.0/24 listed on two lines, is flagged as an overlapping pair." } },
+        { "@type": "Question", "name": "Can I check IPv4 and IPv6 together?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, you can paste both in one list. IPv4 and IPv6 blocks can never overlap each other, so cross-family pairs are not reported; overlaps are only checked within the same IP version." } }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+<body data-tool="overlap">
+<!-- @header -->
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="wrap bar">
+    <a class="brand" href="/"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>SubnetCalc</a>
+    <nav class="site-nav" aria-label="Main">
+      <ul>
+      <li><a href="/">Subnet</a></li>
+      <li><a href="/vlsm/">VLSM</a></li>
+      <li><a href="/cidr/">CIDR</a></li>
+      <li><a href="/ipv6/">IPv6</a></li>
+      <li><a href="/learn/">Learn</a></li>
+      </ul>
+    </nav>
+    <button type="button" class="btn btn-ghost icon-btn theme-toggle" data-theme-toggle aria-label="Switch theme"></button>
+  </div>
+</header>
+<!-- /@header -->
+<main id="main" class="wrap">
+  <nav class="breadcrumb" aria-label="Breadcrumb"><a href="/cidr/">CIDR tools</a> / CIDR overlap checker</nav>
+  <div class="page-head">
+    <p class="eyebrow">Containment · duplicates · IPv4 · IPv6</p>
+    <h1>CIDR Overlap Checker</h1>
+    <p class="lede">Paste a list of networks. Every pair where one block contains another, or two are identical, is listed with the line numbers. Invalid lines are reported, and the result says "incomplete" instead of claiming a clean list.</p>
+    <div class="btn-row no-print">
+      <button type="button" class="btn" data-share>Share link</button>
+      <button type="button" class="btn btn-ghost" data-overlap-copy>Copy summary</button>
+      <button type="button" class="btn btn-ghost" data-overlap-download>Download report</button>
+    </div>
+  </div>
+
+  <section class="tools two" aria-labelledby="list-h">
+    <div class="tool">
+      <h2 id="list-h">Networks to check</h2>
+      <p>One per line, or separated by commas. Masks and wildcards work too.</p>
+      <label for="overlap-nets" class="visually-hidden">Networks to check</label>
+      <textarea id="overlap-nets" class="textarea" rows="10" spellcheck="false" autocorrect="off" autocapitalize="off" data-primary-input autofocus>10.0.0.0/24
+10.0.0.128/25
+10.0.1.0/24</textarea>
+      <div class="btn-row">
+        <button type="button" class="btn btn-ghost" data-overlap-example="overlap">Overlap example</button>
+        <button type="button" class="btn btn-ghost" data-overlap-example="clean">No overlaps</button>
+        <button type="button" class="btn btn-ghost" data-overlap-example="duplicate">Duplicates</button>
+        <button type="button" class="btn btn-ghost" data-overlap-clear>Clear</button>
+      </div>
+      <div id="overlap-errors" class="stack status" role="status" aria-live="polite"></div>
+    </div>
+    <div class="tool">
+      <h2>Result</h2>
+      <p>Pairs are reported as line A relation line B, using the line numbers on the left.</p>
+      <div class="out" id="overlap-out" aria-live="polite" data-empty="Enter networks to check."><!-- @prerender:overlap-page-out -->
+<div class="row"><span class="k">Checked</span><span>3 networks (3 IPv4, 0 IPv6)</span></div><div class="row"><span class="k">Overlapping pairs</span><span class="warn"><b>1</b></span></div><ul><li><span class="warn">line 1</span> 10.0.0.0/24 contains <span class="warn">line 2</span> 10.0.0.128/25</li></ul>
+<!-- /@prerender --></div>
+      <p class="hint">Found a pair? Check the parent block in the <a href="/">subnet calculator</a>, or split it with the <a href="/vlsm/">VLSM planner</a>.</p>
+    </div>
+  </section>
+
+  <div class="section prose">
+    <h2>What the check reports</h2>
+    <p>CIDR blocks are aligned ranges, so two of them can only relate in three ways: they are identical, one contains the other, or they are disjoint. This checker lists every pair in the first two groups and counts the networks it examined, so "no overlaps" is a statement about a complete list rather than a guess.</p>
+    <h2>Common causes of overlaps</h2>
+    <ul>
+      <li><strong>A summary route next to its components.</strong> Advertising <code>10.0.0.0/16</code> and <code>10.0.5.0/24</code> together is an overlap, because the /24 is inside the /16.</li>
+      <li><strong>A subnet carved twice.</strong> The same <code>10.0.1.0/24</code> on two lines usually means two teams were handed the same block.</li>
+      <li><strong>Cloud ranges that were sized independently.</strong> VPC and VNet peering fails or behaves unpredictably when the two address spaces overlap.</li>
+      <li><strong>A broad prefix that swallowed a later allocation.</strong> A <code>/22</code> planned first can contain several later <code>/24</code>s if the plan was not checked.</li>
+    </ul>
+    <h2>What to do about an overlap</h2>
+    <p>If one block contains another by design, the pair is usually a summary route and its more specific route; keep both only when the routing plan calls for it. Otherwise, renumber one side. The <a href="/vlsm/">VLSM planner</a> can repack a parent block so the subnets no longer collide, and the <a href="/cidr/">CIDR tools page</a> can aggregate a cleaned-up list. For turning a start and end address into blocks, use the <a href="/ip-range-to-cidr/">range to CIDR converter</a>.</p>
+  </div>
+
+  <section class="section faq" aria-labelledby="faq-h">
+    <h2 id="faq-h">Questions</h2>
+    <details>
+      <summary>What counts as an overlap between two CIDR blocks?</summary>
+      <div class="answer"><p>Two CIDR blocks either do not overlap at all or one fully contains the other. There is no partial overlap: if the blocks share even one address, the smaller block lies entirely inside the larger one. Identical blocks are also reported.</p></div>
+    </details>
+    <details>
+      <summary>Why do overlapping subnets matter?</summary>
+      <div class="answer"><p>An overlap usually means a duplicate route, a VPC or VNet peering conflict, or a subnet that was carved out twice. Routers pick one of the two paths, so traffic can go somewhere you did not plan.</p></div>
+    </details>
+    <details>
+      <summary>Does the checker find duplicate networks?</summary>
+      <div class="answer"><p>Yes. Two identical blocks are reported as equal. A network that appears twice with the same prefix, such as <code>10.0.0.0/24</code> listed on two lines, is flagged as an overlapping pair.</p></div>
+    </details>
+    <details>
+      <summary>Can I check IPv4 and IPv6 together?</summary>
+      <div class="answer"><p>Yes, you can paste both in one list. IPv4 and IPv6 blocks can never overlap each other, so cross-family pairs are not reported; overlaps are only checked within the same IP version.</p></div>
+    </details>
+  </section>
+</main>
+<!-- @footer -->
+<footer class="site-footer">
+  <div class="wrap footer-grid">
+    <div>
+      <h2>SubnetCalc</h2>
+      <p class="footer-note">Every calculation runs in your browser. Share links carry the inputs you put in them.</p>
+    </div>
+    <div>
+      <h2>Tools</h2>
+      <ul>
+        <li><a href="/">Subnet calculator</a></li>
+        <li><a href="/vlsm/">VLSM planner</a></li>
+        <li><a href="/cidr/">CIDR aggregation &amp; overlaps</a></li>
+        <li><a href="/ip-range-to-cidr/">IP range to CIDR</a></li>
+        <li><a href="/cidr-overlap-checker/">CIDR overlap checker</a></li>
+        <li><a href="/ipv6/">IPv6 tools</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Learn</h2>
+      <ul>
+        <li><a href="/learn/subnetting/">Subnetting, step by step</a></li>
+        <li><a href="/learn/cidr-cheat-sheet/">CIDR cheat sheet</a></li>
+        <li><a href="/learn/ipv6-subnetting/">IPv6 subnetting</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Engine</h2>
+      <ul>
+        <li><a href="/lib/subnet.js">lib/subnet.js</a> · MIT</li>
+        <li><a href="/lib/data/special-purpose.json">IANA special-purpose data</a></li>
+        <li><a href="/verification/">How results are verified</a></li>
+        <li><a href="/privacy/">Privacy</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+<!-- /@footer -->
+<script type="module" src="/assets/js/cidr-overlap.js"></script>
+</body>
+</html>

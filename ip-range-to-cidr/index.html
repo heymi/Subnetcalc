@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>IP Range to CIDR Converter – SubnetCalc</title>
+<meta name="description" content="Convert an IP address range to the smallest list of CIDR blocks. IPv4 and IPv6, inclusive endpoints, with worked examples and a copyable result.">
+<link rel="canonical" href="https://subnetcalc.dev/ip-range-to-cidr/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="SubnetCalc">
+<meta property="og:title" content="IP Range to CIDR Converter">
+<meta property="og:description" content="Convert an IP address range to the smallest list of CIDR blocks. IPv4 and IPv6, inclusive endpoints.">
+<meta property="og:url" content="https://subnetcalc.dev/ip-range-to-cidr/">
+<meta property="og:image" content="https://subnetcalc.dev/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<!-- @head -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="/assets/fonts/ibm-plex-mono-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/ibm-plex-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/css/site.css">
+<meta name="theme-color" content="#f8f9fb" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#14171c" media="(prefers-color-scheme: dark)">
+<script>try{var t=localStorage.getItem('theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
+<script type="module" src="/assets/js/common.js"></script>
+<!-- /@head -->
+<link rel="modulepreload" href="/assets/js/ip-range-to-cidr.js">
+<link rel="modulepreload" href="/assets/js/cidr-render.js">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebApplication",
+      "name": "SubnetCalc IP Range to CIDR Converter",
+      "url": "https://subnetcalc.dev/ip-range-to-cidr/",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Any",
+      "browserRequirements": "Requires JavaScript",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "featureList": ["IP range to minimal CIDR list", "IPv4 and IPv6 ranges", "Inclusive first and last address", "Copy, share and download the result"]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "SubnetCalc", "item": "https://subnetcalc.dev/" },
+        { "@type": "ListItem", "position": 2, "name": "CIDR tools", "item": "https://subnetcalc.dev/cidr/" },
+        { "@type": "ListItem", "position": 3, "name": "IP range to CIDR", "item": "https://subnetcalc.dev/ip-range-to-cidr/" }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        { "@type": "Question", "name": "How do I convert an IP range to CIDR blocks?", "acceptedAnswer": { "@type": "Answer", "text": "Start at the first address and take the largest CIDR block that starts there and does not pass the last address. Then move to the next address and repeat. 192.168.1.10 to 192.168.1.20 becomes 192.168.1.10/31, 192.168.1.12/30, 192.168.1.16/30 and 192.168.1.20/32." } },
+        { "@type": "Question", "name": "Why does a range produce more than one CIDR block?", "acceptedAnswer": { "@type": "Answer", "text": "A CIDR block must start on a multiple of its own size, so a range that starts or ends off an alignment boundary cannot be one block. The converter splits it into the smallest set of aligned blocks that cover exactly the same addresses." } },
+        { "@type": "Question", "name": "Is the last address included?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. The first and last addresses are both part of the range, so 192.168.1.10 to 192.168.1.20 covers 11 addresses and ends with the 192.168.1.20/32 block." } },
+        { "@type": "Question", "name": "Does it work with IPv6 ranges?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Enter IPv6 endpoints such as 2001:db8::10 to 2001:db8::20 and the same algorithm returns IPv6 CIDR blocks. Both endpoints must be the same IP version." } }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+<body data-tool="range">
+<!-- @header -->
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="wrap bar">
+    <a class="brand" href="/"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>SubnetCalc</a>
+    <nav class="site-nav" aria-label="Main">
+      <ul>
+      <li><a href="/">Subnet</a></li>
+      <li><a href="/vlsm/">VLSM</a></li>
+      <li><a href="/cidr/">CIDR</a></li>
+      <li><a href="/ipv6/">IPv6</a></li>
+      <li><a href="/learn/">Learn</a></li>
+      </ul>
+    </nav>
+    <button type="button" class="btn btn-ghost icon-btn theme-toggle" data-theme-toggle aria-label="Switch theme"></button>
+  </div>
+</header>
+<!-- /@header -->
+<main id="main" class="wrap">
+  <nav class="breadcrumb" aria-label="Breadcrumb"><a href="/cidr/">CIDR tools</a> / IP range to CIDR</nav>
+  <div class="page-head">
+    <p class="eyebrow">Inclusive range · IPv4 · IPv6</p>
+    <h1>IP Range to CIDR Converter</h1>
+    <p class="lede">Enter the first and last address of a range. You get the smallest list of CIDR blocks that covers exactly those addresses, ready to paste into a router, firewall or allowlist.</p>
+  </div>
+
+  <section class="tool" aria-labelledby="range-h">
+    <div class="section-head">
+      <h2 id="range-h">Range</h2>
+      <span class="btn-row no-print">
+        <button type="button" class="btn" data-share>Share link</button>
+        <button type="button" class="btn btn-ghost" data-range-copy>Copy summary</button>
+        <button type="button" class="btn btn-ghost" data-range-download>Download</button>
+      </span>
+    </div>
+    <div class="inline-fields" style="max-width: 44rem">
+      <div>
+        <label class="field-label" for="range-start">First address</label>
+        <input id="range-start" class="input" type="text" value="192.168.1.10" spellcheck="false" autocorrect="off" autocapitalize="off" data-primary-input autofocus>
+      </div>
+      <div>
+        <label class="field-label" for="range-end">Last address</label>
+        <input id="range-end" class="input" type="text" value="192.168.1.20" spellcheck="false" autocorrect="off" autocapitalize="off">
+      </div>
+    </div>
+    <p class="hint">Both endpoints are included. You can also paste <code>first - last</code> into the first field.</p>
+    <div class="examples">
+      <span>Try</span>
+      <button type="button" data-range-example="192.168.1.10|192.168.1.20">small range</button>
+      <button type="button" data-range-example="10.0.0.0|10.0.0.255">whole /24</button>
+      <button type="button" data-range-example="172.16.5.130|172.16.5.190">part of a /24</button>
+      <button type="button" data-range-example="192.168.1.7|192.168.1.7">single address</button>
+      <button type="button" data-range-example="2001:db8::10|2001:db8::20">IPv6 range</button>
+    </div>
+    <div class="out" id="range-out" aria-live="polite" data-empty="Enter a first and last address."><!-- @prerender:range-page-out -->
+<div class="row"><span class="k">4 blocks · 11 addresses</span><button type="button" class="copy" data-copy="192.168.1.10/31
+192.168.1.12/30
+192.168.1.16/30
+192.168.1.20/32">copy</button></div><ul><li><a href="/?q=192.168.1.10/31">192.168.1.10/31</a></li><li><a href="/?q=192.168.1.12/30">192.168.1.12/30</a></li><li><a href="/?q=192.168.1.16/30">192.168.1.16/30</a></li><li><a href="/?q=192.168.1.20/32">192.168.1.20/32</a></li></ul>
+<!-- /@prerender --></div>
+  </section>
+
+  <div class="section prose">
+    <h2>How the conversion works</h2>
+    <ol>
+      <li>Start at the first address. Find the largest block that starts exactly there and whose last address stays at or below the end of the range.</li>
+      <li>Take that block, then move to the address just after it.</li>
+      <li>Repeat until the whole range is covered. The result is exact: no address outside the range is included.</li>
+    </ol>
+    <p>For <code>192.168.1.10</code> to <code>192.168.1.20</code>, the first address is even but not divisible by 4, so the largest aligned block is a /31. After that the alignment improves: a /30 at .12, another /30 at .16, and a final /32 at .20. That is 4 blocks for 11 addresses.</p>
+    <h2>Edge cases worth checking</h2>
+    <ul>
+      <li><strong>A range that is already one block.</strong> <code>10.0.0.0 - 10.0.0.255</code> returns the single block <code>10.0.0.0/24</code>.</li>
+      <li><strong>A single address.</strong> <code>192.168.1.7 - 192.168.1.7</code> returns <code>192.168.1.7/32</code>.</li>
+      <li><strong>Reversed endpoints.</strong> The converter rejects them and says the start is after the end rather than silently swapping.</li>
+      <li><strong>Mixed versions.</strong> An IPv4 start with an IPv6 end is rejected; both endpoints must be the same version.</li>
+    </ul>
+    <p>To inspect one of the resulting blocks, open it in the <a href="/">subnet calculator</a>, or summarize a longer list on the <a href="/cidr/">CIDR tools page</a>. To check whether two ranges clash, use the <a href="/cidr-overlap-checker/">overlap checker</a>.</p>
+  </div>
+
+  <section class="section faq" aria-labelledby="faq-h">
+    <h2 id="faq-h">Questions</h2>
+    <details>
+      <summary>How do I convert an IP range to CIDR blocks?</summary>
+      <div class="answer"><p>Start at the first address and take the largest CIDR block that starts there and does not pass the last address. Then move to the next address and repeat. <code>192.168.1.10</code> to <code>192.168.1.20</code> becomes <code>192.168.1.10/31</code>, <code>192.168.1.12/30</code>, <code>192.168.1.16/30</code> and <code>192.168.1.20/32</code>.</p></div>
+    </details>
+    <details>
+      <summary>Why does a range produce more than one CIDR block?</summary>
+      <div class="answer"><p>A CIDR block must start on a multiple of its own size, so a range that starts or ends off an alignment boundary cannot be one block. The converter splits it into the smallest set of aligned blocks that cover exactly the same addresses.</p></div>
+    </details>
+    <details>
+      <summary>Is the last address included?</summary>
+      <div class="answer"><p>Yes. The first and last addresses are both part of the range, so <code>192.168.1.10</code> to <code>192.168.1.20</code> covers 11 addresses and ends with the <code>192.168.1.20/32</code> block.</p></div>
+    </details>
+    <details>
+      <summary>Does it work with IPv6 ranges?</summary>
+      <div class="answer"><p>Yes. Enter IPv6 endpoints such as <code>2001:db8::10</code> to <code>2001:db8::20</code> and the same algorithm returns IPv6 CIDR blocks. Both endpoints must be the same IP version.</p></div>
+    </details>
+  </section>
+</main>
+<!-- @footer -->
+<footer class="site-footer">
+  <div class="wrap footer-grid">
+    <div>
+      <h2>SubnetCalc</h2>
+      <p class="footer-note">Every calculation runs in your browser. Share links carry the inputs you put in them.</p>
+    </div>
+    <div>
+      <h2>Tools</h2>
+      <ul>
+        <li><a href="/">Subnet calculator</a></li>
+        <li><a href="/vlsm/">VLSM planner</a></li>
+        <li><a href="/cidr/">CIDR aggregation &amp; overlaps</a></li>
+        <li><a href="/ip-range-to-cidr/">IP range to CIDR</a></li>
+        <li><a href="/cidr-overlap-checker/">CIDR overlap checker</a></li>
+        <li><a href="/ipv6/">IPv6 tools</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Learn</h2>
+      <ul>
+        <li><a href="/learn/subnetting/">Subnetting, step by step</a></li>
+        <li><a href="/learn/cidr-cheat-sheet/">CIDR cheat sheet</a></li>
+        <li><a href="/learn/ipv6-subnetting/">IPv6 subnetting</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Engine</h2>
+      <ul>
+        <li><a href="/lib/subnet.js">lib/subnet.js</a> · MIT</li>
+        <li><a href="/lib/data/special-purpose.json">IANA special-purpose data</a></li>
+        <li><a href="/verification/">How results are verified</a></li>
+        <li><a href="/privacy/">Privacy</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+<!-- /@footer -->
+<script type="module" src="/assets/js/ip-range-to-cidr.js"></script>
+</body>
+</html>

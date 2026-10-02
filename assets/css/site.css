@@ -715,6 +715,38 @@ p {
   opacity: 0.45;
   transition: opacity 0.15s ease-out;
 }
+/* secondary result rows, folded away by default */
+.more {
+  margin-top: var(--s3);
+}
+.more summary {
+  cursor: pointer;
+  font: 600 var(--step--1) / 1.4 var(--mono);
+  color: var(--muted);
+  padding: 0.5rem 0;
+  list-style: none;
+}
+.more summary::-webkit-details-marker {
+  display: none;
+}
+.more summary::before {
+  content: '+ ';
+  color: var(--net);
+}
+.more[open] summary::before {
+  content: '− ';
+}
+.more summary:hover {
+  color: var(--fg);
+}
+.more .kv {
+  margin-top: var(--s2);
+}
+.btn:disabled,
+.copy:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
 
 /* ───────── calculator layout ───────── */
 .calc {

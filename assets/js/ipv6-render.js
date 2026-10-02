@@ -10,6 +10,7 @@ import {
   eui64Address,
   SubnetError,
 } from '../../lib/subnet.js';
+import { toExplain } from '../../lib/export.js';
 import { renderResults } from './calc-render.js';
 import { esc, group, count } from './ui.js';
 
@@ -42,16 +43,14 @@ export function renderAddress(input) {
   if (info.version !== 6) {
     return `<p class="notice">That is an IPv4 address. <a href="/?q=${esc(encodeURIComponent(info.input.trim()))}">Open it in the subnet calculator</a>.</p>`;
   }
-  let html = renderResults(info);
   const v = info.parsed.value;
-  const extra = [`<div><dt>Reverse (PTR)</dt><dd><span>${esc(reverseName(v))}</span></dd><dd class="act"><button type="button" class="copy" data-copy="${esc(reverseName(v))}" aria-label="Copy reverse name">copy</button></dd></div>`];
+  const extra = [
+    { label: 'Reverse (PTR)', value: reverseName(v) },
+  ];
   if (info.prefix % 4 === 0 && info.prefix > 0 && info.prefix < 128) {
-    const zone = reverseName(networkOf(info.parsed).value, info.prefix);
-    extra.push(
-      `<div><dt>Reverse zone</dt><dd><span>${esc(zone)}</span></dd><dd class="act"><button type="button" class="copy" data-copy="${esc(zone)}" aria-label="Copy reverse zone">copy</button></dd></div>`,
-    );
+    extra.push({ label: 'Reverse zone', value: reverseName(networkOf(info.parsed).value, info.prefix) });
   }
-  html = html.replace('</dl>', extra.join('') + '</dl>');
+  const html = renderResults(info, extra);
   return `${html}<p class="hint" style="margin-top: var(--s3)"><a href="/?q=${esc(info.input.trim())}">Open in the subnet calculator</a> for the bit-by-bit view.</p>`;
 }
 
@@ -114,12 +113,51 @@ export function renderEui(mac, prefix) {
   return `<ol class="steps">${steps.map((s) => `<li><span>${s}</span></li>`).join('')}</ol>`;
 }
 
+/**
+ * Ticket-ready text for whichever IPv6 tools currently hold valid input.
+ * @param {{addr: string, mac: string, eui: string, split: string, newPrefix: string|number}} values
+ * @param {{prefix: string, globalId: string}|null} ulaValue
+ */
+export function ipv6SummaryText(values, ulaValue) {
+  const parts = [];
+  const a = analyze(values.addr);
+  if (a.ok && a.info.version === 6) parts.push(toExplain(a.info).trimEnd());
+  let iid = null;
+  try {
+    iid = eui64InterfaceId(values.mac);
+  } catch {
+    /* invalid MAC: leave the EUI-64 section out */
+  }
+  if (iid) {
+    try {
+      parts.push(`EUI-64: MAC ${values.mac.trim()} -> interface ID ${iid}, address ${eui64Address(values.eui, values.mac)}`);
+    } catch {
+      parts.push(`EUI-64: MAC ${values.mac.trim()} -> interface ID ${iid} (enter an IPv6 /64 prefix for the full address)`);
+    }
+  }
+  try {
+    const c = networkOf(parseCidr(values.split));
+    const n = Number(values.newPrefix);
+    if (Number.isInteger(n) && n > c.prefix && n <= 128) {
+      const total = 1n << BigInt(n - c.prefix);
+      const list = split(c, n, { limit: 256 });
+      parts.push(`Split ${formatCidr(c)} -> /${n}: ${total} subnets (first ${list.length}):\n${list.map(formatCidr).join('\n')}`);
+    }
+  } catch {
+    /* invalid split input: leave that section out */
+  }
+  if (ulaValue) parts.push(`ULA /48: ${ulaValue.prefix} (Global ID ${ulaValue.globalId})`);
+  if (!parts.length) return '';
+  parts.push('Computed with SubnetCalc (https://subnetcalc.dev).');
+  return parts.join('\n\n') + '\n';
+}
+
 export function renderUla(ula) {
   const base = parseCidr(ula.prefix);
   const sample = [0n, 1n, 2n, 0xffffn].map((i) =>
     formatCidr({ version: 6, value: base.value + (i << 64n), prefix: 64 }),
   );
-  return `<div class="row"><b style="font-size: var(--step-1)">${esc(ula.prefix)}</b><button type="button" class="copy" data-copy="${esc(ula.prefix)}">copy</button></div>
+  return `<div class="row"><b style="font-size: var(--step-1)">${esc(ula.prefix)}</b><button type="button" class="copy" data-copy-ula="${esc(ula.prefix)}">copy</button></div>
 <div class="row"><span class="k">Global ID</span><span>${esc(ula.globalId)}</span></div>
 <div class="row"><span class="k">/64 subnets</span><span>65,536 (subnet ID 0000–ffff)</span></div>
 <div class="row"><span class="k">first /64s</span><span>${sample.slice(0, 3).map((s) => `<a href="/?q=${esc(s)}">${esc(s)}</a>`).join(' ')}</span></div>

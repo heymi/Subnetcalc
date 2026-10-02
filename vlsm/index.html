@@ -66,7 +66,7 @@
 }
 </script>
 </head>
-<body>
+<body data-tool="vlsm">
 <!-- @header -->
 <a class="skip" href="#main">Skip to content</a>
 <header class="site-header">
@@ -102,7 +102,7 @@
         </div>
       </div>
       <label class="check"><input type="checkbox" id="s31" name="s31"> Use /31 for 2-host links (RFC 3021)</label>
-      <p class="hint">Paste a list into any name field (one subnet per line, e.g. <code>Sales 120</code>) to fill the table.</p>
+      <p class="hint">Paste a list into any name field (one subnet per line, e.g. <code>Sales 120</code>) to fill the table. Lines without a host count are kept as rows and flagged, never dropped.</p>
     </div>
 
     <div>
@@ -118,12 +118,17 @@
       <div class="btn-row">
         <button type="button" class="btn" data-add>+ Add subnet</button>
         <button type="button" class="btn btn-ghost" data-example>Load example</button>
+        <button type="button" class="btn btn-ghost" data-example-capacity>Capacity example</button>
         <button type="button" class="btn btn-ghost" data-clear>Clear</button>
       </div>
     </div>
   </form>
 
   <div class="stack status" id="vlsm-status" role="status" aria-live="polite"></div>
+  <div class="btn-row no-print">
+    <button type="button" class="btn" data-share-plan>Share plan</button>
+    <button type="button" class="btn btn-ghost" data-copy-plan>Copy summary</button>
+  </div>
 
   <section class="section" aria-labelledby="plan-h" id="plan" style="padding-top: var(--s6)">
     <div class="section-head">
@@ -136,7 +141,7 @@
 <span>subnets <b>4</b></span>
 <span>allocated <b>212</b> of 256 (82.8%)</span>
 <span>free <b>44</b></span>
-</p>
+</p><p class="hint">Largest first: <b>Sales</b> takes the first /25 (128 addresses), so every smaller block that follows starts on a multiple of its own size with no gaps.</p>
 <!-- /@prerender --></div>
     <div id="vlsm-map"><!-- @prerender:vlsm-map -->
 <div class="addr-map" role="img" aria-label="Address map of 192.168.1.0/24: 4 subnets, 44 addresses free">
@@ -301,7 +306,7 @@ P2P,2,192.168.1.208/30,255.255.255.252,192.168.1.209,192.168.1.210,192.168.1.211
   <div class="wrap footer-grid">
     <div>
       <h2>SubnetCalc</h2>
-      <p class="footer-note">Every calculation runs in your browser. Nothing you type is sent anywhere.</p>
+      <p class="footer-note">Every calculation runs in your browser. Share links carry the inputs you put in them.</p>
     </div>
     <div>
       <h2>Tools</h2>
@@ -309,6 +314,8 @@ P2P,2,192.168.1.208/30,255.255.255.252,192.168.1.209,192.168.1.210,192.168.1.211
         <li><a href="/">Subnet calculator</a></li>
         <li><a href="/vlsm/">VLSM planner</a></li>
         <li><a href="/cidr/">CIDR aggregation &amp; overlaps</a></li>
+        <li><a href="/ip-range-to-cidr/">IP range to CIDR</a></li>
+        <li><a href="/cidr-overlap-checker/">CIDR overlap checker</a></li>
         <li><a href="/ipv6/">IPv6 tools</a></li>
       </ul>
     </div>
@@ -325,6 +332,8 @@ P2P,2,192.168.1.208/30,255.255.255.252,192.168.1.209,192.168.1.210,192.168.1.211
       <ul>
         <li><a href="/lib/subnet.js">lib/subnet.js</a> · MIT</li>
         <li><a href="/lib/data/special-purpose.json">IANA special-purpose data</a></li>
+        <li><a href="/verification/">How results are verified</a></li>
+        <li><a href="/privacy/">Privacy</a></li>
       </ul>
     </div>
   </div>

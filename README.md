@@ -57,9 +57,13 @@ netmask, and the result has `maskAmbiguous: true`. Pass `{ maskAs: 'wildcard' }`
 
 ## Website
 
-The site is static HTML, CSS and vanilla JS in this repository (`index.html`, `vlsm/`, `cidr/`, `ipv6/`,
-`learn/`, `assets/`). There is no build step at deploy time. `scripts/build.mjs` keeps the shared header,
-footer and pre-rendered results inside the committed HTML in sync. Run it after you edit a partial or a renderer.
+The site is static HTML, CSS and vanilla JS in this repository (`index.html`, `vlsm/`, `cidr/`,
+`ip-range-to-cidr/`, `cidr-overlap-checker/`, `ipv6/`, `learn/`, `verification/`, `privacy/`, `assets/`).
+There is no build step at deploy time. `scripts/build.mjs` keeps the shared header, footer and pre-rendered
+results inside the committed HTML in sync. Run it after you edit a partial or a renderer.
+
+Every tool saves its input in the URL, so a copied link reproduces the same result. Invalid input disables
+copy, download and export controls until it is fixed; share links always reproduce the typed state.
 
 ```sh
 python3 -m http.server 8080          # serve the repo root locally

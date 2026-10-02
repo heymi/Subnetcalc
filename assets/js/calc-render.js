@@ -50,60 +50,65 @@ const V6_TYPE_LABEL = {
   reserved: 'Reserved by IETF',
 };
 
-/** The key/value result list. */
-export function renderResults(info) {
-  const r = [];
+/**
+ * The key/value result list: the primary answers first, the rest folded under
+ * "More details". `extra` adds caller-specific rows (e.g. reverse DNS) to that fold.
+ * @param {object} info  an analyze() result
+ * @param {{ label: string, value: string }[]} [extra]
+ */
+export function renderResults(info, extra = []) {
+  const primary = [];
+  const secondary = [];
   if (info.version === 4) {
-    r.push(row('Address', info.address));
-    r.push(row('Network', info.cidr, { em: true }));
-    r.push(row('Netmask', info.netmask));
-    r.push(row('Wildcard', info.wildcard, { sub: 'ACL / OSPF' }));
-    if (info.broadcast) r.push(row('Broadcast', info.broadcast));
-    else r.push(row('Broadcast', 'none', { sub: info.prefix === 31 ? 'point-to-point, RFC 3021' : 'single host' }));
-    r.push(row('First host', info.firstHost));
-    r.push(row('Last host', info.lastHost));
-    r.push(
+    primary.push(row('Address', info.address));
+    primary.push(row('Network', info.cidr, { em: true }));
+    if (info.broadcast) primary.push(row('Broadcast', info.broadcast));
+    else primary.push(row('Broadcast', 'none', { sub: info.prefix === 31 ? 'point-to-point, RFC 3021' : 'single host' }));
+    primary.push(row('First host', info.firstHost));
+    primary.push(row('Last host', info.lastHost));
+    primary.push(
       row('Usable hosts', group(info.usableHosts), {
         copy: String(info.usableHosts),
         em: true,
         sub: `of ${group(info.totalAddresses)} addresses`,
       }),
     );
-    r.push(row('Prefix', `/${info.prefix}`, { sub: `${info.prefix} network + ${32 - info.prefix} host bits` }));
-    r.push(
+    secondary.push(row('Netmask', info.netmask));
+    secondary.push(row('Wildcard', info.wildcard, { sub: 'ACL / OSPF' }));
+    secondary.push(row('Prefix', `/${info.prefix}`, { sub: `${info.prefix} network + ${32 - info.prefix} host bits` }));
+    secondary.push(
       row('Class', info.ipClass, {
         sub: info.classfulPrefix ? `classful default /${info.classfulPrefix}` : info.ipClass === 'D' ? 'multicast' : 'reserved',
       }),
     );
     const v = info.parsed.value;
-    r.push(row('Integer', String(v), { sub: `0x${v.toString(16).toUpperCase().padStart(8, '0')}` }));
+    secondary.push(row('Integer', String(v), { sub: `0x${v.toString(16).toUpperCase().padStart(8, '0')}` }));
   } else {
-    r.push(row('Address', info.address));
-    r.push(row('Network', info.cidr, { em: true }));
-    r.push(row('Prefix mask', info.netmask));
-    r.push(row('Host mask', info.wildcard));
-    r.push(row('Prefix', `/${info.prefix}`, { sub: `${info.prefix} network + ${128 - info.prefix} host bits` }));
-    r.push(row('First address', info.firstHost));
-    r.push(row('Last address', info.lastHost));
-    r.push(row('Addresses', count(info.totalAddresses), { copy: String(info.totalAddresses), em: true, sub: 'no broadcast in IPv6' }));
-    if (info.slash64) r.push(row('/64 network', info.slash64));
-    else r.push(row('/64 subnets', count(info.slash64Count), { copy: String(info.slash64Count) }));
-    r.push(row('Expanded', formatAddress(info.parsed.value, 6, { expanded: true })));
-  }
-  if (info.version === 6 && info.ipv6Type) {
-    r.push(row('Type', V6_TYPE_LABEL[info.ipv6Type] || info.ipv6Type));
+    primary.push(row('Address', info.address));
+    primary.push(row('Network', info.cidr, { em: true }));
+    if (info.slash64) primary.push(row('/64 network', info.slash64));
+    else primary.push(row('/64 subnets', count(info.slash64Count), { copy: String(info.slash64Count) }));
+    primary.push(row('First address', info.firstHost));
+    primary.push(row('Last address', info.lastHost));
+    primary.push(row('Addresses', count(info.totalAddresses), { copy: String(info.totalAddresses), em: true, sub: 'no broadcast in IPv6' }));
+    secondary.push(row('Prefix mask', info.netmask));
+    secondary.push(row('Host mask', info.wildcard));
+    secondary.push(row('Prefix', `/${info.prefix}`, { sub: `${info.prefix} network + ${128 - info.prefix} host bits` }));
+    secondary.push(row('Expanded', formatAddress(info.parsed.value, 6, { expanded: true })));
+    if (info.ipv6Type) secondary.push(row('Type', V6_TYPE_LABEL[info.ipv6Type] || info.ipv6Type));
   }
   const scope = scopeTag(info);
-  if (scope) r.push(row('Address scope', scope.html, { copy: scope.text, html: true, sub: 'classification of the entered address' }));
+  if (scope) secondary.push(row('Address scope', scope.html, { copy: scope.text, html: true, sub: 'classification of the entered address' }));
   const e = info.embedded;
   if (e) {
-    const val =
-      e.kind === 'teredo'
-        ? `server ${e.server} · client ${e.client} · port ${e.port}`
-        : `${e.ipv4}`;
-    r.push(row(e.kind === 'teredo' ? 'Teredo' : `Embedded IPv4`, val, { copy: e.kind === 'teredo' ? e.client : e.ipv4 }));
+    const val = e.kind === 'teredo' ? `server ${e.server} · client ${e.client} · port ${e.port}` : `${e.ipv4}`;
+    secondary.push(row(e.kind === 'teredo' ? 'Teredo' : `Embedded IPv4`, val, { copy: e.kind === 'teredo' ? e.client : e.ipv4 }));
   }
-  return `<dl class="kv">${r.join('')}</dl>`;
+  for (const x of extra) secondary.push(row(x.label, x.value));
+  const more = secondary.length
+    ? `<details class="more"><summary>More details</summary><dl class="kv">${secondary.join('')}</dl></details>`
+    : '';
+  return `<dl class="kv">${primary.join('')}</dl>${more}`;
 }
 
 /** Notices about how the input was read. Each one may carry a button with data-action. */

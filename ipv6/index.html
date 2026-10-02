@@ -61,7 +61,7 @@
 }
 </script>
 </head>
-<body>
+<body data-tool="ipv6">
 <!-- @header -->
 <a class="skip" href="#main">Skip to content</a>
 <header class="site-header">
@@ -85,6 +85,10 @@
     <p class="eyebrow">RFC 5952 · EUI-64 · RFC 4193 · 6to4 · Teredo</p>
     <h1>IPv6 Tools</h1>
     <p class="lede">Compress or expand an address, find its /64 and reverse DNS name, decode 6to4 and Teredo, build an EUI-64 address from a MAC, or generate a ULA prefix.</p>
+    <div class="btn-row no-print">
+      <button type="button" class="btn" data-share>Share setup</button>
+      <button type="button" class="btn btn-ghost" data-copy-summary>Copy summary</button>
+    </div>
   </div>
 
   <section class="tool" aria-labelledby="addr-h">
@@ -104,7 +108,7 @@
       <button type="button" data-v6="fd12:3456:789a::/48">ULA /48</button>
     </div>
     <div id="v6-out" aria-live="polite"><!-- @prerender:v6-addr -->
-<dl class="kv"><div><dt>Address</dt><dd><span>2001:db8:abcd:12::1</span></dd><dd class="act"><button type="button" class="copy" data-copy="2001:db8:abcd:12::1" aria-label="Copy address">copy</button></dd></div><div><dt>Network</dt><dd><span class="em">2001:db8:abcd:12::/64</span></dd><dd class="act"><button type="button" class="copy" data-copy="2001:db8:abcd:12::/64" aria-label="Copy network">copy</button></dd></div><div><dt>Prefix mask</dt><dd><span>ffff:ffff:ffff:ffff::</span></dd><dd class="act"><button type="button" class="copy" data-copy="ffff:ffff:ffff:ffff::" aria-label="Copy prefix mask">copy</button></dd></div><div><dt>Host mask</dt><dd><span>::ffff:ffff:ffff:ffff</span></dd><dd class="act"><button type="button" class="copy" data-copy="::ffff:ffff:ffff:ffff" aria-label="Copy host mask">copy</button></dd></div><div><dt>Prefix</dt><dd><span>/64</span><span class="sub">64 network + 64 host bits</span></dd><dd class="act"><button type="button" class="copy" data-copy="/64" aria-label="Copy prefix">copy</button></dd></div><div><dt>First address</dt><dd><span>2001:db8:abcd:12::</span></dd><dd class="act"><button type="button" class="copy" data-copy="2001:db8:abcd:12::" aria-label="Copy first address">copy</button></dd></div><div><dt>Last address</dt><dd><span>2001:db8:abcd:12:ffff:ffff:ffff:ffff</span></dd><dd class="act"><button type="button" class="copy" data-copy="2001:db8:abcd:12:ffff:ffff:ffff:ffff" aria-label="Copy last address">copy</button></dd></div><div><dt>Addresses</dt><dd><span class="em">18,446,744,073,709,551,616 (2⁶⁴)</span><span class="sub">no broadcast in IPv6</span></dd><dd class="act"><button type="button" class="copy" data-copy="18446744073709551616" aria-label="Copy addresses">copy</button></dd></div><div><dt>/64 network</dt><dd><span>2001:db8:abcd:12::/64</span></dd><dd class="act"><button type="button" class="copy" data-copy="2001:db8:abcd:12::/64" aria-label="Copy /64 network">copy</button></dd></div><div><dt>Expanded</dt><dd><span>2001:0db8:abcd:0012:0000:0000:0000:0001</span></dd><dd class="act"><button type="button" class="copy" data-copy="2001:0db8:abcd:0012:0000:0000:0000:0001" aria-label="Copy expanded">copy</button></dd></div><div><dt>Type</dt><dd><span>Documentation</span></dd><dd class="act"><button type="button" class="copy" data-copy="Documentation" aria-label="Copy type">copy</button></dd></div><div><dt>Address scope</dt><dd><span>Documentation</span><span class="sub">RFC 3849</span><span class="tag is-private">not globally reachable</span><span class="sub">classification of the entered address</span></dd><dd class="act"><button type="button" class="copy" data-copy="Documentation · RFC 3849" aria-label="Copy address scope">copy</button></dd></div><div><dt>Reverse (PTR)</dt><dd><span>1.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.2.1.0.0.d.c.b.a.8.b.d.0.1.0.0.2.ip6.arpa</span></dd><dd class="act"><button type="button" class="copy" data-copy="1.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.2.1.0.0.d.c.b.a.8.b.d.0.1.0.0.2.ip6.arpa" aria-label="Copy reverse name">copy</button></dd></div><div><dt>Reverse zone</dt><dd><span>2.1.0.0.d.c.b.a.8.b.d.0.1.0.0.2.ip6.arpa</span></dd><dd class="act"><button type="button" class="copy" data-copy="2.1.0.0.d.c.b.a.8.b.d.0.1.0.0.2.ip6.arpa" aria-label="Copy reverse zone">copy</button></dd></div></dl><p class="hint" style="margin-top: var(--s3)"><a href="/?q=2001:db8:abcd:12::1/64">Open in the subnet calculator</a> for the bit-by-bit view.</p>
+<dl class="kv"><div><dt>Address</dt><dd><span>2001:db8:abcd:12::1</span></dd><dd class="act"><button type="button" class="copy" data-copy="2001:db8:abcd:12::1" aria-label="Copy address">copy</button></dd></div><div><dt>Network</dt><dd><span class="em">2001:db8:abcd:12::/64</span></dd><dd class="act"><button type="button" class="copy" data-copy="2001:db8:abcd:12::/64" aria-label="Copy network">copy</button></dd></div><div><dt>/64 network</dt><dd><span>2001:db8:abcd:12::/64</span></dd><dd class="act"><button type="button" class="copy" data-copy="2001:db8:abcd:12::/64" aria-label="Copy /64 network">copy</button></dd></div><div><dt>First address</dt><dd><span>2001:db8:abcd:12::</span></dd><dd class="act"><button type="button" class="copy" data-copy="2001:db8:abcd:12::" aria-label="Copy first address">copy</button></dd></div><div><dt>Last address</dt><dd><span>2001:db8:abcd:12:ffff:ffff:ffff:ffff</span></dd><dd class="act"><button type="button" class="copy" data-copy="2001:db8:abcd:12:ffff:ffff:ffff:ffff" aria-label="Copy last address">copy</button></dd></div><div><dt>Addresses</dt><dd><span class="em">18,446,744,073,709,551,616 (2⁶⁴)</span><span class="sub">no broadcast in IPv6</span></dd><dd class="act"><button type="button" class="copy" data-copy="18446744073709551616" aria-label="Copy addresses">copy</button></dd></div></dl><details class="more"><summary>More details</summary><dl class="kv"><div><dt>Prefix mask</dt><dd><span>ffff:ffff:ffff:ffff::</span></dd><dd class="act"><button type="button" class="copy" data-copy="ffff:ffff:ffff:ffff::" aria-label="Copy prefix mask">copy</button></dd></div><div><dt>Host mask</dt><dd><span>::ffff:ffff:ffff:ffff</span></dd><dd class="act"><button type="button" class="copy" data-copy="::ffff:ffff:ffff:ffff" aria-label="Copy host mask">copy</button></dd></div><div><dt>Prefix</dt><dd><span>/64</span><span class="sub">64 network + 64 host bits</span></dd><dd class="act"><button type="button" class="copy" data-copy="/64" aria-label="Copy prefix">copy</button></dd></div><div><dt>Expanded</dt><dd><span>2001:0db8:abcd:0012:0000:0000:0000:0001</span></dd><dd class="act"><button type="button" class="copy" data-copy="2001:0db8:abcd:0012:0000:0000:0000:0001" aria-label="Copy expanded">copy</button></dd></div><div><dt>Type</dt><dd><span>Documentation</span></dd><dd class="act"><button type="button" class="copy" data-copy="Documentation" aria-label="Copy type">copy</button></dd></div><div><dt>Address scope</dt><dd><span>Documentation</span><span class="sub">RFC 3849</span><span class="tag is-private">not globally reachable</span><span class="sub">classification of the entered address</span></dd><dd class="act"><button type="button" class="copy" data-copy="Documentation · RFC 3849" aria-label="Copy address scope">copy</button></dd></div><div><dt>Reverse (PTR)</dt><dd><span>1.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.2.1.0.0.d.c.b.a.8.b.d.0.1.0.0.2.ip6.arpa</span></dd><dd class="act"><button type="button" class="copy" data-copy="1.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.2.1.0.0.d.c.b.a.8.b.d.0.1.0.0.2.ip6.arpa" aria-label="Copy reverse (ptr)">copy</button></dd></div><div><dt>Reverse zone</dt><dd><span>2.1.0.0.d.c.b.a.8.b.d.0.1.0.0.2.ip6.arpa</span></dd><dd class="act"><button type="button" class="copy" data-copy="2.1.0.0.d.c.b.a.8.b.d.0.1.0.0.2.ip6.arpa" aria-label="Copy reverse zone">copy</button></dd></div></dl></details><p class="hint" style="margin-top: var(--s3)"><a href="/?q=2001:db8:abcd:12::1/64">Open in the subnet calculator</a> for the bit-by-bit view.</p>
 <!-- /@prerender --></div>
   </section>
 
@@ -136,8 +140,11 @@
   </div>
 
   <section class="section tool" aria-labelledby="split-h">
-    <h2 id="split-h">Split a prefix</h2>
-    <p>Divide a prefix into equal subnets. Lists up to 65,536 subnets; the first 256 are shown.</p>
+    <div class="section-head">
+      <h2 id="split-h">Split a prefix</h2>
+      <button type="button" class="btn btn-ghost no-print" data-download-split>Download list</button>
+    </div>
+    <p>Divide a prefix into equal subnets. Lists up to 65,536 subnets; the first 256 are shown, and "copy all" copies every generated subnet. When the list is too large to generate, copying stays off rather than giving you a partial list.</p>
     <div class="inline-fields" style="max-width: 40rem">
       <div>
         <label class="field-label" for="split-in">Prefix</label>
@@ -214,7 +221,7 @@
   <div class="wrap footer-grid">
     <div>
       <h2>SubnetCalc</h2>
-      <p class="footer-note">Every calculation runs in your browser. Nothing you type is sent anywhere.</p>
+      <p class="footer-note">Every calculation runs in your browser. Share links carry the inputs you put in them.</p>
     </div>
     <div>
       <h2>Tools</h2>
@@ -222,6 +229,8 @@
         <li><a href="/">Subnet calculator</a></li>
         <li><a href="/vlsm/">VLSM planner</a></li>
         <li><a href="/cidr/">CIDR aggregation &amp; overlaps</a></li>
+        <li><a href="/ip-range-to-cidr/">IP range to CIDR</a></li>
+        <li><a href="/cidr-overlap-checker/">CIDR overlap checker</a></li>
         <li><a href="/ipv6/">IPv6 tools</a></li>
       </ul>
     </div>
@@ -238,6 +247,8 @@
       <ul>
         <li><a href="/lib/subnet.js">lib/subnet.js</a> · MIT</li>
         <li><a href="/lib/data/special-purpose.json">IANA special-purpose data</a></li>
+        <li><a href="/verification/">How results are verified</a></li>
+        <li><a href="/privacy/">Privacy</a></li>
       </ul>
     </div>
   </div>
