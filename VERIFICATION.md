@@ -50,7 +50,7 @@ hierarchy with folded details, the two dedicated pages, verification and privacy
 
 ## Local checks
 
-`npm run check`: 300 tests pass; site check: 14 pages, 0 errors, 0 warnings.
+`npm run check`: 305 tests pass; site check: 14 pages, 0 errors, 0 warnings.
 
 `npm run crosscheck` was not re-run in this pass: the engine vectors and their expected values are
 unchanged, and all 232 still pass in the Node suite. The recorded cross-check used Python 3.13.15
@@ -99,6 +99,12 @@ establish production-domain performance or analytics delivery.
 - Firefox could not be launched in this environment: macOS denied the content-process sandbox
   (`sandbox_extension_issue_file_to_process ... Operation not permitted`). This is a local
   environment limit, not a site result; a manual Firefox pass remains open.
+
+An acceptance QA pass ran 49 Chromium checks and 11 WebKit checks against the round-3 features:
+GCP allocation/export/share, `/32` host routes, all five new exports (content and file downloads),
+saved-plan create/load/delete with JSON import/export and name escaping, the IPv6 download toggle,
+IPv4 reverse rows, round-2 regressions and a 390px layout pass. All 60 passed; the reports are at
+`../Subnetcalc-artifacts/2026-10-03-round3/qa-report.json` and `qa-webkit.json`.
 
 Full Lighthouse JSON reports and browser logs are saved outside the deploy root at
 `../Subnetcalc-artifacts/2026-10-03-round3/` (round 3) and `../Subnetcalc-artifacts/2026-10-03-round2/`

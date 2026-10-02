@@ -212,6 +212,15 @@ test('planToCloudFormation emits logical IDs, CidrBlock and Name tags', () => {
   assert.equal(new Set(ids).size, dup.allocations.length);
 });
 
+test('planToCloudFormation and planToBicep escape hostile names', () => {
+  const weird = planVlsm('10.0.0.0/24', [{ name: "O'Brien ${x}", hosts: 10 }]).plan;
+  const cfn = planToCloudFormation(weird);
+  assert.ok(cfn.includes('Value: "O\'Brien ${x}"'), cfn);
+  const bicep = planToBicep(weird);
+  assert.ok(bicep.includes("O''Brien"), bicep);
+  assert.ok(bicep.includes('\\${x}'), bicep);
+});
+
 test('planToBicep emits a param and one subnet resource per allocation', () => {
   const bicep = planToBicep(plan);
   assert.match(bicep, /^param vnetName string$/m);
