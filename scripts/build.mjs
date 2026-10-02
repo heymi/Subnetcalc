@@ -24,6 +24,8 @@ import {
   renderTree,
 } from '../assets/js/vlsm-render.js';
 import { planVlsm } from '../lib/subnet.js';
+import { DEFAULT_NETS, DEFAULT_RANGE, renderNets, renderRange } from '../assets/js/cidr-render.js';
+import { DEFAULTS as V6, renderAddress, renderSplit, renderEui } from '../assets/js/ipv6-render.js';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const ORIGIN = 'https://subnetcalc.dev';
@@ -178,6 +180,13 @@ const PRERENDER = {
   'vlsm-free': () => renderFree(defaultPlan()),
   'vlsm-tree': () => renderTree(defaultPlan()),
   'vlsm-export': () => escHtml(EXPORTS[0].fn(defaultPlan()).trimEnd()),
+  'cidr-agg': () => renderNets(DEFAULT_NETS).agg,
+  'cidr-sup': () => renderNets(DEFAULT_NETS).sup,
+  'cidr-ovl': () => renderNets(DEFAULT_NETS).ovl,
+  'cidr-range': () => renderRange(...DEFAULT_RANGE),
+  'v6-addr': () => renderAddress(V6.addr),
+  'v6-eui': () => renderEui(V6.mac, V6.eui),
+  'v6-split': () => renderSplit(V6.split, V6.newPrefix),
   'prefix-table-v4': prefixTableHtml,
   'prefix-table-v6': ipv6PrefixTableHtml,
 };
