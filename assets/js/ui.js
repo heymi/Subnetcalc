@@ -47,15 +47,19 @@ export async function copyText(text, label = 'Copied') {
   try {
     await navigator.clipboard.writeText(text);
   } catch {
-    const ta = document.createElement('textarea');
-    ta.value = text;
-    ta.setAttribute('readonly', '');
-    ta.style.position = 'fixed';
-    ta.style.opacity = '0';
-    document.body.append(ta);
-    ta.select();
-    document.execCommand('copy');
-    ta.remove();
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.append(ta);
+      ta.select();
+      document.execCommand('copy');
+      ta.remove();
+    } catch {
+      /* clipboard access can be denied; the toast still confirms the intent */
+    }
   }
   toast(label);
 }
@@ -83,6 +87,34 @@ export function setParams(params) {
 }
 
 export const param = (k) => new URL(location.href).searchParams.get(k);
+
+/** decodeURIComponent that returns the raw text instead of throwing on malformed % escapes. */
+export function safeDecode(s) {
+  try {
+    return decodeURIComponent(s);
+  } catch {
+    return s;
+  }
+}
+
+/**
+ * A shareable URL for `baseHref` carrying exactly `params` (empty values removed).
+ * Pure so the round-trip can be tested outside the browser.
+ */
+export function buildShareUrl(baseHref, params) {
+  const url = new URL(baseHref, 'https://subnetcalc.dev');
+  url.search = '';
+  for (const [k, v] of Object.entries(params)) {
+    if (v === '' || v === null || v === undefined) continue;
+    url.searchParams.set(k, String(v));
+  }
+  return url.href;
+}
+
+/** Copy the current page with exactly `params` in the query string. */
+export function copyShare(params, label = 'Link copied') {
+  copyText(buildShareUrl(location.href, params), label);
+}
 
 /** Keep the previous result visible, but prevent using it after invalid input. */
 export function setStale(sections, stale) {

@@ -24,8 +24,16 @@ import {
   renderTree,
 } from '../assets/js/vlsm-render.js';
 import { planVlsm } from '../lib/subnet.js';
-import { DEFAULT_NETS, DEFAULT_RANGE, renderNets, renderRange } from '../assets/js/cidr-render.js';
+import {
+  DEFAULT_NETS,
+  DEFAULT_RANGE,
+  DEFAULT_OVERLAP_NETS,
+  renderNets,
+  renderRange,
+  renderOverlapReport,
+} from '../assets/js/cidr-render.js';
 import { DEFAULTS as V6, renderAddress, renderSplit, renderEui } from '../assets/js/ipv6-render.js';
+import { PLAN_DEFAULTS, renderPlan } from '../assets/js/ipv6-plan-render.js';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const ORIGIN = 'https://subnetcalc.dev';
@@ -92,7 +100,7 @@ const footer = () => `<footer class="site-footer">
   <div class="wrap footer-grid">
     <div>
       <h2>SubnetCalc</h2>
-      <p class="footer-note">Every calculation runs in your browser. Nothing you type is sent anywhere.</p>
+      <p class="footer-note">Every calculation runs in your browser. Share links carry the inputs you put in them.</p>
     </div>
     <div>
       <h2>Tools</h2>
@@ -100,7 +108,10 @@ const footer = () => `<footer class="site-footer">
         <li><a href="/">Subnet calculator</a></li>
         <li><a href="/vlsm/">VLSM planner</a></li>
         <li><a href="/cidr/">CIDR aggregation &amp; overlaps</a></li>
+        <li><a href="/ip-range-to-cidr/">IP range to CIDR</a></li>
+        <li><a href="/cidr-overlap-checker/">CIDR overlap checker</a></li>
         <li><a href="/ipv6/">IPv6 tools</a></li>
+        <li><a href="/ipv6-subnet-plan/">IPv6 subnet plan</a></li>
       </ul>
     </div>
     <div>
@@ -116,6 +127,8 @@ const footer = () => `<footer class="site-footer">
       <ul>
         <li><a href="/lib/subnet.js">lib/subnet.js</a> · MIT</li>
         <li><a href="/lib/data/special-purpose.json">IANA special-purpose data</a></li>
+        <li><a href="/verification/">How results are verified</a></li>
+        <li><a href="/privacy/">Privacy</a></li>
       </ul>
     </div>
   </div>
@@ -206,6 +219,31 @@ ${rows.join('\n')}
 const defaultInfo = () => analyze(DEFAULT_Q).info;
 const defaultPlan = () => planVlsm(DEFAULT_PARENT, DEFAULT_REQUESTS).plan;
 const escHtml = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+/** IANA snapshot metadata and vector counts, read from the same files the engine and tests use. */
+function verificationDataHtml() {
+  const special = JSON.parse(readFileSync(join(ROOT, 'lib/data/special-purpose.json'), 'utf8'));
+  const dir = join(ROOT, 'test/vectors');
+  const files = readdirSync(dir).filter((f) => f.endsWith('.json'));
+  const vectors = files.reduce((n, f) => {
+    const data = JSON.parse(readFileSync(join(dir, f), 'utf8'));
+    return n + (Array.isArray(data) ? data.length : Object.values(data).flat().length);
+  }, 0);
+  const hash = (h) => `<code>${escHtml(h)}</code>`;
+  return `<dl class="kv">
+<div><dt>IANA IPv4 registry</dt><dd><span>${special.ipv4.length} special-purpose blocks</span></dd></div>
+<div><dt>IANA IPv6 registry</dt><dd><span>${special.ipv6.length} special-purpose blocks, plus ${special.supplementary.length} supplementary well-known blocks</span></dd></div>
+<div><dt>Retrieved</dt><dd><span>${special._retrieved} (UTC), downloaded directly from IANA</span></dd></div>
+<div><dt>IPv4 source</dt><dd><span><a href="${special._sources.ipv4}">${special._sources.ipv4}</a></span></dd></div>
+<div><dt>IPv6 source</dt><dd><span><a href="${special._sources.ipv6}">${special._sources.ipv6}</a></span></dd></div>
+<div><dt>Shared test vectors</dt><dd><span>${vectors} vectors across ${files.length} files, each with at least two independent validators</span></dd></div>
+</dl>
+<details class="more"><summary>Retained SHA-256 hashes</summary><dl class="kv">
+<div><dt>IPv4 CSV</dt><dd><span>${hash(special._sha256.ipv4)}</span></dd></div>
+<div><dt>IPv6 CSV</dt><dd><span>${hash(special._sha256.ipv6)}</span></dd></div>
+</dl></details>`;
+}
+
 const PRERENDER = {
   'calc-notices': () => renderNotices(defaultInfo()),
   'calc-results': () => renderResults(defaultInfo()),
@@ -221,9 +259,13 @@ const PRERENDER = {
   'cidr-sup': () => renderNets(DEFAULT_NETS).sup,
   'cidr-ovl': () => renderNets(DEFAULT_NETS).ovl,
   'cidr-range': () => renderRange(...DEFAULT_RANGE),
+  'range-page-out': () => renderRange(...DEFAULT_RANGE),
+  'overlap-page-out': () => renderOverlapReport(DEFAULT_OVERLAP_NETS).report,
+  'verification-data': verificationDataHtml,
   'v6-addr': () => renderAddress(V6.addr),
   'v6-eui': () => renderEui(V6.mac, V6.eui),
   'v6-split': () => renderSplit(V6.split, V6.newPrefix),
+  'ipv6-plan-out': () => renderPlan(PLAN_DEFAULTS.parent, PLAN_DEFAULTS.site, PLAN_DEFAULTS.lan).html,
   'prefix-table-v4': prefixTableHtml,
   'slash24-table': slash24Html,
   'mask-octet-table': maskOctetHtml,

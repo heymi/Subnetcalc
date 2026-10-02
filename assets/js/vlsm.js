@@ -1,9 +1,15 @@
 // VLSM planner page.
 import { planVlsm, requiredPrefix, formatCidr } from '../../lib/subnet.js';
+import { planToText } from '../../lib/export.js';
 import {
   DEFAULT_PARENT,
   DEFAULT_REQUESTS,
+  CAPACITY_PARENT,
+  CAPACITY_REQUESTS,
+  CLOUD_RULES,
   EXPORTS,
+  parseRequestList,
+  parseVlsmSearch,
   renderSummary,
   renderMap,
   renderTable,
@@ -12,11 +18,13 @@ import {
   fittingPrefix,
 } from './vlsm-render.js';
 import { esc, debounce, copyText, download, setStale } from './ui.js';
+import { track } from './analytics.js';
 
 const $ = (s) => document.querySelector(s);
 const form = $('[data-vlsm]');
 const parentIn = $('#parent');
 const s31 = $('#s31');
+const cloudSel = $('#cloud');
 const reqs = $('#reqs');
 const status = $('#vlsm-status');
 const out = {
@@ -32,6 +40,10 @@ const resultSections = [$('#plan'), $('#tree-section'), $('#export')];
 let plan = null;
 let fmt = 'csv';
 let collapsed = new Set();
+let loadNotice = '';
+let dirty = false;
+let lastState = null;
+let trackTimer;
 
 // ── rows
 function rowHtml(name = '', hosts = '') {
@@ -52,56 +64,55 @@ function readRows() {
   return list;
 }
 
-// "Sales 120", "Sales,120", "Sales\t120", "120 Sales"
-function parseList(text) {
-  const list = [];
-  for (const line of text.split(/\r?\n/)) {
-    const t = line.trim();
-    if (!t) continue;
-    let m = t.match(/^(.*?)[\s,;:=|]+(\d+)\s*(?:hosts?)?$/i);
-    if (m && m[1]) list.push({ name: m[1].replace(/[,;:=|]+$/, '').trim(), hosts: Number(m[2]) });
-    else if ((m = t.match(/^(\d+)[\s,;:=|]+(.+)$/))) list.push({ name: m[2].trim(), hosts: Number(m[1]) });
-  }
-  return list;
-}
-
 // ── URL: ?p=192.168.1.0/24&r=Sales:120,Eng:50&s31=1 (built by hand to keep it readable)
 const enc = (s) => encodeURIComponent(s).replace(/%2F/g, '/');
-function writeUrl(parent, list) {
-  const r = list.map((x) => `${enc(x.name)}:${Number.isFinite(x.hosts) ? x.hosts : ''}`).join(',');
-  let q = `?p=${enc(parent.trim())}&r=${r}`;
-  if (s31.checked) q += '&s31=1';
-  if (q !== location.search) history.replaceState(null, '', location.pathname + q);
+function queryString() {
+  const r = readRows()
+    .map((x) => `${enc(x.name)}:${Number.isFinite(x.hosts) ? x.hosts : ''}`)
+    .join(',');
+  return `?p=${enc(parentIn.value.trim())}&r=${r}${s31.checked ? '&s31=1' : ''}${cloudSel.value !== 'generic' ? `&c=${cloudSel.value}` : ''}`;
 }
-function readUrl() {
-  const sp = new URLSearchParams(location.search.replace(/\+/g, '%2B'));
-  const p = sp.get('p');
-  const r = new URLSearchParams(location.search).has('r') ? location.search.match(/[?&]r=([^&]*)/)[1] : null;
-  if (p === null && r === null) return null;
-  const list = (r || '')
-    .split(',')
-    .filter(Boolean)
-    .map((item) => {
-      const i = item.lastIndexOf(':');
-      const name = decodeURIComponent(i === -1 ? item : item.slice(0, i));
-      const hosts = i === -1 ? NaN : Number(item.slice(i + 1));
-      return { name, hosts };
-    });
-  return { parent: p ?? DEFAULT_PARENT, list, s31: sp.get('s31') === '1' };
+
+function cloudRule() {
+  return CLOUD_RULES[cloudSel.value] ?? CLOUD_RULES.generic;
+}
+function writeUrl() {
+  const q = queryString();
+  if (q !== location.search) history.replaceState(null, '', location.pathname + q);
 }
 const syncUrl = debounce(writeUrl, 300);
 
 // ── render
+function trackState(ok, code) {
+  if (!dirty) return;
+  const state = ok ? 'ok' : code || 'error';
+  if (state === lastState) return;
+  lastState = state;
+  clearTimeout(trackTimer);
+  trackTimer = setTimeout(() => {
+    if (ok) track('calc_done', { tool: 'vlsm' });
+    else if (code && code !== 'INCOMPLETE' && code !== 'EMPTY') track('input_error', { tool: 'vlsm', code });
+  }, 700);
+}
+
+function setPlanActions() {
+  const b = $('[data-copy-plan]');
+  if (b) b.disabled = !plan;
+}
+
 function render() {
   const parent = parentIn.value;
   const list = readRows();
-  syncUrl(parent, list);
-  const opts = { allowSlash31: s31.checked };
+  syncUrl();
+  const rule = cloudRule();
+  const opts = { allowSlash31: s31.checked, reservedHosts: rule.reservedHosts, minPrefix: rule.minPrefix, provider: rule.provider };
   if (!parent.trim()) {
-    status.innerHTML = '';
+    status.innerHTML = loadNotice;
     plan = null;
     out.export.textContent = '';
     setStale(resultSections, true);
+    setPlanActions();
+    trackState(false, 'EMPTY');
     return;
   }
   const r = planVlsm(parent, list, opts);
@@ -109,12 +120,14 @@ function render() {
     plan = null;
     out.export.textContent = '';
     setStale(resultSections, true);
-    status.innerHTML = errorHtml(r.error, list, opts);
+    status.innerHTML = loadNotice + errorHtml(r.error, list, opts);
+    setPlanActions();
+    trackState(false, r.error.code);
     return;
   }
   plan = r.plan;
   setStale(resultSections, false);
-  status.innerHTML = list.length ? '' : '<p class="notice">Add the subnets you need, with a host count for each.</p>';
+  status.innerHTML = loadNotice + (list.length ? '' : '<p class="notice">Add the subnets you need, with a host count for each.</p>');
   out.summary.innerHTML = renderSummary(plan);
   out.map.innerHTML = renderMap(plan);
   out.table.innerHTML = renderTable(plan);
@@ -122,6 +135,8 @@ function render() {
   // keep folds that still exist in the new tree
   out.tree.innerHTML = renderTree(plan, collapsed);
   renderExport();
+  setPlanActions();
+  trackState(true);
 }
 
 function errorHtml(e, list, opts) {
@@ -156,28 +171,52 @@ function allSplits(node, depth = 0, acc = []) {
 
 // ── events
 form.addEventListener('input', (e) => {
-  if (e.target.matches('#reqs input')) {
-    // keep only one trailing empty row's worth of noise out of the URL; nothing else to do
-  }
+  dirty = true;
+  loadNotice = '';
   render();
 });
 form.addEventListener('submit', (e) => e.preventDefault());
+function applyCloudUI() {
+  const generic = cloudSel.value === 'generic';
+  s31.disabled = !generic;
+  if (!generic) s31.checked = false;
+  if (!generic) {
+    const tab = document.querySelector(`#export-tabs [data-fmt="${cloudSel.value}"]`);
+    if (tab) selectTab(tab);
+  } else if (fmt === 'aws' || fmt === 'azure') {
+    const tab = document.querySelector('#export-tabs [data-fmt="csv"]');
+    if (tab) selectTab(tab);
+  }
+}
+
 form.addEventListener('change', (e) => {
-  if (e.target === s31) render();
+  if (e.target === s31 || e.target === cloudSel) {
+    dirty = true;
+    loadNotice = '';
+    if (e.target === cloudSel) applyCloudUI();
+    render();
+  }
 });
 
 reqs.addEventListener('paste', (e) => {
   if (!e.target.matches('input[type="text"]')) return;
   const text = e.clipboardData.getData('text');
   if (!/\n/.test(text.trim())) return;
-  const list = parseList(text);
-  if (!list.length) return;
+  const { entries, errors } = parseRequestList(text);
+  if (!entries.length) return;
   e.preventDefault();
   const before = readRows();
   const tr = e.target.closest('tr');
   const index = [...reqs.rows].indexOf(tr);
   const kept = before.slice(0, index);
-  setRows([...kept, ...list]);
+  // Unreadable lines become rows with a blank host count instead of being dropped.
+  setRows([...kept, ...entries.map((x) => (x.error ? { name: x.text, hosts: '' } : x))]);
+  dirty = true;
+  loadNotice = errors.length
+    ? `<p class="notice is-error"><strong>Pasted line${errors.length === 1 ? '' : 's'} ${errors.map((x) => x.line).join(', ')} could not be read:</strong> ${errors
+        .map((x) => `<code>${esc(x.text)}</code>`)
+        .join(', ')}. ${errors.length === 1 ? 'It was' : 'They were'} added with a blank host count; fill it in or remove the row.</p>`
+    : '';
   render();
 });
 
@@ -186,6 +225,8 @@ document.addEventListener('click', (e) => {
   if (t.closest('[data-remove]')) {
     t.closest('tr').remove();
     if (!reqs.rows.length) setRows([{ name: '', hosts: '' }]);
+    dirty = true;
+    loadNotice = '';
     render();
   } else if (t.closest('[data-add]')) {
     reqs.insertAdjacentHTML('beforeend', rowHtml());
@@ -195,12 +236,31 @@ document.addEventListener('click', (e) => {
     s31.checked = false;
     setRows(DEFAULT_REQUESTS);
     collapsed = new Set();
+    loadNotice = '';
+    track('example', { tool: 'vlsm' });
+    render();
+  } else if (t.closest('[data-example-capacity]')) {
+    parentIn.value = CAPACITY_PARENT;
+    s31.checked = false;
+    setRows(CAPACITY_REQUESTS);
+    collapsed = new Set();
+    loadNotice = '';
+    track('example', { tool: 'vlsm', kind: 'capacity' });
     render();
   } else if (t.closest('[data-clear]')) {
     setRows([{ name: '', hosts: '' }]);
     collapsed = new Set();
+    dirty = true;
+    loadNotice = '';
     render();
     reqs.querySelector('input').focus();
+  } else if (t.closest('[data-share-plan]')) {
+    writeUrl();
+    copyText(location.href, 'Plan link copied');
+    track('share', { tool: 'vlsm' });
+  } else if (t.closest('[data-copy-plan]') && plan) {
+    copyText(planToText(plan), 'Plan summary copied');
+    track('copy', { tool: 'vlsm', kind: 'summary' });
   } else if (t.closest('[data-set-prefix]')) {
     const p = t.closest('[data-set-prefix]').dataset.setPrefix;
     parentIn.value = `${parentIn.value.trim().split(/[\s/]/)[0]}/${p}`;
@@ -214,10 +274,12 @@ document.addEventListener('click', (e) => {
     selectTab(t.closest('[data-fmt]'));
   } else if (t.closest('[data-export-copy]') && plan) {
     copyText(out.export.textContent, `Copied ${EXPORTS.find((x) => x.id === fmt).label}`);
+    track('copy', { tool: 'vlsm', kind: 'export', format: fmt });
   } else if (t.closest('[data-export-download]') && plan) {
     const ex = EXPORTS.find((x) => x.id === fmt);
     const base = formatCidr(plan.parent).replace(/[./]/g, '-');
     download(`vlsm-${base}-${ex.id}.${ex.ext}`, out.export.textContent, ex.type);
+    track('download', { tool: 'vlsm', format: fmt });
   }
 });
 
@@ -253,10 +315,22 @@ document.querySelector('#export-tabs').addEventListener('keydown', (e) => {
 });
 
 // ── start
-const fromUrl = readUrl();
+const fromUrl = parseVlsmSearch(location.search);
 if (fromUrl) {
   parentIn.value = fromUrl.parent;
   s31.checked = fromUrl.s31;
-  setRows(fromUrl.list.length ? fromUrl.list.map((x) => ({ name: x.name, hosts: Number.isFinite(x.hosts) ? x.hosts : '' })) : [{ name: '', hosts: '' }]);
+  cloudSel.value = fromUrl.cloud;
+  applyCloudUI();
+  setRows(
+    fromUrl.entries.length
+      ? fromUrl.entries.map((x) => ({ name: x.name, hosts: Number.isFinite(x.hosts) ? x.hosts : '' }))
+      : [{ name: '', hosts: '' }],
+  );
+  if (fromUrl.bad.length) {
+    loadNotice =
+      '<p class="notice is-error"><strong>This link could not be read completely.</strong> The affected rows keep the raw text; enter the values again.</p>';
+  } else if (fromUrl.incomplete) {
+    loadNotice = '<p class="notice is-error"><strong>This link left a host count blank.</strong> Fill it in or remove the row.</p>';
+  }
 }
 render();

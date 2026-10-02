@@ -1,8 +1,9 @@
 // Subnet calculator page.
 import { analyze } from '../../lib/subnet.js';
-import { toText, toJSON, toCSV } from '../../lib/export.js';
+import { toText, toJSON, toCSV, toExplain } from '../../lib/export.js';
 import { renderResults, renderNotices, renderBinary, renderSteps, describeBit } from './calc-render.js';
-import { esc, setParams, param, copyText, setStale } from './ui.js';
+import { esc, setParams, param, copyText, copyShare, download, setStale } from './ui.js';
+import { track } from './analytics.js';
 
 const $ = (s) => document.querySelector(s);
 const form = $('[data-calc]');
@@ -20,10 +21,25 @@ const DETAIL_HINT = detail.textContent;
 let maskAs = param('maskAs') === 'wildcard' ? 'wildcard' : undefined;
 let info = null;
 let selected = null;
+let dirty = false;
+let lastState = null;
+let trackTimer;
 
 function syncUrl(q) {
   setParams({ q: q.trim(), maskAs });
   document.title = q.trim() ? `${q.trim()} – Subnet Calculator` : BASE_TITLE;
+}
+
+function trackState(ok, code) {
+  if (!dirty) return;
+  const state = ok ? 'ok' : code || 'error';
+  if (state === lastState) return;
+  lastState = state;
+  clearTimeout(trackTimer);
+  trackTimer = setTimeout(() => {
+    if (ok) track('calc_done', { tool: 'subnet' });
+    else if (code && code !== 'INCOMPLETE' && code !== 'EMPTY') track('input_error', { tool: 'subnet', code });
+  }, 700);
 }
 
 function render() {
@@ -38,10 +54,12 @@ function render() {
     } else {
       status.innerHTML = `<p class="notice is-error"><strong>${esc(label(r.error.code))}</strong> ${esc(r.error.message)}.</p>`;
     }
+    trackState(false, r.error.code);
     return;
   }
   info = r.info;
   setStale(resultSections, false);
+  trackState(true);
   status.innerHTML = renderNotices(info);
   results.innerHTML = renderResults(info);
   meta.textContent = info.cidr;
@@ -75,6 +93,7 @@ function select(i) {
 
 input.addEventListener('input', () => {
   maskAs = undefined;
+  dirty = true;
   render();
 });
 form.addEventListener('submit', (e) => {
@@ -87,6 +106,8 @@ document.addEventListener('click', (e) => {
   if (ex) {
     input.value = ex.dataset.example;
     maskAs = undefined;
+    dirty = true;
+    track('example', { tool: 'subnet' });
     render();
     input.focus();
     return;
@@ -99,6 +120,7 @@ document.addEventListener('click', (e) => {
       maskAs = undefined;
     } else if (a === 'as-wildcard') maskAs = 'wildcard';
     else if (a === 'as-mask') maskAs = undefined;
+    dirty = true;
     render();
     return;
   }
@@ -110,12 +132,21 @@ document.addEventListener('click', (e) => {
   const exp = e.target.closest('[data-export]');
   if (exp && info) {
     const fmt = exp.dataset.export;
-    const text = fmt === 'json' ? toJSON(info) : fmt === 'csv' ? toCSV(info) : toText(info);
-    copyText(text, `Copied as ${fmt.toUpperCase()}`);
+    const text = fmt === 'summary' ? toExplain(info) : fmt === 'json' ? toJSON(info) : fmt === 'csv' ? toCSV(info) : toText(info);
+    copyText(text, fmt === 'summary' ? 'Summary copied' : `Copied as ${fmt.toUpperCase()}`);
+    track('copy', { tool: 'subnet', kind: fmt === 'summary' ? 'summary' : 'export', format: fmt });
     return;
   }
-  if (e.target.closest('[data-share]') && info) {
-    copyText(location.href, 'Link copied');
+  if (e.target.closest('[data-download]') && info) {
+    const fmt = e.target.closest('[data-download]').dataset.download;
+    const text = fmt === 'json' ? toJSON(info) : fmt === 'csv' ? toCSV(info) : toText(info);
+    download(`subnet-${info.cidr.replace(/[./]/g, '-')}.${fmt === 'json' ? 'json' : fmt === 'csv' ? 'csv' : 'txt'}`, text);
+    track('download', { tool: 'subnet', format: fmt });
+    return;
+  }
+  if (e.target.closest('[data-share]')) {
+    copyShare({ q: input.value.trim(), maskAs }, 'Link copied');
+    track('share', { tool: 'subnet' });
   }
 });
 

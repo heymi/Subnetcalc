@@ -44,6 +44,9 @@ netmask, and the result has `maskAmbiguous: true`. Pass `{ maskAs: 'wildcard' }`
 - **IPv6** has no broadcast. Every address counts as usable, so the first host is the network address.
 - **VLSM** assigns the largest request first (ties keep input order), packs from the start of the
   parent, and gives 2 hosts a /30 unless `allowSlash31` is set. Only IPv4 is supported.
+- **Capacity rules** are options, not hard-coded policy: `requiredPrefix()` and `planVlsm()` accept
+  `reservedHosts` and `minPrefix`, so AWS-style (5 reserved, /28) and Azure-style (5 reserved, /29)
+  planning uses the same rule for allocation, the results table and the exports.
 - **Special-purpose** data comes from the IANA registries and lives in
   [`lib/data/special-purpose.json`](lib/data/special-purpose.json), with source URLs and the retrieval date.
   Scope and IPv6 type describe the entered address, even when its prefix spans other scopes.
@@ -57,9 +60,14 @@ netmask, and the result has `maskAmbiguous: true`. Pass `{ maskAs: 'wildcard' }`
 
 ## Website
 
-The site is static HTML, CSS and vanilla JS in this repository (`index.html`, `vlsm/`, `cidr/`, `ipv6/`,
-`learn/`, `assets/`). There is no build step at deploy time. `scripts/build.mjs` keeps the shared header,
-footer and pre-rendered results inside the committed HTML in sync. Run it after you edit a partial or a renderer.
+The site is static HTML, CSS and vanilla JS in this repository (`index.html`, `vlsm/`, `cidr/`,
+`ip-range-to-cidr/`, `cidr-overlap-checker/`, `ipv6/`, `ipv6-subnet-plan/`, `learn/`, `verification/`,
+`privacy/`, `assets/`). There is no build step at deploy time. `scripts/build.mjs` keeps the shared
+header, footer and pre-rendered results inside the committed HTML in sync. Run it after you edit a
+partial or a renderer.
+
+Every tool saves its input in the URL, so a copied link reproduces the same result. Invalid input disables
+copy, download and export controls until it is fixed; share links always reproduce the typed state.
 
 ```sh
 python3 -m http.server 8080          # serve the repo root locally
@@ -69,7 +77,7 @@ node scripts/check-site.mjs          # SEO tags, links, anchors, JSON-LD, FAQ sc
 
 Cloudflare Pages setup:
 
-- **Build command:** `npm test && node scripts/check-site.mjs`. A red test or site check stops the deploy.
+- **Build command:** `npm run check`. A red test or site check stops the deploy.
 - **Output directory:** `/`
 - `_headers` sets caching and security headers. `_redirects` returns 404 for `/test/`, `/scripts/` and `/.github/`.
 

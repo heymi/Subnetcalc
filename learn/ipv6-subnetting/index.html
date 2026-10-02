@@ -176,7 +176,7 @@
 <span class="net">2001:0db8:abcd:</span>XY00::/56   XY = 00-ff           256 subnets
 <span class="net">2001:0db8:abcd:</span>XYZ0::/60   XYZ = 000-fff      4,096 subnets
 <span class="net">2001:0db8:abcd:</span>XYZW::/64   XYZW = 0000-ffff  65,536 subnets</pre>
-      <p>The prefix splitter on the <a href="/ipv6/">IPv6 tools page</a> lists up to 65,536 subnets per split, exactly the number of /64s in a /48.</p>
+      <p>The prefix splitter on the <a href="/ipv6/">IPv6 tools page</a> lists up to 65,536 subnets per split, exactly the number of /64s in a /48. To plan a full <a href="/ipv6-subnet-plan/">/48 → /56 → /64 hierarchy</a> with site counts and first/last blocks, use the IPv6 subnet planner.</p>
       <p>Prefixes that are not a multiple of 4 are legal. A /50 borrows 2 bits, so the /48 splits into four: <code>2001:db8:abcd::/50</code>, <code>2001:db8:abcd:4000::/50</code>, <code>2001:db8:abcd:8000::/50</code> and <code>2001:db8:abcd:c000::/50</code>. The boundary now falls inside a hex digit, so the range is no longer visible: <a class="try" href="/?q=2001:db8:abcd:4000::/50">2001:db8:abcd:4000::/50</a> ends at <code>2001:db8:abcd:7fff:ffff:ffff:ffff:ffff</code>. Reverse DNS also works per nibble, since <code>ip6.arpa</code> has one label per hex digit; a /50 needs four /52 zones.</p>
       <p>The documentation block <a class="try" href="/?q=3fff::/20">3fff::/20</a> (<a href="https://www.rfc-editor.org/rfc/rfc9637">RFC 9637</a>) ends on a nibble inside the second hextet. <code>3fff:0</code> is fixed, so it runs from <code>3fff::</code> to <code>3fff:fff:ffff:ffff:ffff:ffff:ffff:ffff</code>.</p>
 
@@ -293,7 +293,7 @@ fd                                        prefix fd00::/8, L = 1    8 bits
   <div class="wrap footer-grid">
     <div>
       <h2>SubnetCalc</h2>
-      <p class="footer-note">Every calculation runs in your browser. Nothing you type is sent anywhere.</p>
+      <p class="footer-note">Every calculation runs in your browser. Share links carry the inputs you put in them.</p>
     </div>
     <div>
       <h2>Tools</h2>
@@ -301,7 +301,10 @@ fd                                        prefix fd00::/8, L = 1    8 bits
         <li><a href="/">Subnet calculator</a></li>
         <li><a href="/vlsm/">VLSM planner</a></li>
         <li><a href="/cidr/">CIDR aggregation &amp; overlaps</a></li>
+        <li><a href="/ip-range-to-cidr/">IP range to CIDR</a></li>
+        <li><a href="/cidr-overlap-checker/">CIDR overlap checker</a></li>
         <li><a href="/ipv6/">IPv6 tools</a></li>
+        <li><a href="/ipv6-subnet-plan/">IPv6 subnet plan</a></li>
       </ul>
     </div>
     <div>
@@ -317,6 +320,8 @@ fd                                        prefix fd00::/8, L = 1    8 bits
       <ul>
         <li><a href="/lib/subnet.js">lib/subnet.js</a> · MIT</li>
         <li><a href="/lib/data/special-purpose.json">IANA special-purpose data</a></li>
+        <li><a href="/verification/">How results are verified</a></li>
+        <li><a href="/privacy/">Privacy</a></li>
       </ul>
     </div>
   </div>

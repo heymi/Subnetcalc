@@ -1,5 +1,6 @@
 // Runs on every page: theme toggle, keyboard shortcuts, copy buttons, analytics.
 import { copyText } from './ui.js';
+import { track, toolName } from './analytics.js';
 
 // ── Analytics: fill in the IDs to enable. Loaded only on the production host, after the page is idle.
 const GA4_ID = ''; // e.g. 'G-XXXXXXXXXX'
@@ -65,6 +66,7 @@ document.addEventListener('click', (e) => {
   const src = b.dataset.copyFrom ? document.querySelector(b.dataset.copyFrom) : null;
   const text = src ? (src.value ?? src.textContent) : b.dataset.copy;
   copyText(text, b.dataset.copyLabel || 'Copied');
+  track('copy', { tool: toolName(), kind: 'value' });
   b.classList.add('is-done');
   setTimeout(() => b.classList.remove('is-done'), 1200);
 });

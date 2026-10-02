@@ -60,7 +60,7 @@
 }
 </script>
 </head>
-<body>
+<body data-tool="cidr">
 <!-- @header -->
 <a class="skip" href="#main">Skip to content</a>
 <header class="site-header">
@@ -84,12 +84,17 @@
     <p class="eyebrow">Aggregate · supernet · overlaps · ranges</p>
     <h1>CIDR Tools</h1>
     <p class="lede">Paste a list of networks to summarize it and check it for overlaps, or turn an address range into CIDR blocks. IPv4 and IPv6.</p>
+    <div class="btn-row no-print">
+      <button type="button" class="btn" data-cidr-share>Share link</button>
+      <button type="button" class="btn btn-ghost" data-cidr-summary>Copy summary</button>
+      <button type="button" class="btn btn-ghost" data-cidr-download>Download results</button>
+    </div>
   </div>
 
   <section class="tools two" aria-labelledby="list-h">
     <div class="tool">
       <h2 id="list-h">Networks</h2>
-      <p>One per line, or separated by commas. Masks and wildcards work too.</p>
+      <p>One per line, or separated by commas. Masks and wildcards work too. Copying is disabled while any line is invalid, so a partial list is never mistaken for a complete check.</p>
       <label for="nets" class="visually-hidden">Networks</label>
       <textarea id="nets" class="textarea" rows="9" spellcheck="false" autocorrect="off" autocapitalize="off" data-primary-input autofocus>10.0.0.0/24
 10.0.1.0/24
@@ -119,7 +124,7 @@
 <div class="row"><b>10.0.0.0/20</b><button type="button" class="copy" data-copy="10.0.0.0/20">copy</button></div><div class="row"><span class="k">covers</span><span>4,096 addresses</span></div><div class="row"><span class="k">not in your list</span><span class="warn">2,560</span></div>
 <!-- /@prerender --></div>
       <h2 style="margin-top: var(--s4)">Overlaps</h2>
-      <p>Pairs where one block contains the other, or both are the same.</p>
+      <p>Pairs where one block contains the other, or both are the same. For a focused check with examples, use the <a href="/cidr-overlap-checker/">CIDR overlap checker</a>.</p>
       <div class="out" id="ovl-out" data-empty="Enter networks to check for overlaps."><!-- @prerender:cidr-ovl -->
 <ul><li><span class="warn">line 3</span> 10.0.2.0/24 contains <span class="warn">line 5</span> 10.0.2.128/25</li></ul>
 <!-- /@prerender --></div>
@@ -129,7 +134,7 @@
   <section class="section tools two" aria-labelledby="range-h">
     <div class="tool">
       <h2 id="range-h">Range to CIDR</h2>
-      <p>First and last address of a range, inclusive. You can also paste <code>a - b</code> into the first field.</p>
+      <p>First and last address of a range, inclusive. You can also paste <code>a - b</code> into the first field. There is a dedicated <a href="/ip-range-to-cidr/">IP range to CIDR page</a> with worked examples.</p>
       <div class="inline-fields">
         <div>
           <label class="field-label" for="r-start">First address</label>
@@ -241,7 +246,7 @@
   <div class="wrap footer-grid">
     <div>
       <h2>SubnetCalc</h2>
-      <p class="footer-note">Every calculation runs in your browser. Nothing you type is sent anywhere.</p>
+      <p class="footer-note">Every calculation runs in your browser. Share links carry the inputs you put in them.</p>
     </div>
     <div>
       <h2>Tools</h2>
@@ -249,7 +254,10 @@
         <li><a href="/">Subnet calculator</a></li>
         <li><a href="/vlsm/">VLSM planner</a></li>
         <li><a href="/cidr/">CIDR aggregation &amp; overlaps</a></li>
+        <li><a href="/ip-range-to-cidr/">IP range to CIDR</a></li>
+        <li><a href="/cidr-overlap-checker/">CIDR overlap checker</a></li>
         <li><a href="/ipv6/">IPv6 tools</a></li>
+        <li><a href="/ipv6-subnet-plan/">IPv6 subnet plan</a></li>
       </ul>
     </div>
     <div>
@@ -265,6 +273,8 @@
       <ul>
         <li><a href="/lib/subnet.js">lib/subnet.js</a> · MIT</li>
         <li><a href="/lib/data/special-purpose.json">IANA special-purpose data</a></li>
+        <li><a href="/verification/">How results are verified</a></li>
+        <li><a href="/privacy/">Privacy</a></li>
       </ul>
     </div>
   </div>

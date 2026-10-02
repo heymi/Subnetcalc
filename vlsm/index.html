@@ -58,7 +58,7 @@
         { "@type": "Question", "name": "Why are the largest subnets allocated first?", "acceptedAnswer": { "@type": "Answer", "text": "Every subnet must start on a multiple of its own size. Placing the largest blocks first keeps each later, smaller block aligned with no gaps, so a set of requests fits whenever their total size fits in the parent." } },
         { "@type": "Question", "name": "How many hosts fit in a /27?", "acceptedAnswer": { "@type": "Answer", "text": "A /27 has 32 addresses and 30 usable hosts. The network and broadcast addresses are not assigned." } },
         { "@type": "Question", "name": "Should point-to-point links use /30 or /31?", "acceptedAnswer": { "@type": "Answer", "text": "A /30 gives two usable addresses plus a network and broadcast address. RFC 3021 allows a /31 on point-to-point links, using both addresses and saving two per link. This planner uses /30 by default and /31 when you turn the option on." } },
-        { "@type": "Question", "name": "Why does AWS show fewer usable addresses than the plan?", "acceptedAnswer": { "@type": "Answer", "text": "AWS reserves five addresses in every subnet: the first four and the last one. Azure does the same. The AWS and Azure exports flag subnets that are below the provider minimum (/28 on AWS, /29 on Azure) or that lose needed hosts to the reservation." } },
+        { "@type": "Question", "name": "Why does AWS show fewer usable addresses than the plan?", "acceptedAnswer": { "@type": "Answer", "text": "AWS and Azure reserve five addresses in every subnet: the first four and the last one. Choose AWS VPC or Azure VNet under Capacity rule and the planner sizes and packs blocks under those rules, so the plan and the exports agree. With the generic rule, the AWS and Azure exports flag subnets below the provider minimum (/28 on AWS, /29 on Azure) or that lose needed hosts to the reservation." } },
         { "@type": "Question", "name": "How does the Terraform export work?", "acceptedAnswer": { "@type": "Answer", "text": "It writes each subnet as cidrsubnet(base_cidr, newbits, netnum). newbits is the child prefix minus the parent prefix, and netnum is the index of the child block within the parent at that size, so the plan stays correct if base_cidr is changed." } }
       ]
     }
@@ -66,7 +66,7 @@
 }
 </script>
 </head>
-<body>
+<body data-tool="vlsm">
 <!-- @header -->
 <a class="skip" href="#main">Skip to content</a>
 <header class="site-header">
@@ -101,8 +101,16 @@
           <kbd title="Press / to focus">/</kbd>
         </div>
       </div>
+      <div>
+        <label class="field-label" for="cloud">Capacity rule</label>
+        <select id="cloud" class="select" name="c">
+          <option value="generic" selected>Generic: 2 reserved (network + broadcast)</option>
+          <option value="aws">AWS VPC: 5 reserved, minimum /28</option>
+          <option value="azure">Azure VNet: 5 reserved, minimum /29</option>
+        </select>
+      </div>
       <label class="check"><input type="checkbox" id="s31" name="s31"> Use /31 for 2-host links (RFC 3021)</label>
-      <p class="hint">Paste a list into any name field (one subnet per line, e.g. <code>Sales 120</code>) to fill the table.</p>
+      <p class="hint">Paste a list into any name field (one subnet per line, e.g. <code>Sales 120</code>) to fill the table. Lines without a host count are kept as rows and flagged, never dropped.</p>
     </div>
 
     <div>
@@ -118,12 +126,17 @@
       <div class="btn-row">
         <button type="button" class="btn" data-add>+ Add subnet</button>
         <button type="button" class="btn btn-ghost" data-example>Load example</button>
+        <button type="button" class="btn btn-ghost" data-example-capacity>Capacity example</button>
         <button type="button" class="btn btn-ghost" data-clear>Clear</button>
       </div>
     </div>
   </form>
 
   <div class="stack status" id="vlsm-status" role="status" aria-live="polite"></div>
+  <div class="btn-row no-print">
+    <button type="button" class="btn" data-share-plan>Share plan</button>
+    <button type="button" class="btn btn-ghost" data-copy-plan>Copy summary</button>
+  </div>
 
   <section class="section" aria-labelledby="plan-h" id="plan" style="padding-top: var(--s6)">
     <div class="section-head">
@@ -136,7 +149,7 @@
 <span>subnets <b>4</b></span>
 <span>allocated <b>212</b> of 256 (82.8%)</span>
 <span>free <b>44</b></span>
-</p>
+</p><p class="hint">Largest first: <b>Sales</b> takes the first /25 (128 addresses), so every smaller block that follows starts on a multiple of its own size with no gaps.</p>
 <!-- /@prerender --></div>
     <div id="vlsm-map"><!-- @prerender:vlsm-map -->
 <div class="addr-map" role="img" aria-label="Address map of 192.168.1.0/24: 4 subnets, 44 addresses free">
@@ -265,6 +278,7 @@ P2P,2,192.168.1.208/30,255.255.255.252,192.168.1.209,192.168.1.210,192.168.1.211
       <li>Place each block at the next free address. Because the blocks shrink as you go, each one starts on a multiple of its own size, which is what a valid subnet needs.</li>
       <li>Whatever is left is listed as free CIDR blocks. If a request does not fit, the planner names it and suggests the smallest parent that would hold everything.</li>
     </ol>
+    <p><strong>Capacity rule</strong> changes the math, not just the label. The generic rule reserves the network and broadcast addresses. AWS VPC and Azure VNet reserve five addresses per subnet and enforce a minimum size (/28 and /29), so a 60-host request gets a /25 there instead of a /26, and the AWS and Azure exports show no warnings because the plan was built under the same rule.</p>
     <p>To check one of the subnets in detail, open it in the <a href="/?q=192.168.1.192/28">subnet calculator</a>. The <a href="/learn/subnetting/#vlsm">subnetting tutorial</a> works through a VLSM design by hand.</p>
   </div>
 
@@ -288,7 +302,7 @@ P2P,2,192.168.1.208/30,255.255.255.252,192.168.1.209,192.168.1.210,192.168.1.211
     </details>
     <details>
       <summary>Why does AWS show fewer usable addresses than the plan?</summary>
-      <div class="answer"><p>AWS reserves five addresses in every subnet: the first four and the last one. Azure does the same. The AWS and Azure exports flag subnets that are below the provider minimum (/28 on AWS, /29 on Azure) or that lose needed hosts to the reservation.</p></div>
+      <div class="answer"><p>AWS and Azure reserve five addresses in every subnet: the first four and the last one. Choose <strong>AWS VPC</strong> or <strong>Azure VNet</strong> under Capacity rule and the planner sizes and packs blocks under those rules, so the plan and the exports agree. With the generic rule, the AWS and Azure exports flag subnets below the provider minimum (/28 on AWS, /29 on Azure) or that lose needed hosts to the reservation.</p></div>
     </details>
     <details>
       <summary>How does the Terraform export work?</summary>
@@ -301,7 +315,7 @@ P2P,2,192.168.1.208/30,255.255.255.252,192.168.1.209,192.168.1.210,192.168.1.211
   <div class="wrap footer-grid">
     <div>
       <h2>SubnetCalc</h2>
-      <p class="footer-note">Every calculation runs in your browser. Nothing you type is sent anywhere.</p>
+      <p class="footer-note">Every calculation runs in your browser. Share links carry the inputs you put in them.</p>
     </div>
     <div>
       <h2>Tools</h2>
@@ -309,7 +323,10 @@ P2P,2,192.168.1.208/30,255.255.255.252,192.168.1.209,192.168.1.210,192.168.1.211
         <li><a href="/">Subnet calculator</a></li>
         <li><a href="/vlsm/">VLSM planner</a></li>
         <li><a href="/cidr/">CIDR aggregation &amp; overlaps</a></li>
+        <li><a href="/ip-range-to-cidr/">IP range to CIDR</a></li>
+        <li><a href="/cidr-overlap-checker/">CIDR overlap checker</a></li>
         <li><a href="/ipv6/">IPv6 tools</a></li>
+        <li><a href="/ipv6-subnet-plan/">IPv6 subnet plan</a></li>
       </ul>
     </div>
     <div>
@@ -325,6 +342,8 @@ P2P,2,192.168.1.208/30,255.255.255.252,192.168.1.209,192.168.1.210,192.168.1.211
       <ul>
         <li><a href="/lib/subnet.js">lib/subnet.js</a> · MIT</li>
         <li><a href="/lib/data/special-purpose.json">IANA special-purpose data</a></li>
+        <li><a href="/verification/">How results are verified</a></li>
+        <li><a href="/privacy/">Privacy</a></li>
       </ul>
     </div>
   </div>

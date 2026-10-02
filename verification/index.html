@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Calculation Rules and Verification – SubnetCalc</title>
+<meta name="description" content="Which rules SubnetCalc follows, which RFCs and IANA snapshots it uses, how the test vectors are cross-checked, and the known differences from other tools.">
+<link rel="canonical" href="https://subnetcalc.dev/verification/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="SubnetCalc">
+<meta property="og:title" content="Calculation Rules and Verification">
+<meta property="og:description" content="Rules, RFCs, IANA snapshots and independent cross-checks behind every SubnetCalc result.">
+<meta property="og:url" content="https://subnetcalc.dev/verification/">
+<meta property="og:image" content="https://subnetcalc.dev/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<!-- @head -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="/assets/fonts/ibm-plex-mono-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/ibm-plex-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/css/site.css">
+<meta name="theme-color" content="#f8f9fb" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#14171c" media="(prefers-color-scheme: dark)">
+<script>try{var t=localStorage.getItem('theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
+<script type="module" src="/assets/js/common.js"></script>
+<!-- /@head -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "SubnetCalc", "item": "https://subnetcalc.dev/" },
+        { "@type": "ListItem", "position": 2, "name": "Calculation rules and verification", "item": "https://subnetcalc.dev/verification/" }
+      ]
+    },
+    {
+      "@type": "WebPage",
+      "name": "Calculation Rules and Verification",
+      "url": "https://subnetcalc.dev/verification/",
+      "description": "Rules, RFCs, IANA snapshots and independent cross-checks behind every SubnetCalc result."
+    }
+  ]
+}
+</script>
+</head>
+<body data-tool="verification">
+<!-- @header -->
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="wrap bar">
+    <a class="brand" href="/"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>SubnetCalc</a>
+    <nav class="site-nav" aria-label="Main">
+      <ul>
+      <li><a href="/">Subnet</a></li>
+      <li><a href="/vlsm/">VLSM</a></li>
+      <li><a href="/cidr/">CIDR</a></li>
+      <li><a href="/ipv6/">IPv6</a></li>
+      <li><a href="/learn/">Learn</a></li>
+      </ul>
+    </nav>
+    <button type="button" class="btn btn-ghost icon-btn theme-toggle" data-theme-toggle aria-label="Switch theme"></button>
+  </div>
+</header>
+<!-- /@header -->
+<main id="main" class="wrap">
+  <div class="page-head">
+    <p class="eyebrow">Rules · sources · cross-checks</p>
+    <h1>Calculation Rules and Verification</h1>
+    <p class="lede">Every number on this site comes from rules that can be checked. This page lists the rules, the sources and retrieval dates, the tools used to cross-check the engine, and the cases where other tools legitimately disagree.</p>
+  </div>
+
+  <div class="section prose">
+    <h2>Rules the calculators follow</h2>
+    <dl class="kv">
+      <div><dt>/31 (IPv4)</dt><dd><span>Both addresses are usable and there is no broadcast, per RFC 3021. The VLSM planner still assigns a /30 to a two-host request unless you enable /31 explicitly.</span></dd></div>
+      <div><dt>/32 (IPv4)</dt><dd><span>A single host route: one address, no network or broadcast distinction.</span></dd></div>
+      <div><dt>IPv6 usable count</dt><dd><span>No broadcast address exists. Every address in the prefix counts as usable, including the subnet-router anycast address, which is why the count differs from tools that subtract it.</span></dd></div>
+      <div><dt>IPv6 text form</dt><dd><span>Output follows RFC 5952: lowercase hex, leading zeros dropped, longest zero run replaced with <code>::</code>, and mixed notation for IPv4-mapped addresses.</span></dd></div>
+      <div><dt>VLSM planning</dt><dd><span>IPv4 only. Requests are placed largest first, ties keep input order, and each block is aligned to its own size. Two-host requests get /30 by default or /31 with the option on.</span></dd></div>
+      <div><dt>Cloud capacity rules</dt><dd><span>AWS VPC and Azure VNet planning reserve 5 addresses per subnet and enforce a /28 and /29 minimum. The planner, the results table and the AWS/Azure exports use the same selected rule, so a plan built for a provider is warning-free there.</span></dd></div>
+      <div><dt>IPv6 hierarchy</dt><dd><span>Site and LAN levels are exact power-of-two splits of the parent, and LANs stay at /64 because SLAAC requires it. The planner notes any site or LAN prefix that is not on a 4-bit (nibble) boundary, since reverse DNS delegates in nibble steps.</span></dd></div>
+      <div><dt>Splitting</dt><dd><span>A prefix split needs an explicit positive limit. Requests above the limit fail before anything is generated, so a partial list is never presented as complete.</span></dd></div>
+      <div><dt>Ambiguous masks</dt><dd><span><code>0.0.0.0</code> and <code>255.255.255.255</code> are valid as both netmask and wildcard. They are read as a netmask and the result is flagged, with a control to read them the other way.</span></dd></div>
+      <div><dt>Input errors</dt><dd><span>Invalid or incomplete input disables copy, download and export controls until it is fixed, so a stale result cannot be used by accident. Share links stay available and reproduce exactly the inputs currently in the page, so a broken input can be shared for review without being presented as a valid result.</span></dd></div>
+    </dl>
+
+    <h2>Sources and retrieval dates</h2>
+    <p>Address classification (private, documentation, link-local, multicast, and so on) uses snapshots of the IANA special-purpose registries, retained in the repository with their exact contents and hashes.</p>
+    <!-- @prerender:verification-data -->
+<dl class="kv">
+<div><dt>IANA IPv4 registry</dt><dd><span>26 special-purpose blocks</span></dd></div>
+<div><dt>IANA IPv6 registry</dt><dd><span>25 special-purpose blocks, plus 3 supplementary well-known blocks</span></dd></div>
+<div><dt>Retrieved</dt><dd><span>2026-10-02 (UTC), downloaded directly from IANA</span></dd></div>
+<div><dt>IPv4 source</dt><dd><span><a href="https://www.iana.org/assignments/iana-ipv4-special-registry/iana-ipv4-special-registry-1.csv">https://www.iana.org/assignments/iana-ipv4-special-registry/iana-ipv4-special-registry-1.csv</a></span></dd></div>
+<div><dt>IPv6 source</dt><dd><span><a href="https://www.iana.org/assignments/iana-ipv6-special-registry/iana-ipv6-special-registry-1.csv">https://www.iana.org/assignments/iana-ipv6-special-registry/iana-ipv6-special-registry-1.csv</a></span></dd></div>
+<div><dt>Shared test vectors</dt><dd><span>232 vectors across 9 files, each with at least two independent validators</span></dd></div>
+</dl>
+<details class="more"><summary>Retained SHA-256 hashes</summary><dl class="kv">
+<div><dt>IPv4 CSV</dt><dd><span><code>e3e39e76d00b1677335db8e9a805c7b9480ea2f4dc9e33f0b93cd3a905128d73</code></span></dd></div>
+<div><dt>IPv6 CSV</dt><dd><span><code>775feea0621dec8735a44fbf30f762e721e8f0a1b3ab7eb341961a88cfce2139</code></span></dd></div>
+</dl></details>
+<!-- /@prerender -->
+
+    <h2>How results are cross-checked</h2>
+    <p>The engine has one shared set of test vectors, and the same vectors are replayed against independent implementations. A vector is only accepted when at least two independent validators agree, and each vector records which fields were actually checked by which tool. The recorded verification run used CPython 3.13.15 (<code>ipaddress</code>), netaddr 1.3.0, Perl ipcalc 0.51 and ipv6calc 4.4.0, with sipcalc installed in CI. The retained IANA CSV snapshots are checked offline against the registry fields.</p>
+    <p>Run the checks yourself:</p>
+    <pre class="code-out" tabindex="0">npm test               # the full Node test suite
+npm run crosscheck     # re-verify every vector with the independent tools</pre>
+    <p>Reproducible examples live in the vectors themselves and on the tool pages. Every result links back to the inputs that produced it: open <a href="/?q=192.168.1.37/26">192.168.1.37/26</a>, <a href="/?q=10.0.0.0/31">10.0.0.0/31</a> or <a href="/?q=2001:db8:abcd::/48">2001:db8:abcd::/48</a> and the page shows the same value with its rule.</p>
+
+    <h2>Known differences from other tools</h2>
+    <ul>
+      <li><strong>IPv6 host counts.</strong> Python's <code>hosts()</code> excludes the subnet-router anycast address; SubnetCalc counts the full range. The cross-check compares Python's network range instead.</li>
+      <li><strong>/31 in VLSM.</strong> The planner is a policy layer: it prefers /30 for two hosts unless you enable RFC 3021 mode. Other tools may default differently.</li>
+      <li><strong>Reversed ranges.</strong> netaddr accepts a start after the end by swapping; SubnetCalc rejects the input instead of guessing.</li>
+      <li><strong>New IANA allocations.</strong> A recent registry entry can be missing from a tool with a bundled older table. The retained IANA snapshot is authoritative for classification fields.</li>
+      <li><strong>Application policy errors.</strong> Mixed IP versions, missing split limits and capacity failures are reported with SubnetCalc's own error codes; comparison tools validate only their own concerns.</li>
+    </ul>
+
+    <h2>Reporting an error</h2>
+    <p>If a result looks wrong, include the exact input, the value you expected, and the rule or source you are comparing against. Open an issue at <a href="https://github.com/heymi/Subnetcalc/issues">github.com/heymi/Subnetcalc/issues</a>; the vectors behind the result make the case reproducible.</p>
+    <p>For what the site stores and what a share link contains, read the <a href="/privacy/">privacy note</a>.</p>
+  </div>
+</main>
+<!-- @footer -->
+<footer class="site-footer">
+  <div class="wrap footer-grid">
+    <div>
+      <h2>SubnetCalc</h2>
+      <p class="footer-note">Every calculation runs in your browser. Share links carry the inputs you put in them.</p>
+    </div>
+    <div>
+      <h2>Tools</h2>
+      <ul>
+        <li><a href="/">Subnet calculator</a></li>
+        <li><a href="/vlsm/">VLSM planner</a></li>
+        <li><a href="/cidr/">CIDR aggregation &amp; overlaps</a></li>
+        <li><a href="/ip-range-to-cidr/">IP range to CIDR</a></li>
+        <li><a href="/cidr-overlap-checker/">CIDR overlap checker</a></li>
+        <li><a href="/ipv6/">IPv6 tools</a></li>
+        <li><a href="/ipv6-subnet-plan/">IPv6 subnet plan</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Learn</h2>
+      <ul>
+        <li><a href="/learn/subnetting/">Subnetting, step by step</a></li>
+        <li><a href="/learn/cidr-cheat-sheet/">CIDR cheat sheet</a></li>
+        <li><a href="/learn/ipv6-subnetting/">IPv6 subnetting</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Engine</h2>
+      <ul>
+        <li><a href="/lib/subnet.js">lib/subnet.js</a> · MIT</li>
+        <li><a href="/lib/data/special-purpose.json">IANA special-purpose data</a></li>
+        <li><a href="/verification/">How results are verified</a></li>
+        <li><a href="/privacy/">Privacy</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+<!-- /@footer -->
+</body>
+</html>
