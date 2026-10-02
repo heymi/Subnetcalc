@@ -69,6 +69,7 @@ import {
   planToAWS,
   planToAzure,
   planToCisco,
+  planToText,
 } from '../lib/export.js';
 
 const plan = planVlsm('192.168.1.0/24', [
@@ -165,6 +166,23 @@ test('planToAWS and planToAzure warn about provider limits', () => {
   const az = planToAzure(plan);
   assert.match(az, /P2P \(2 hosts\) WARNING: \/30 is smaller than the Azure minimum \/29/);
   assert.match(az, /Mgmt \(10 hosts\)$/m);
+});
+
+test('planToAWS and planToAzure are warning-free under their own capacity rules', () => {
+  const aware = planVlsm('10.0.0.0/24', [{ name: 'Edge', hosts: 60 }], { reservedHosts: 5, minPrefix: 28, provider: 'aws' }).plan;
+  const aws = planToAWS(aware);
+  assert.match(aws, /Planned with AWS rules: 5 addresses reserved in every subnet, minimum \/28/);
+  assert.ok(!aws.includes('WARNING'), aws);
+  assert.match(aws, /^10\.0\.0\.0\/25\s+# Edge \(60 hosts\)$/m);
+  const az = planToAzure(planVlsm('10.0.0.0/24', [{ name: 'Edge', hosts: 20 }], { reservedHosts: 5, minPrefix: 29, provider: 'azure' }).plan);
+  assert.ok(!az.includes('WARNING'), az);
+});
+
+test('planToText states the provider rule and provider-aware usable counts', () => {
+  const aware = planVlsm('10.0.0.0/24', [{ name: 'Edge', hosts: 60 }], { reservedHosts: 5, minPrefix: 28, provider: 'aws' }).plan;
+  const t = planToText(aware);
+  assert.match(t, /aws capacity rule reserves 5 addresses per subnet with a minimum \/28/);
+  assert.match(t, /Edge -> 10\.0\.0\.0\/25 \(10\.0\.0\.1 - 10\.0\.0\.126, broadcast 10\.0\.0\.127; 123 usable, 63 unused\)/);
 });
 
 test('planToCisco', () => {

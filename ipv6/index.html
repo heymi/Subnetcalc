@@ -179,7 +179,7 @@
   <div class="section prose">
     <h2>Reading IPv6 addresses</h2>
     <p>An IPv6 address is 128 bits written as eight groups of four hex digits. <a href="https://www.rfc-editor.org/rfc/rfc5952">RFC 5952</a> fixes one short form so the same address always looks the same in logs and configs: leading zeros go, the longest run of zero groups becomes <code>::</code>, and letters are lowercase. The expanded form, with every digit, is what you need for reverse DNS and for lining addresses up by eye.</p>
-    <p>Most LANs use a /64: the first 64 bits identify the subnet and the last 64 are the interface ID. That is why the tool reports the /64 an address sits in, and for shorter prefixes how many /64s they hold. For a full walk-through of prefix planning, read <a href="/learn/ipv6-subnetting/">IPv6 subnetting</a>.</p>
+    <p>Most LANs use a /64: the first 64 bits identify the subnet and the last 64 are the interface ID. That is why the tool reports the /64 an address sits in, and for shorter prefixes how many /64s they hold. To lay out a whole hierarchy, use the <a href="/ipv6-subnet-plan/">IPv6 subnet planner</a>; for a full walk-through of prefix planning, read <a href="/learn/ipv6-subnetting/">IPv6 subnetting</a>.</p>
     <h2>How to expand a compressed address</h2>
     <ol>
       <li>Count the groups present: <code>2001:db8::2:1</code> has four.</li>
@@ -232,6 +232,7 @@
         <li><a href="/ip-range-to-cidr/">IP range to CIDR</a></li>
         <li><a href="/cidr-overlap-checker/">CIDR overlap checker</a></li>
         <li><a href="/ipv6/">IPv6 tools</a></li>
+        <li><a href="/ipv6-subnet-plan/">IPv6 subnet plan</a></li>
       </ul>
     </div>
     <div>

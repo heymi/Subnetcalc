@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>IPv6 Subnet Plan: /48 to /56 to /64 – SubnetCalc</title>
+<meta name="description" content="Plan an IPv6 hierarchy: split a /48 into /56 sites and /64 LANs, with counts, first and last blocks and a copyable plan. Also works for /32, /40 and /56 parents.">
+<link rel="canonical" href="https://subnetcalc.dev/ipv6-subnet-plan/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="SubnetCalc">
+<meta property="og:title" content="IPv6 Subnet Plan: /48 to /56 to /64">
+<meta property="og:description" content="Split a /48 into /56 sites and /64 LANs. Counts, first and last blocks, copyable plan.">
+<meta property="og:url" content="https://subnetcalc.dev/ipv6-subnet-plan/">
+<meta property="og:image" content="https://subnetcalc.dev/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<!-- @head -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="/assets/fonts/ibm-plex-mono-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/ibm-plex-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/css/site.css">
+<meta name="theme-color" content="#f8f9fb" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#14171c" media="(prefers-color-scheme: dark)">
+<script>try{var t=localStorage.getItem('theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
+<script type="module" src="/assets/js/common.js"></script>
+<!-- /@head -->
+<link rel="modulepreload" href="/assets/js/ipv6-subnet-plan.js">
+<link rel="modulepreload" href="/assets/js/ipv6-plan-render.js">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebApplication",
+      "name": "SubnetCalc IPv6 Subnet Planner",
+      "url": "https://subnetcalc.dev/ipv6-subnet-plan/",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Any",
+      "browserRequirements": "Requires JavaScript",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "featureList": ["Hierarchical IPv6 prefix planning", "/48 to /56 to /64 splits", "Site and LAN counts", "First and last block per site", "Copy, share and download the plan"]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "SubnetCalc", "item": "https://subnetcalc.dev/" },
+        { "@type": "ListItem", "position": 2, "name": "IPv6 tools", "item": "https://subnetcalc.dev/ipv6/" },
+        { "@type": "ListItem", "position": 3, "name": "IPv6 subnet plan", "item": "https://subnetcalc.dev/ipv6-subnet-plan/" }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        { "@type": "Question", "name": "How many /64 subnets are in a /48?", "acceptedAnswer": { "@type": "Answer", "text": "65,536. A /48 leaves 16 bits before the /64 boundary, and 2^16 = 65,536. Splitting the same /48 into /56 sites gives 256 sites with 256 /64s each." } },
+        { "@type": "Question", "name": "Why use /56 for sites?", "acceptedAnswer": { "@type": "Answer", "text": "A /56 gives each site 256 /64 LANs, which is enough for most buildings or homes and keeps the prefix on a nibble boundary for reverse DNS delegation. RFC 6177 suggests /56 or /48 for end sites rather than a single /64." } },
+        { "@type": "Question", "name": "Can I plan a /32 or /40 parent?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Change the parent, site and LAN prefix fields and the counts update. A /32 is typical for an ISP allocation, /40 for a large customer, /48 for one organisation and /56 for a small site." } },
+        { "@type": "Question", "name": "Do prefix lengths need to be nibble boundaries?", "acceptedAnswer": { "@type": "Answer", "text": "Routing works with any prefix length, but reverse DNS zones delegate in 4-bit steps, so /48, /52, /56 and /60 map cleanly to one ip6.arpa zone. The planner notes when a chosen site or LAN prefix is not on a nibble boundary." } }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+<body data-tool="ipv6plan">
+<!-- @header -->
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="wrap bar">
+    <a class="brand" href="/"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>SubnetCalc</a>
+    <nav class="site-nav" aria-label="Main">
+      <ul>
+      <li><a href="/">Subnet</a></li>
+      <li><a href="/vlsm/">VLSM</a></li>
+      <li><a href="/cidr/">CIDR</a></li>
+      <li><a href="/ipv6/">IPv6</a></li>
+      <li><a href="/learn/">Learn</a></li>
+      </ul>
+    </nav>
+    <button type="button" class="btn btn-ghost icon-btn theme-toggle" data-theme-toggle aria-label="Switch theme"></button>
+  </div>
+</header>
+<!-- /@header -->
+<main id="main" class="wrap">
+  <nav class="breadcrumb" aria-label="Breadcrumb"><a href="/ipv6/">IPv6 tools</a> / IPv6 subnet plan</nav>
+  <div class="page-head">
+    <p class="eyebrow">/48 → /56 → /64 · RFC 6177 · SLAAC</p>
+    <h1>IPv6 Subnet Plan</h1>
+    <p class="lede">Split a parent prefix into site blocks and then into LAN blocks. The default plan takes one /48, gives each site a /56 (256 /64 LANs) and lists the first sites with their first and last /64.</p>
+    <div class="btn-row no-print">
+      <button type="button" class="btn" data-share>Share link</button>
+      <button type="button" class="btn btn-ghost" data-plan-copy>Copy summary</button>
+      <button type="button" class="btn btn-ghost" data-plan-download>Download</button>
+    </div>
+  </div>
+
+  <section class="tool" aria-labelledby="plan-h">
+    <div class="section-head">
+      <h2 id="plan-h">Hierarchy</h2>
+      <span class="meta">parent · site · LAN</span>
+    </div>
+    <div class="inline-fields" style="max-width: 48rem">
+      <div>
+        <label class="field-label" for="plan-parent">Parent prefix</label>
+        <input id="plan-parent" class="input" type="text" value="2001:db8:abcd::/48" spellcheck="false" autocorrect="off" autocapitalize="off" data-primary-input autofocus>
+      </div>
+      <div>
+        <label class="field-label" for="plan-site">Site prefix</label>
+        <input id="plan-site" class="input" type="number" min="0" max="128" value="56" inputmode="numeric">
+      </div>
+      <div>
+        <label class="field-label" for="plan-lan">LAN prefix</label>
+        <input id="plan-lan" class="input" type="number" min="0" max="128" value="64" inputmode="numeric">
+      </div>
+    </div>
+    <div class="examples">
+      <span>Try</span>
+      <button type="button" data-plan-example="2001:db8:abcd::/48|56|64">/48 → /56 → /64</button>
+      <button type="button" data-plan-example="2001:db8::/32|48|64">ISP /32 → /48 → /64</button>
+      <button type="button" data-plan-example="2001:db8:abcd::/48|52|64">campus /48 → /52 → /64</button>
+      <button type="button" data-plan-example="2001:db8:abcd:1200::/56|60|64">home /56 → /60 → /64</button>
+      <button type="button" data-plan-example="2001:db8:abcd::/48|55|64">off-nibble site /55</button>
+    </div>
+    <div id="plan-out" aria-live="polite" data-empty="Enter a parent prefix and prefix lengths."><!-- @prerender:ipv6-plan-out -->
+<div class="row"><span class="k">Hierarchy</span><span><b>2001:db8:abcd::/48</b> → /56 sites → /64 LANs</span></div>
+<div class="row"><span class="k">Sites</span><span>256 /56 blocks (2<sup>8</sup>)</span></div>
+<div class="row"><span class="k">LANs per site</span><span>256 /64 blocks (2<sup>8</sup>)</span></div>
+<div class="row"><span class="k">Total /64 LANs</span><span><b>65,536</b> (2<sup>16</sup>)</span></div>
+<div class="table-wrap" tabindex="0" style="margin-top: var(--s3)"><table class="data">
+<thead><tr><th scope="col">Site</th><th scope="col" class="num">/64s</th><th scope="col">First /64</th><th scope="col">Last /64</th></tr></thead>
+<tbody>
+<tr><td><a href="/?q=2001:db8:abcd::/56">2001:db8:abcd::/56</a></td><td class="num">256</td><td><a href="/?q=2001:db8:abcd::/64">2001:db8:abcd::/64</a></td><td><a href="/?q=2001:db8:abcd:ff::/64">2001:db8:abcd:ff::/64</a></td></tr>
+<tr><td><a href="/?q=2001:db8:abcd:100::/56">2001:db8:abcd:100::/56</a></td><td class="num">256</td><td><a href="/?q=2001:db8:abcd:100::/64">2001:db8:abcd:100::/64</a></td><td><a href="/?q=2001:db8:abcd:1ff::/64">2001:db8:abcd:1ff::/64</a></td></tr>
+<tr><td><a href="/?q=2001:db8:abcd:200::/56">2001:db8:abcd:200::/56</a></td><td class="num">256</td><td><a href="/?q=2001:db8:abcd:200::/64">2001:db8:abcd:200::/64</a></td><td><a href="/?q=2001:db8:abcd:2ff::/64">2001:db8:abcd:2ff::/64</a></td></tr>
+<tr><td><a href="/?q=2001:db8:abcd:300::/56">2001:db8:abcd:300::/56</a></td><td class="num">256</td><td><a href="/?q=2001:db8:abcd:300::/64">2001:db8:abcd:300::/64</a></td><td><a href="/?q=2001:db8:abcd:3ff::/64">2001:db8:abcd:3ff::/64</a></td></tr>
+<tr><td><a href="/?q=2001:db8:abcd:400::/56">2001:db8:abcd:400::/56</a></td><td class="num">256</td><td><a href="/?q=2001:db8:abcd:400::/64">2001:db8:abcd:400::/64</a></td><td><a href="/?q=2001:db8:abcd:4ff::/64">2001:db8:abcd:4ff::/64</a></td></tr>
+<tr><td><a href="/?q=2001:db8:abcd:500::/56">2001:db8:abcd:500::/56</a></td><td class="num">256</td><td><a href="/?q=2001:db8:abcd:500::/64">2001:db8:abcd:500::/64</a></td><td><a href="/?q=2001:db8:abcd:5ff::/64">2001:db8:abcd:5ff::/64</a></td></tr>
+<tr><td><a href="/?q=2001:db8:abcd:600::/56">2001:db8:abcd:600::/56</a></td><td class="num">256</td><td><a href="/?q=2001:db8:abcd:600::/64">2001:db8:abcd:600::/64</a></td><td><a href="/?q=2001:db8:abcd:6ff::/64">2001:db8:abcd:6ff::/64</a></td></tr>
+<tr><td><a href="/?q=2001:db8:abcd:700::/56">2001:db8:abcd:700::/56</a></td><td class="num">256</td><td><a href="/?q=2001:db8:abcd:700::/64">2001:db8:abcd:700::/64</a></td><td><a href="/?q=2001:db8:abcd:7ff::/64">2001:db8:abcd:7ff::/64</a></td></tr>
+<tr><td><a href="/?q=2001:db8:abcd:800::/56">2001:db8:abcd:800::/56</a></td><td class="num">256</td><td><a href="/?q=2001:db8:abcd:800::/64">2001:db8:abcd:800::/64</a></td><td><a href="/?q=2001:db8:abcd:8ff::/64">2001:db8:abcd:8ff::/64</a></td></tr>
+<tr><td><a href="/?q=2001:db8:abcd:900::/56">2001:db8:abcd:900::/56</a></td><td class="num">256</td><td><a href="/?q=2001:db8:abcd:900::/64">2001:db8:abcd:900::/64</a></td><td><a href="/?q=2001:db8:abcd:9ff::/64">2001:db8:abcd:9ff::/64</a></td></tr>
+<tr><td><a href="/?q=2001:db8:abcd:a00::/56">2001:db8:abcd:a00::/56</a></td><td class="num">256</td><td><a href="/?q=2001:db8:abcd:a00::/64">2001:db8:abcd:a00::/64</a></td><td><a href="/?q=2001:db8:abcd:aff::/64">2001:db8:abcd:aff::/64</a></td></tr>
+<tr><td><a href="/?q=2001:db8:abcd:b00::/56">2001:db8:abcd:b00::/56</a></td><td class="num">256</td><td><a href="/?q=2001:db8:abcd:b00::/64">2001:db8:abcd:b00::/64</a></td><td><a href="/?q=2001:db8:abcd:bff::/64">2001:db8:abcd:bff::/64</a></td></tr>
+<tr><td><a href="/?q=2001:db8:abcd:c00::/56">2001:db8:abcd:c00::/56</a></td><td class="num">256</td><td><a href="/?q=2001:db8:abcd:c00::/64">2001:db8:abcd:c00::/64</a></td><td><a href="/?q=2001:db8:abcd:cff::/64">2001:db8:abcd:cff::/64</a></td></tr>
+<tr><td><a href="/?q=2001:db8:abcd:d00::/56">2001:db8:abcd:d00::/56</a></td><td class="num">256</td><td><a href="/?q=2001:db8:abcd:d00::/64">2001:db8:abcd:d00::/64</a></td><td><a href="/?q=2001:db8:abcd:dff::/64">2001:db8:abcd:dff::/64</a></td></tr>
+<tr><td><a href="/?q=2001:db8:abcd:e00::/56">2001:db8:abcd:e00::/56</a></td><td class="num">256</td><td><a href="/?q=2001:db8:abcd:e00::/64">2001:db8:abcd:e00::/64</a></td><td><a href="/?q=2001:db8:abcd:eff::/64">2001:db8:abcd:eff::/64</a></td></tr>
+<tr><td><a href="/?q=2001:db8:abcd:f00::/56">2001:db8:abcd:f00::/56</a></td><td class="num">256</td><td><a href="/?q=2001:db8:abcd:f00::/64">2001:db8:abcd:f00::/64</a></td><td><a href="/?q=2001:db8:abcd:fff::/64">2001:db8:abcd:fff::/64</a></td></tr>
+</tbody>
+</table></div>
+<p class="hint" style="margin-top: var(--s2)">Showing the first 16 of 256 sites. Last site: <code>2001:db8:abcd:ff00::/56</code>.</p>
+<!-- /@prerender --></div>
+  </section>
+
+  <div class="section prose">
+    <h2>How the hierarchy works</h2>
+    <p>IPv6 planning is a chain of power-of-two splits. A /48 holds 16 bits before the /64 boundary, so it contains 2<sup>16</sup> = 65,536 /64 blocks. Choosing a /56 site level divides those 16 bits into 8 for sites and 8 for LANs: 256 sites, each with 256 /64s. Choosing /52 instead gives 16 sites with 1,024 /64s each. The counts are exact powers of two, so a site block never straddles another site's space.</p>
+    <ol>
+      <li>The <strong>parent</strong> is what you received: an ISP may hand a home a /56, an organisation a /48, a large customer a /40, or an ISP a /32.</li>
+      <li>The <strong>site</strong> level is one block per location, building or business unit.</li>
+      <li>The <strong>LAN</strong> level is one block per VLAN or segment. Keep it at /64: SLAAC and most IPv6 features assume a 64-bit interface ID.</li>
+    </ol>
+    <p>RFC 6177 recommends handing end sites at least a /56 rather than a single /64, which is why the default here is /56 sites. For a worked walkthrough of the notation and the /64 rule, read <a href="/learn/ipv6-subnetting/">IPv6 subnetting</a>. To inspect one of the blocks, open it in the <a href="/ipv6/">IPv6 tools</a>, and for IPv4 planning with host counts use the <a href="/vlsm/">VLSM planner</a>.</p>
+    <h2>Nibble boundaries and reverse DNS</h2>
+    <p>Any prefix length routes correctly, but reverse DNS delegations move in 4-bit steps. A /48, /52, /56 or /60 site prefix maps to exactly one <code>ip6.arpa</code> zone; a /55 does not. The planner marks a level that is not on a nibble boundary so the choice is visible before you commit to it.</p>
+  </div>
+
+  <section class="section faq" aria-labelledby="faq-h">
+    <h2 id="faq-h">Questions</h2>
+    <details>
+      <summary>How many /64 subnets are in a /48?</summary>
+      <div class="answer"><p>65,536. A /48 leaves 16 bits before the /64 boundary, and 2<sup>16</sup> = 65,536. Splitting the same /48 into /56 sites gives 256 sites with 256 /64s each.</p></div>
+    </details>
+    <details>
+      <summary>Why use /56 for sites?</summary>
+      <div class="answer"><p>A /56 gives each site 256 /64 LANs, which is enough for most buildings or homes and keeps the prefix on a nibble boundary for reverse DNS delegation. <a href="https://www.rfc-editor.org/rfc/rfc6177">RFC 6177</a> suggests /56 or /48 for end sites rather than a single /64.</p></div>
+    </details>
+    <details>
+      <summary>Can I plan a /32 or /40 parent?</summary>
+      <div class="answer"><p>Yes. Change the parent, site and LAN prefix fields and the counts update. A /32 is typical for an ISP allocation, /40 for a large customer, /48 for one organisation and /56 for a small site.</p></div>
+    </details>
+    <details>
+      <summary>Do prefix lengths need to be nibble boundaries?</summary>
+      <div class="answer"><p>Routing works with any prefix length, but reverse DNS zones delegate in 4-bit steps, so /48, /52, /56 and /60 map cleanly to one <code>ip6.arpa</code> zone. The planner notes when a chosen site or LAN prefix is not on a nibble boundary.</p></div>
+    </details>
+  </section>
+</main>
+<!-- @footer -->
+<footer class="site-footer">
+  <div class="wrap footer-grid">
+    <div>
+      <h2>SubnetCalc</h2>
+      <p class="footer-note">Every calculation runs in your browser. Share links carry the inputs you put in them.</p>
+    </div>
+    <div>
+      <h2>Tools</h2>
+      <ul>
+        <li><a href="/">Subnet calculator</a></li>
+        <li><a href="/vlsm/">VLSM planner</a></li>
+        <li><a href="/cidr/">CIDR aggregation &amp; overlaps</a></li>
+        <li><a href="/ip-range-to-cidr/">IP range to CIDR</a></li>
+        <li><a href="/cidr-overlap-checker/">CIDR overlap checker</a></li>
+        <li><a href="/ipv6/">IPv6 tools</a></li>
+        <li><a href="/ipv6-subnet-plan/">IPv6 subnet plan</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Learn</h2>
+      <ul>
+        <li><a href="/learn/subnetting/">Subnetting, step by step</a></li>
+        <li><a href="/learn/cidr-cheat-sheet/">CIDR cheat sheet</a></li>
+        <li><a href="/learn/ipv6-subnetting/">IPv6 subnetting</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Engine</h2>
+      <ul>
+        <li><a href="/lib/subnet.js">lib/subnet.js</a> · MIT</li>
+        <li><a href="/lib/data/special-purpose.json">IANA special-purpose data</a></li>
+        <li><a href="/verification/">How results are verified</a></li>
+        <li><a href="/privacy/">Privacy</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+<!-- /@footer -->
+<script type="module" src="/assets/js/ipv6-subnet-plan.js"></script>
+</body>
+</html>

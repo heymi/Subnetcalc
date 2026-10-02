@@ -6,6 +6,7 @@ import {
   DEFAULT_REQUESTS,
   CAPACITY_PARENT,
   CAPACITY_REQUESTS,
+  CLOUD_RULES,
   EXPORTS,
   parseRequestList,
   parseVlsmSearch,
@@ -23,6 +24,7 @@ const $ = (s) => document.querySelector(s);
 const form = $('[data-vlsm]');
 const parentIn = $('#parent');
 const s31 = $('#s31');
+const cloudSel = $('#cloud');
 const reqs = $('#reqs');
 const status = $('#vlsm-status');
 const out = {
@@ -68,7 +70,11 @@ function queryString() {
   const r = readRows()
     .map((x) => `${enc(x.name)}:${Number.isFinite(x.hosts) ? x.hosts : ''}`)
     .join(',');
-  return `?p=${enc(parentIn.value.trim())}&r=${r}${s31.checked ? '&s31=1' : ''}`;
+  return `?p=${enc(parentIn.value.trim())}&r=${r}${s31.checked ? '&s31=1' : ''}${cloudSel.value !== 'generic' ? `&c=${cloudSel.value}` : ''}`;
+}
+
+function cloudRule() {
+  return CLOUD_RULES[cloudSel.value] ?? CLOUD_RULES.generic;
 }
 function writeUrl() {
   const q = queryString();
@@ -98,7 +104,8 @@ function render() {
   const parent = parentIn.value;
   const list = readRows();
   syncUrl();
-  const opts = { allowSlash31: s31.checked };
+  const rule = cloudRule();
+  const opts = { allowSlash31: s31.checked, reservedHosts: rule.reservedHosts, minPrefix: rule.minPrefix, provider: rule.provider };
   if (!parent.trim()) {
     status.innerHTML = loadNotice;
     plan = null;
@@ -169,10 +176,24 @@ form.addEventListener('input', (e) => {
   render();
 });
 form.addEventListener('submit', (e) => e.preventDefault());
+function applyCloudUI() {
+  const generic = cloudSel.value === 'generic';
+  s31.disabled = !generic;
+  if (!generic) s31.checked = false;
+  if (!generic) {
+    const tab = document.querySelector(`#export-tabs [data-fmt="${cloudSel.value}"]`);
+    if (tab) selectTab(tab);
+  } else if (fmt === 'aws' || fmt === 'azure') {
+    const tab = document.querySelector('#export-tabs [data-fmt="csv"]');
+    if (tab) selectTab(tab);
+  }
+}
+
 form.addEventListener('change', (e) => {
-  if (e.target === s31) {
+  if (e.target === s31 || e.target === cloudSel) {
     dirty = true;
     loadNotice = '';
+    if (e.target === cloudSel) applyCloudUI();
     render();
   }
 });
@@ -298,6 +319,8 @@ const fromUrl = parseVlsmSearch(location.search);
 if (fromUrl) {
   parentIn.value = fromUrl.parent;
   s31.checked = fromUrl.s31;
+  cloudSel.value = fromUrl.cloud;
+  applyCloudUI();
   setRows(
     fromUrl.entries.length
       ? fromUrl.entries.map((x) => ({ name: x.name, hosts: Number.isFinite(x.hosts) ? x.hosts : '' }))

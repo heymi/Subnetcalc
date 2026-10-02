@@ -8,6 +8,7 @@ import { analyze, planVlsm } from '../lib/subnet.js';
 import { toExplain, planToText } from '../lib/export.js';
 import { buildShareUrl } from '../assets/js/ui.js';
 import {
+  CLOUD_RULES,
   DEFAULT_REQUESTS,
   parseRequestList,
   parseVlsmSearch,
@@ -22,6 +23,7 @@ import {
 } from '../assets/js/cidr-render.js';
 import { renderResults } from '../assets/js/calc-render.js';
 import { ipv6SummaryText } from '../assets/js/ipv6-render.js';
+import { planCounts, renderPlan } from '../assets/js/ipv6-plan-render.js';
 
 describe('VLSM paste parsing', () => {
   test('keeps every line in order and reports the unreadable one', () => {
@@ -78,6 +80,15 @@ describe('VLSM share query', () => {
     assert.equal(r.entries[0].name, 'Eng%');
     assert.equal(r.entries[0].hosts, 50);
     assert.deepEqual(r.bad, ['Eng%']);
+  });
+
+  test('cloud capacity rule round-trips and unknown values fall back', () => {
+    assert.equal(parseVlsmSearch('?p=10.0.0.0/24&c=aws').cloud, 'aws');
+    assert.equal(parseVlsmSearch('?p=10.0.0.0/24&c=bogus').cloud, 'generic');
+    assert.equal(parseVlsmSearch('?p=10.0.0.0/24').cloud, 'generic');
+    assert.deepEqual(CLOUD_RULES.aws, { provider: 'aws', reservedHosts: 5, minPrefix: 28, label: 'AWS VPC' });
+    assert.equal(CLOUD_RULES.azure.minPrefix, 29);
+    assert.equal(CLOUD_RULES.generic.reservedHosts, 2);
   });
 
   test('an empty or truncated r= is reported, not fatal', () => {
@@ -155,6 +166,42 @@ describe('CIDR renderers with invalid lines', () => {
     assert.match(s, /Range: 192\.168\.1\.10 - 192\.168\.1\.20/);
     assert.match(s, /192\.168\.1\.20\/32/);
     assert.equal(rangeSummary('192.168.1.20', '192.168.1.10'), null);
+  });
+});
+
+describe('IPv6 hierarchical plan', () => {
+  test('counts the default /48 → /56 → /64 hierarchy', () => {
+    const c = planCounts('2001:db8:abcd::/48', 56, 64);
+    assert.equal(c.sites, 256n);
+    assert.equal(c.lansPerSite, 256n);
+    assert.equal(c.totalLans, 65536n);
+  });
+
+  test('renders first and last sites with their first and last /64', () => {
+    const r = renderPlan('2001:db8:abcd::/48', 56, 64);
+    assert.match(r.html, /2001:db8:abcd::\/56/);
+    assert.match(r.html, /2001:db8:abcd:ff::\/64/);
+    assert.match(r.html, /Last site: <code>2001:db8:abcd:ff00::\/56<\/code>/);
+    assert.match(r.summary, /Total \/64 LANs: 65,536/);
+    assert.match(r.summary, /Site prefix: \/56 -> 256 sites/);
+    assert.equal(r.error, null);
+  });
+
+  test('a smaller LAN step multiplies the per-site count', () => {
+    const c = planCounts('2001:db8::/32', 48, 64);
+    assert.equal(c.sites, 65536n);
+    assert.equal(c.totalLans, 4294967296n);
+  });
+
+  test('off-nibble boundaries are noted and invalid prefixes rejected', () => {
+    assert.match(renderPlan('2001:db8::/48', 55, 64).html, /not a nibble boundary/);
+    const below = renderPlan('2001:db8::/48', 47, 64);
+    assert.match(below.html, /Site prefix must be between \/48 and \/128/);
+    assert.equal(below.summary, null);
+    const v4 = renderPlan('10.0.0.0/8', 56, 64);
+    assert.match(v4.html, /needs an IPv6 prefix/);
+    const lan = renderPlan('2001:db8::/48', 56, 55);
+    assert.match(lan.html, /LAN prefix must be between \/56 and \/128/);
   });
 });
 

@@ -33,6 +33,7 @@ import {
   renderOverlapReport,
 } from '../assets/js/cidr-render.js';
 import { DEFAULTS as V6, renderAddress, renderSplit, renderEui } from '../assets/js/ipv6-render.js';
+import { PLAN_DEFAULTS, renderPlan } from '../assets/js/ipv6-plan-render.js';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const ORIGIN = 'https://subnetcalc.dev';
@@ -110,6 +111,7 @@ const footer = () => `<footer class="site-footer">
         <li><a href="/ip-range-to-cidr/">IP range to CIDR</a></li>
         <li><a href="/cidr-overlap-checker/">CIDR overlap checker</a></li>
         <li><a href="/ipv6/">IPv6 tools</a></li>
+        <li><a href="/ipv6-subnet-plan/">IPv6 subnet plan</a></li>
       </ul>
     </div>
     <div>
@@ -263,6 +265,7 @@ const PRERENDER = {
   'v6-addr': () => renderAddress(V6.addr),
   'v6-eui': () => renderEui(V6.mac, V6.eui),
   'v6-split': () => renderSplit(V6.split, V6.newPrefix),
+  'ipv6-plan-out': () => renderPlan(PLAN_DEFAULTS.parent, PLAN_DEFAULTS.site, PLAN_DEFAULTS.lan).html,
   'prefix-table-v4': prefixTableHtml,
   'slash24-table': slash24Html,
   'mask-octet-table': maskOctetHtml,

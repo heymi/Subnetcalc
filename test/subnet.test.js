@@ -385,6 +385,34 @@ describe('VLSM', () => {
   }
 });
 
+describe('capacity rules (application policy)', () => {
+  test('reservedHosts and minPrefix change requiredPrefix', () => {
+    assert.equal(requiredPrefix(60), 26);
+    assert.equal(requiredPrefix(60, { reservedHosts: 5, minPrefix: 28 }), 25);
+    assert.equal(requiredPrefix(1, { reservedHosts: 5, minPrefix: 28 }), 28);
+    assert.equal(requiredPrefix(1, { reservedHosts: 5, minPrefix: 29 }), 29);
+    assert.equal(requiredPrefix(2, { allowSlash31: true }), 31);
+    assert.equal(requiredPrefix(2, { allowSlash31: true, reservedHosts: 5, minPrefix: 28 }), 28);
+  });
+  test('invalid reservation values are rejected', () => {
+    assertCode(() => requiredPrefix(1, { reservedHosts: -1 }), 'INVALID_RESERVATION');
+    assertCode(() => requiredPrefix(1, { reservedHosts: 1.5 }), 'INVALID_RESERVATION');
+    assertCode(() => requiredPrefix(1, { minPrefix: 33 }), 'INVALID_RESERVATION');
+  });
+  test('planVlsm records and applies the provider rule', () => {
+    const p = planVlsm('10.0.0.0/24', [{ name: 'Edge', hosts: 60 }], { reservedHosts: 5, minPrefix: 28, provider: 'aws' }).plan;
+    assert.equal(p.allocations[0].prefix, 25);
+    assert.equal(String(p.allocations[0].usableHosts), '123');
+    assert.equal(String(p.allocations[0].wasted), '63');
+    assert.equal(p.reservedHosts, 5);
+    assert.equal(p.minPrefix, 28);
+    assert.equal(p.provider, 'aws');
+    const generic = planVlsm('10.0.0.0/24', [{ name: 'Edge', hosts: 60 }]).plan;
+    assert.equal(generic.allocations[0].prefix, 26);
+    assert.equal(generic.provider, null);
+  });
+});
+
 describe('IPv6 tools', () => {
   const d = vectors('ipv6-tools.json');
   for (const v of d.eui64) {

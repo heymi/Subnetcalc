@@ -12,9 +12,9 @@ import {
 import { esc, group } from './ui.js';
 
 /**
- * Parse a VLSM share query (?p=&r=&s31=) defensively. Malformed percent escapes and
+ * Parse a VLSM share query (?p=&r=&s31=&c=) defensively. Malformed percent escapes and
  * empty host counts never throw; they are reported so the page can ask for the value.
- * @returns {{ parent: string, entries: {name: string, hosts: number}[], s31: boolean, bad: string[], incomplete: boolean } | null}
+ * @returns {{ parent: string, entries: {name: string, hosts: number}[], s31: boolean, cloud: string, bad: string[], incomplete: boolean } | null}
  */
 export function parseVlsmSearch(search) {
   const raw = String(search || '');
@@ -36,10 +36,12 @@ export function parseVlsmSearch(search) {
     const hostsRaw = i === -1 ? '' : item.slice(i + 1);
     entries.push({ name, hosts: /^\d+$/.test(hostsRaw) ? Number(hostsRaw) : NaN });
   }
+  const cloud = sp.get('c');
   return {
     parent: p ?? DEFAULT_PARENT,
     entries,
     s31: sp.get('s31') === '1',
+    cloud: cloud && Object.hasOwn(CLOUD_RULES, cloud) ? cloud : 'generic',
     bad,
     incomplete: entries.some((e) => !Number.isFinite(e.hosts)),
   };
@@ -59,6 +61,17 @@ export const CAPACITY_REQUESTS = [
   { name: 'Office', hosts: 20 },
   { name: 'Lab', hosts: 20 },
 ];
+
+/**
+ * Capacity rules the planner can allocate under. The generic rule is the classic
+ * network + broadcast reservation; cloud rules reserve 5 addresses and set a
+ * minimum subnet size, so allocation and the AWS/Azure exports agree.
+ */
+export const CLOUD_RULES = {
+  generic: { provider: null, reservedHosts: 2, minPrefix: 32, label: 'Generic' },
+  aws: { provider: 'aws', reservedHosts: 5, minPrefix: 28, label: 'AWS VPC' },
+  azure: { provider: 'azure', reservedHosts: 5, minPrefix: 29, label: 'Azure VNet' },
+};
 
 /**
  * Read pasted "name hosts" lines. Every non-empty line is kept: unreadable lines come
