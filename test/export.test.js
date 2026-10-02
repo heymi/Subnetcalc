@@ -59,3 +59,111 @@ test('toCSV: header, CRLF, quoting', () => {
   // name and RFC list contain a comma, so the cell is quoted
   assert.ok(lines.includes('special,"NAT64/DNS64 Discovery (192.0.0.170/32, RFC 8880, RFC 7050)"'));
 });
+
+import { planVlsm } from '../lib/subnet.js';
+import {
+  planToCSV,
+  planToJSON,
+  planToMarkdown,
+  planToTerraform,
+  planToAWS,
+  planToAzure,
+  planToCisco,
+} from '../lib/export.js';
+
+const plan = planVlsm('192.168.1.0/24', [
+  { name: 'Sales', hosts: 120 },
+  { name: 'Eng', hosts: 50 },
+  { name: 'Mgmt', hosts: 10 },
+  { name: 'P2P', hosts: 2 },
+]).plan;
+
+test('planToCSV', () => {
+  assert.equal(
+    planToCSV(plan),
+    [
+      'name,hostsRequested,cidr,netmask,firstHost,lastHost,broadcast,usableHosts,wasted',
+      'Sales,120,192.168.1.0/25,255.255.255.128,192.168.1.1,192.168.1.126,192.168.1.127,126,6',
+      'Eng,50,192.168.1.128/26,255.255.255.192,192.168.1.129,192.168.1.190,192.168.1.191,62,12',
+      'Mgmt,10,192.168.1.192/28,255.255.255.240,192.168.1.193,192.168.1.206,192.168.1.207,14,4',
+      'P2P,2,192.168.1.208/30,255.255.255.252,192.168.1.209,192.168.1.210,192.168.1.211,2,0',
+      '',
+    ].join('\r\n'),
+  );
+});
+
+test('planToJSON', () => {
+  const j = JSON.parse(planToJSON(plan));
+  assert.equal(j.parent, '192.168.1.0/24');
+  assert.equal(j.subnets.length, 4);
+  assert.deepEqual(j.subnets[3], {
+    name: 'P2P',
+    hostsRequested: 2,
+    cidr: '192.168.1.208/30',
+    netmask: '255.255.255.252',
+    firstHost: '192.168.1.209',
+    lastHost: '192.168.1.210',
+    broadcast: '192.168.1.211',
+    usableHosts: 2,
+    wasted: 0,
+  });
+  assert.deepEqual(j.free, ['192.168.1.212/30', '192.168.1.216/29', '192.168.1.224/27']);
+  assert.equal(j.usedAddresses, 212);
+  assert.equal(j.freeAddresses, 44);
+});
+
+test('planToMarkdown', () => {
+  const md = planToMarkdown(plan).split('\n');
+  assert.equal(md[0], '| Name | Hosts needed | Subnet | Netmask | First host | Last host | Broadcast | Usable | Unused |');
+  assert.equal(md[1], '| --- | ---: | --- | --- | --- | --- | --- | ---: | ---: |');
+  assert.equal(md[2], '| Sales | 120 | 192.168.1.0/25 | 255.255.255.128 | 192.168.1.1 | 192.168.1.126 | 192.168.1.127 | 126 | 6 |');
+  assert.ok(md.includes('Free: 192.168.1.212/30, 192.168.1.216/29, 192.168.1.224/27'));
+});
+
+test('planToTerraform uses cidrsubnet with correct newbits/netnum', () => {
+  assert.equal(
+    planToTerraform(plan),
+    `# VLSM plan for 192.168.1.0/24
+locals {
+  base_cidr = "192.168.1.0/24"
+
+  subnets = {
+    "Sales" = cidrsubnet(local.base_cidr, 1, 0) # 192.168.1.0/25
+    "Eng"   = cidrsubnet(local.base_cidr, 2, 2) # 192.168.1.128/26
+    "Mgmt"  = cidrsubnet(local.base_cidr, 4, 12) # 192.168.1.192/28
+    "P2P"   = cidrsubnet(local.base_cidr, 6, 52) # 192.168.1.208/30
+  }
+}
+`,
+  );
+});
+
+test('planToTerraform escapes HCL strings', () => {
+  const p = planVlsm('10.0.0.0/24', [{ name: 'a "b" ${c}', hosts: 10 }]).plan;
+  assert.match(planToTerraform(p), /"a \\"b\\" \$\$\{c\}" = cidrsubnet/);
+});
+
+test('planToAWS and planToAzure warn about provider limits', () => {
+  const aws = planToAWS(plan);
+  assert.match(aws, /^192\.168\.1\.0\/25 {4}# Sales \(120 hosts\)$/m);
+  assert.match(aws, /192\.168\.1\.192\/28 {2}# Mgmt \(10 hosts\)$/m);
+  assert.match(aws, /192\.168\.1\.208\/30 {2}# P2P \(2 hosts\) WARNING: \/30 is smaller than the AWS minimum \/28/);
+  const tight = planVlsm('10.0.0.0/24', [{ name: 'Edge', hosts: 60 }]).plan; // /26: 64 - 5 = 59 < 60
+  assert.match(planToAWS(tight), /Edge \(60 hosts\) WARNING: only 59 usable after AWS reserves 5/);
+  const az = planToAzure(plan);
+  assert.match(az, /P2P \(2 hosts\) WARNING: \/30 is smaller than the Azure minimum \/29/);
+  assert.match(az, /Mgmt \(10 hosts\)$/m);
+});
+
+test('planToCisco', () => {
+  const c = planToCisco(plan).split('\n');
+  assert.deepEqual(c.slice(0, 5), [
+    '! Sales: 192.168.1.0/25, 126 usable',
+    'interface <INTERFACE>',
+    ' description Sales',
+    ' ip address 192.168.1.1 255.255.255.128',
+    '!',
+  ]);
+  const p31 = planVlsm('10.0.0.0/30', [{ name: 'Link', hosts: 2 }], { allowSlash31: true }).plan;
+  assert.ok(planToCisco(p31).includes(' ip address 10.0.0.0 255.255.255.254'));
+});

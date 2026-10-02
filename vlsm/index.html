@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>VLSM Calculator and Subnet Planner – SubnetCalc</title>
+<meta name="description" content="VLSM calculator: split a network into subnets sized for each host count. Allocation table, split tree, free space, and export to CSV, JSON, Markdown, Terraform, AWS, Azure or Cisco IOS.">
+<link rel="canonical" href="https://subnetcalc.dev/vlsm/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="SubnetCalc">
+<meta property="og:title" content="VLSM Calculator and Subnet Planner">
+<meta property="og:description" content="Split a network into subnets sized for each host count. Split tree, free space, Terraform and Cisco export.">
+<meta property="og:url" content="https://subnetcalc.dev/vlsm/">
+<meta property="og:image" content="https://subnetcalc.dev/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<!-- @head -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="/assets/fonts/ibm-plex-mono-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/ibm-plex-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/css/site.css">
+<meta name="theme-color" content="#f8f9fb" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#14171c" media="(prefers-color-scheme: dark)">
+<script>try{var t=localStorage.getItem('theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
+<script type="module" src="/assets/js/common.js"></script>
+<!-- /@head -->
+<link rel="modulepreload" href="/assets/js/vlsm.js">
+<link rel="modulepreload" href="/lib/subnet.js">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebApplication",
+      "name": "SubnetCalc VLSM Planner",
+      "url": "https://subnetcalc.dev/vlsm/",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Any",
+      "browserRequirements": "Requires JavaScript",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "featureList": [
+        "Variable-length subnet allocation, largest first",
+        "Binary split tree and address map",
+        "Free space as CIDR blocks",
+        "Export to CSV, JSON, Markdown, Terraform cidrsubnet(), AWS, Azure and Cisco IOS"
+      ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "SubnetCalc", "item": "https://subnetcalc.dev/" },
+        { "@type": "ListItem", "position": 2, "name": "VLSM planner", "item": "https://subnetcalc.dev/vlsm/" }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        { "@type": "Question", "name": "What is VLSM?", "acceptedAnswer": { "@type": "Answer", "text": "Variable Length Subnet Masking means giving each subnet a prefix length that fits its own host count, instead of cutting a network into equal pieces. A 120-host LAN gets a /25 while a router link gets a /30, so less address space is wasted." } },
+        { "@type": "Question", "name": "Why are the largest subnets allocated first?", "acceptedAnswer": { "@type": "Answer", "text": "Every subnet must start on a multiple of its own size. Placing the largest blocks first keeps each later, smaller block aligned with no gaps, so a set of requests fits whenever their total size fits in the parent." } },
+        { "@type": "Question", "name": "How many hosts fit in a /27?", "acceptedAnswer": { "@type": "Answer", "text": "A /27 has 32 addresses and 30 usable hosts. The network and broadcast addresses are not assigned." } },
+        { "@type": "Question", "name": "Should point-to-point links use /30 or /31?", "acceptedAnswer": { "@type": "Answer", "text": "A /30 gives two usable addresses plus a network and broadcast address. RFC 3021 allows a /31 on point-to-point links, using both addresses and saving two per link. This planner uses /30 by default and /31 when you turn the option on." } },
+        { "@type": "Question", "name": "Why does AWS show fewer usable addresses than the plan?", "acceptedAnswer": { "@type": "Answer", "text": "AWS reserves five addresses in every subnet: the first four and the last one. Azure does the same. The AWS and Azure exports flag subnets that are below the provider minimum (/28 on AWS, /29 on Azure) or that lose needed hosts to the reservation." } },
+        { "@type": "Question", "name": "How does the Terraform export work?", "acceptedAnswer": { "@type": "Answer", "text": "It writes each subnet as cidrsubnet(base_cidr, newbits, netnum). newbits is the child prefix minus the parent prefix, and netnum is the index of the child block within the parent at that size, so the plan stays correct if base_cidr is changed." } }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<!-- @header -->
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="wrap bar">
+    <a class="brand" href="/"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>SubnetCalc</a>
+    <nav class="site-nav" aria-label="Main">
+      <ul>
+      <li><a href="/">Subnet</a></li>
+      <li><a href="/vlsm/" aria-current="page">VLSM</a></li>
+      <li><a href="/cidr/">CIDR</a></li>
+      <li><a href="/ipv6/">IPv6</a></li>
+      <li><a href="/learn/">Learn</a></li>
+      </ul>
+    </nav>
+    <button type="button" class="btn btn-ghost icon-btn theme-toggle" data-theme-toggle aria-label="Switch theme"></button>
+  </div>
+</header>
+<!-- /@header -->
+<main id="main" class="wrap">
+  <div class="page-head">
+    <p class="eyebrow">Variable-length subnet masks</p>
+    <h1>VLSM Subnet Planner</h1>
+    <p class="lede">Give a parent block and the hosts each subnet needs. Subnets are sized to fit and packed from the start of the block, largest first.</p>
+  </div>
+
+  <form class="vlsm-layout" data-vlsm autocomplete="off">
+    <div class="stack" style="gap: var(--s4)">
+      <div>
+        <label class="field-label" for="parent">Parent network</label>
+        <div class="prompt">
+          <input id="parent" name="p" type="text" value="192.168.1.0/24" autocorrect="off" autocapitalize="off" spellcheck="false" data-primary-input>
+          <kbd title="Press / to focus">/</kbd>
+        </div>
+      </div>
+      <label class="check"><input type="checkbox" id="s31" name="s31"> Use /31 for 2-host links (RFC 3021)</label>
+      <p class="hint">Paste a list into any name field (one subnet per line, e.g. <code>Sales 120</code>) to fill the table.</p>
+    </div>
+
+    <div>
+      <table class="req-table">
+        <thead><tr><th scope="col">Subnet name</th><th scope="col">Hosts needed</th><th scope="col"><span class="visually-hidden">Remove</span></th></tr></thead>
+        <tbody id="reqs">
+          <tr><td><input class="input" type="text" aria-label="Subnet name" value="Sales"></td><td><input class="input hosts" type="number" min="1" step="1" inputmode="numeric" aria-label="Hosts needed" value="120"></td><td><button type="button" class="btn btn-ghost icon-btn" data-remove aria-label="Remove subnet">×</button></td></tr>
+          <tr><td><input class="input" type="text" aria-label="Subnet name" value="Eng"></td><td><input class="input hosts" type="number" min="1" step="1" inputmode="numeric" aria-label="Hosts needed" value="50"></td><td><button type="button" class="btn btn-ghost icon-btn" data-remove aria-label="Remove subnet">×</button></td></tr>
+          <tr><td><input class="input" type="text" aria-label="Subnet name" value="Mgmt"></td><td><input class="input hosts" type="number" min="1" step="1" inputmode="numeric" aria-label="Hosts needed" value="10"></td><td><button type="button" class="btn btn-ghost icon-btn" data-remove aria-label="Remove subnet">×</button></td></tr>
+          <tr><td><input class="input" type="text" aria-label="Subnet name" value="P2P"></td><td><input class="input hosts" type="number" min="1" step="1" inputmode="numeric" aria-label="Hosts needed" value="2"></td><td><button type="button" class="btn btn-ghost icon-btn" data-remove aria-label="Remove subnet">×</button></td></tr>
+        </tbody>
+      </table>
+      <div class="btn-row">
+        <button type="button" class="btn" data-add>+ Add subnet</button>
+        <button type="button" class="btn btn-ghost" data-example>Load example</button>
+        <button type="button" class="btn btn-ghost" data-clear>Clear</button>
+      </div>
+    </div>
+  </form>
+
+  <div class="stack status" id="vlsm-status" role="status" aria-live="polite"></div>
+
+  <section class="section" aria-labelledby="plan-h" id="plan" style="padding-top: var(--s6)">
+    <div class="section-head">
+      <h2 id="plan-h">Allocation</h2>
+      <span class="meta">largest first · aligned to block size</span>
+    </div>
+    <div id="vlsm-summary"><!-- @prerender:vlsm-summary -->
+<p class="summary-line">
+<span>parent <b>192.168.1.0/24</b></span>
+<span>subnets <b>4</b></span>
+<span>allocated <b>212</b> of 256 (82.8%)</span>
+<span>free <b>44</b></span>
+</p>
+<!-- /@prerender --></div>
+    <div id="vlsm-map"><!-- @prerender:vlsm-map -->
+<div class="addr-map" role="img" aria-label="Address map of 192.168.1.0/24: 4 subnets, 44 addresses free">
+<div class="addr-bar"><span class="a" style="left:0.0000%;width:50.0000%" title="Sales · 192.168.1.0/25 · 128 addresses"><span>Sales</span></span><span class="a alt" style="left:50.0000%;width:25.0000%" title="Eng · 192.168.1.128/26 · 64 addresses"><span>Eng</span></span><span class="a" style="left:75.0000%;width:6.2500%" title="Mgmt · 192.168.1.192/28 · 16 addresses"><span>Mgmt</span></span><span class="a alt" style="left:81.2500%;width:1.5625%" title="P2P · 192.168.1.208/30 · 4 addresses"><span>P2P</span></span><span class="f" style="left:82.8125%;width:1.5625%" title="free · 192.168.1.212/30 · 4 addresses"><span>free</span></span><span class="f" style="left:84.3750%;width:3.1250%" title="free · 192.168.1.216/29 · 8 addresses"><span>free</span></span><span class="f" style="left:87.5000%;width:12.5000%" title="free · 192.168.1.224/27 · 32 addresses"><span>free</span></span></div>
+<div class="addr-ends"><span>192.168.1.0</span><span>192.168.1.255</span></div>
+</div>
+<!-- /@prerender --></div>
+    <div id="vlsm-table"><!-- @prerender:vlsm-table -->
+<div class="table-wrap"><table class="data">
+<thead><tr><th scope="col">Name</th><th scope="col" class="num">Hosts</th><th scope="col">Subnet</th><th scope="col">Netmask</th><th scope="col">Usable range</th><th scope="col">Broadcast</th><th scope="col" class="num">Usable</th><th scope="col" class="num">Unused</th></tr></thead>
+<tbody>
+<tr>
+<td class="name">Sales</td><td class="num">120</td><td><b>192.168.1.0/25</b></td><td>255.255.255.128</td><td>192.168.1.1 – 192.168.1.126</td><td>192.168.1.127</td><td class="num">126</td><td class="num">6</td>
+</tr>
+<tr>
+<td class="name">Eng</td><td class="num">50</td><td><b>192.168.1.128/26</b></td><td>255.255.255.192</td><td>192.168.1.129 – 192.168.1.190</td><td>192.168.1.191</td><td class="num">62</td><td class="num">12</td>
+</tr>
+<tr>
+<td class="name">Mgmt</td><td class="num">10</td><td><b>192.168.1.192/28</b></td><td>255.255.255.240</td><td>192.168.1.193 – 192.168.1.206</td><td>192.168.1.207</td><td class="num">14</td><td class="num">4</td>
+</tr>
+<tr>
+<td class="name">P2P</td><td class="num">2</td><td><b>192.168.1.208/30</b></td><td>255.255.255.252</td><td>192.168.1.209 – 192.168.1.210</td><td>192.168.1.211</td><td class="num">2</td><td class="num">0</td>
+</tr>
+</tbody>
+</table></div>
+<!-- /@prerender --></div>
+    <div id="vlsm-free" style="margin-top: var(--s3)"><!-- @prerender:vlsm-free -->
+<p class="hint">Free blocks: <code>192.168.1.212/30</code> <code>192.168.1.216/29</code> <code>192.168.1.224/27</code></p>
+<!-- /@prerender --></div>
+  </section>
+
+  <section class="section" aria-labelledby="tree-h" id="tree-section">
+    <div class="section-head">
+      <h2 id="tree-h">Split tree</h2>
+      <span class="btn-row no-print">
+        <button type="button" class="btn btn-ghost" data-tree="expand">Expand all</button>
+        <button type="button" class="btn btn-ghost" data-tree="collapse">Collapse all</button>
+      </span>
+    </div>
+    <p class="hint" style="margin-bottom: var(--s3)">Each split halves a block. Select a split to fold or unfold it.</p>
+    <div class="tree" id="vlsm-tree"><!-- @prerender:vlsm-tree -->
+<svg width="453" height="342" viewBox="0 0 453 342" role="group" aria-label="Split tree of 192.168.1.0/24">
+<style>.t-ln{stroke:var(--line-strong);fill:none;stroke-width:1}.t-alloc{fill:var(--net)}.t-free{fill:none;stroke:var(--host);stroke-dasharray:2 2}.t-split{fill:var(--bg);stroke:var(--fg)}.t-sign{stroke:var(--fg);stroke-width:1.4}text{font:400 12.5px var(--mono);fill:var(--fg)}.t-name{font-weight:600;fill:var(--net)}.t-muted{fill:var(--muted)}.hit{fill:transparent}.node.split:hover .hit{fill:var(--surface)}</style>
+<path d="M13 17.5V26" class="t-ln"/>
+<g class="node split" tabindex="0" role="button" data-node="192.168.1.0/24" aria-expanded="true" aria-label="192.168.1.0/24: collapse"><rect class="hit" x="5" y="2" width="234.39999999999998" height="22" rx="2"/><rect x="8.5" y="8.5" width="9" height="9" class="t-split"/><path d="M10.5 13h5" class="t-sign"/><text x="24" y="17"><tspan class="t-cidr">192.168.1.0/24</tspan><tspan dx="10"><tspan class="t-muted">split into 2 × /25</tspan></tspan><tspan class="t-muted" dx="10">256</tspan></text></g>
+<path d="M13 26V39H25" class="t-ln"/>
+<path d="M13 39V52" class="t-ln"/>
+<g class="node allocated"><rect x="28" y="34" width="10" height="10" class="t-alloc"/><text x="44" y="43"><tspan class="t-cidr">192.168.1.0/25</tspan><tspan dx="10"><tspan class="t-name">Sales</tspan></tspan><tspan class="t-muted" dx="10">128</tspan></text></g>
+<path d="M13 52V65H25" class="t-ln"/>
+<path d="M33 69.5V78" class="t-ln"/>
+<g class="node split" tabindex="0" role="button" data-node="192.168.1.128/25" aria-expanded="true" aria-label="192.168.1.128/25: collapse"><rect class="hit" x="25" y="54" width="249" height="22" rx="2"/><rect x="28.5" y="60.5" width="9" height="9" class="t-split"/><path d="M30.5 65h5" class="t-sign"/><text x="44" y="69"><tspan class="t-cidr">192.168.1.128/25</tspan><tspan dx="10"><tspan class="t-muted">split into 2 × /26</tspan></tspan><tspan class="t-muted" dx="10">128</tspan></text></g>
+<path d="M33 78V91H45" class="t-ln"/>
+<path d="M33 91V104" class="t-ln"/>
+<g class="node allocated"><rect x="48" y="86" width="10" height="10" class="t-alloc"/><text x="64" y="95"><tspan class="t-cidr">192.168.1.128/26</tspan><tspan dx="10"><tspan class="t-name">Eng</tspan></tspan><tspan class="t-muted" dx="10">64</tspan></text></g>
+<path d="M33 104V117H45" class="t-ln"/>
+<path d="M53 121.5V130" class="t-ln"/>
+<g class="node split" tabindex="0" role="button" data-node="192.168.1.192/26" aria-expanded="true" aria-label="192.168.1.192/26: collapse"><rect class="hit" x="45" y="106" width="249" height="22" rx="2"/><rect x="48.5" y="112.5" width="9" height="9" class="t-split"/><path d="M50.5 117h5" class="t-sign"/><text x="64" y="121"><tspan class="t-cidr">192.168.1.192/26</tspan><tspan dx="10"><tspan class="t-muted">split into 2 × /27</tspan></tspan><tspan class="t-muted" dx="10">64</tspan></text></g>
+<path d="M53 130V143H65" class="t-ln"/>
+<path d="M53 143V156" class="t-ln"/>
+<path d="M73 147.5V156" class="t-ln"/>
+<g class="node split" tabindex="0" role="button" data-node="192.168.1.192/27" aria-expanded="true" aria-label="192.168.1.192/27: collapse"><rect class="hit" x="65" y="132" width="249" height="22" rx="2"/><rect x="68.5" y="138.5" width="9" height="9" class="t-split"/><path d="M70.5 143h5" class="t-sign"/><text x="84" y="147"><tspan class="t-cidr">192.168.1.192/27</tspan><tspan dx="10"><tspan class="t-muted">split into 2 × /28</tspan></tspan><tspan class="t-muted" dx="10">32</tspan></text></g>
+<path d="M53 156V182" class="t-ln"/>
+<path d="M73 156V169H85" class="t-ln"/>
+<path d="M73 169V182" class="t-ln"/>
+<g class="node allocated"><rect x="88" y="164" width="10" height="10" class="t-alloc"/><text x="104" y="173"><tspan class="t-cidr">192.168.1.192/28</tspan><tspan dx="10"><tspan class="t-name">Mgmt</tspan></tspan><tspan class="t-muted" dx="10">16</tspan></text></g>
+<path d="M53 182V208" class="t-ln"/>
+<path d="M73 182V195H85" class="t-ln"/>
+<path d="M93 199.5V208" class="t-ln"/>
+<g class="node split" tabindex="0" role="button" data-node="192.168.1.208/28" aria-expanded="true" aria-label="192.168.1.208/28: collapse"><rect class="hit" x="85" y="184" width="249" height="22" rx="2"/><rect x="88.5" y="190.5" width="9" height="9" class="t-split"/><path d="M90.5 195h5" class="t-sign"/><text x="104" y="199"><tspan class="t-cidr">192.168.1.208/28</tspan><tspan dx="10"><tspan class="t-muted">split into 2 × /29</tspan></tspan><tspan class="t-muted" dx="10">16</tspan></text></g>
+<path d="M53 208V234" class="t-ln"/>
+<path d="M93 208V221H105" class="t-ln"/>
+<path d="M93 221V234" class="t-ln"/>
+<path d="M113 225.5V234" class="t-ln"/>
+<g class="node split" tabindex="0" role="button" data-node="192.168.1.208/29" aria-expanded="true" aria-label="192.168.1.208/29: collapse"><rect class="hit" x="105" y="210" width="249" height="22" rx="2"/><rect x="108.5" y="216.5" width="9" height="9" class="t-split"/><path d="M110.5 221h5" class="t-sign"/><text x="124" y="225"><tspan class="t-cidr">192.168.1.208/29</tspan><tspan dx="10"><tspan class="t-muted">split into 2 × /30</tspan></tspan><tspan class="t-muted" dx="10">8</tspan></text></g>
+<path d="M53 234V260" class="t-ln"/>
+<path d="M93 234V260" class="t-ln"/>
+<path d="M113 234V247H125" class="t-ln"/>
+<path d="M113 247V260" class="t-ln"/>
+<g class="node allocated"><rect x="128" y="242" width="10" height="10" class="t-alloc"/><text x="144" y="251"><tspan class="t-cidr">192.168.1.208/30</tspan><tspan dx="10"><tspan class="t-name">P2P</tspan></tspan><tspan class="t-muted" dx="10">4</tspan></text></g>
+<path d="M53 260V286" class="t-ln"/>
+<path d="M93 260V286" class="t-ln"/>
+<path d="M113 260V273H125" class="t-ln"/>
+<g class="node free"><rect x="128.5" y="268.5" width="9" height="9" class="t-free"/><text x="144" y="277"><tspan class="t-cidr">192.168.1.212/30</tspan><tspan dx="10"><tspan class="t-muted">free</tspan></tspan><tspan class="t-muted" dx="10">4</tspan></text></g>
+<path d="M53 286V312" class="t-ln"/>
+<path d="M93 286V299H105" class="t-ln"/>
+<g class="node free"><rect x="108.5" y="294.5" width="9" height="9" class="t-free"/><text x="124" y="303"><tspan class="t-cidr">192.168.1.216/29</tspan><tspan dx="10"><tspan class="t-muted">free</tspan></tspan><tspan class="t-muted" dx="10">8</tspan></text></g>
+<path d="M53 312V325H65" class="t-ln"/>
+<g class="node free"><rect x="68.5" y="320.5" width="9" height="9" class="t-free"/><text x="84" y="329"><tspan class="t-cidr">192.168.1.224/27</tspan><tspan dx="10"><tspan class="t-muted">free</tspan></tspan><tspan class="t-muted" dx="10">32</tspan></text></g>
+</svg>
+<!-- /@prerender --></div>
+  </section>
+
+  <section class="section" aria-labelledby="export-h" id="export">
+    <div class="section-head">
+      <h2 id="export-h">Export</h2>
+      <span class="btn-row no-print">
+        <button type="button" class="btn" data-export-copy>Copy</button>
+        <button type="button" class="btn" data-export-download>Download</button>
+      </span>
+    </div>
+    <div class="tabs" role="tablist" aria-label="Export format" id="export-tabs">
+      <button type="button" role="tab" aria-selected="true" data-fmt="csv">CSV</button>
+      <button type="button" role="tab" aria-selected="false" data-fmt="json">JSON</button>
+      <button type="button" role="tab" aria-selected="false" data-fmt="md">Markdown</button>
+      <button type="button" role="tab" aria-selected="false" data-fmt="tf">Terraform</button>
+      <button type="button" role="tab" aria-selected="false" data-fmt="aws">AWS</button>
+      <button type="button" role="tab" aria-selected="false" data-fmt="azure">Azure</button>
+      <button type="button" role="tab" aria-selected="false" data-fmt="cisco">Cisco IOS</button>
+    </div>
+    <pre class="code-out" id="export-out" role="tabpanel" tabindex="0"><!-- @prerender:vlsm-export -->
+name,hostsRequested,cidr,netmask,firstHost,lastHost,broadcast,usableHosts,wasted
+Sales,120,192.168.1.0/25,255.255.255.128,192.168.1.1,192.168.1.126,192.168.1.127,126,6
+Eng,50,192.168.1.128/26,255.255.255.192,192.168.1.129,192.168.1.190,192.168.1.191,62,12
+Mgmt,10,192.168.1.192/28,255.255.255.240,192.168.1.193,192.168.1.206,192.168.1.207,14,4
+P2P,2,192.168.1.208/30,255.255.255.252,192.168.1.209,192.168.1.210,192.168.1.211,2,0
+<!-- /@prerender --></pre>
+  </section>
+
+  <div class="section prose">
+    <h2>What VLSM is</h2>
+    <p>Variable Length Subnet Masking gives each subnet the prefix length its host count needs. Without it, every subnet in a network has the same size, so a two-router link takes as much space as a 120-host office. With it, the office gets a <code>/25</code> and the link a <code>/30</code> (or <code>/31</code>), and the space between them stays free for later.</p>
+    <h2>How the planner allocates</h2>
+    <ol>
+      <li>For each request, find the smallest block whose usable hosts cover it: hosts + 2 rounded up to a power of two. 120 hosts need 122 addresses, so the block is 128, a <code>/25</code>.</li>
+      <li>Sort the requests from largest to smallest. Requests of equal size keep the order you entered.</li>
+      <li>Place each block at the next free address. Because the blocks shrink as you go, each one starts on a multiple of its own size, which is what a valid subnet needs.</li>
+      <li>Whatever is left is listed as free CIDR blocks. If a request does not fit, the planner names it and suggests the smallest parent that would hold everything.</li>
+    </ol>
+    <p>To check one of the subnets in detail, open it in the <a href="/?q=192.168.1.192/28">subnet calculator</a>. The <a href="/learn/subnetting/#vlsm">subnetting tutorial</a> works through a VLSM design by hand.</p>
+  </div>
+
+  <section class="section faq" aria-labelledby="faq-h">
+    <h2 id="faq-h">Questions</h2>
+    <details>
+      <summary>What is VLSM?</summary>
+      <div class="answer"><p>Variable Length Subnet Masking means giving each subnet a prefix length that fits its own host count, instead of cutting a network into equal pieces. A 120-host LAN gets a /25 while a router link gets a /30, so less address space is wasted.</p></div>
+    </details>
+    <details>
+      <summary>Why are the largest subnets allocated first?</summary>
+      <div class="answer"><p>Every subnet must start on a multiple of its own size. Placing the largest blocks first keeps each later, smaller block aligned with no gaps, so a set of requests fits whenever their total size fits in the parent.</p></div>
+    </details>
+    <details>
+      <summary>How many hosts fit in a /27?</summary>
+      <div class="answer"><p>A /27 has 32 addresses and 30 usable hosts. The network and broadcast addresses are not assigned. <a class="mono" href="/?q=10.0.0.32/27">10.0.0.32/27</a></p></div>
+    </details>
+    <details>
+      <summary>Should point-to-point links use /30 or /31?</summary>
+      <div class="answer"><p>A /30 gives two usable addresses plus a network and broadcast address. <a href="https://www.rfc-editor.org/rfc/rfc3021">RFC 3021</a> allows a /31 on point-to-point links, using both addresses and saving two per link. This planner uses /30 by default and /31 when you turn the option on.</p></div>
+    </details>
+    <details>
+      <summary>Why does AWS show fewer usable addresses than the plan?</summary>
+      <div class="answer"><p>AWS reserves five addresses in every subnet: the first four and the last one. Azure does the same. The AWS and Azure exports flag subnets that are below the provider minimum (/28 on AWS, /29 on Azure) or that lose needed hosts to the reservation.</p></div>
+    </details>
+    <details>
+      <summary>How does the Terraform export work?</summary>
+      <div class="answer"><p>It writes each subnet as <code>cidrsubnet(base_cidr, newbits, netnum)</code>. <code>newbits</code> is the child prefix minus the parent prefix, and <code>netnum</code> is the index of the child block within the parent at that size, so the plan stays correct if <code>base_cidr</code> is changed.</p></div>
+    </details>
+  </section>
+</main>
+<!-- @footer -->
+<footer class="site-footer">
+  <div class="wrap footer-grid">
+    <div>
+      <h2>SubnetCalc</h2>
+      <p class="footer-note">Every calculation runs in your browser. Nothing you type is sent anywhere.</p>
+    </div>
+    <div>
+      <h2>Tools</h2>
+      <ul>
+        <li><a href="/">Subnet calculator</a></li>
+        <li><a href="/vlsm/">VLSM planner</a></li>
+        <li><a href="/cidr/">CIDR aggregation &amp; overlaps</a></li>
+        <li><a href="/ipv6/">IPv6 tools</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Learn</h2>
+      <ul>
+        <li><a href="/learn/subnetting/">Subnetting, step by step</a></li>
+        <li><a href="/learn/cidr-cheat-sheet/">CIDR cheat sheet</a></li>
+        <li><a href="/learn/ipv6-subnetting/">IPv6 subnetting</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Engine</h2>
+      <ul>
+        <li><a href="/lib/subnet.js">lib/subnet.js</a> · MIT</li>
+        <li><a href="/lib/data/special-purpose.json">IANA special-purpose data</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+<!-- /@footer -->
+<script type="module" src="/assets/js/vlsm.js"></script>
+</body>
+</html>
