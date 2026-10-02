@@ -4,230 +4,263 @@
     "netmask": "0.0.0.0",
     "wildcard": "255.255.255.255",
     "totalAddresses": "4294967296",
-    "usableHosts": "4294967294"
+    "usableHosts": "4294967294",
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable"]},{"tool":"netaddr","version":"1.3.0","checks":["netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["netmask","wildcard","total"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc1878","https://www.rfc-editor.org/rfc/rfc3021#section-2"]}
   },
   {
     "prefix": 1,
     "netmask": "128.0.0.0",
     "wildcard": "127.255.255.255",
     "totalAddresses": "2147483648",
-    "usableHosts": "2147483646"
+    "usableHosts": "2147483646",
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable"]},{"tool":"netaddr","version":"1.3.0","checks":["netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["netmask","wildcard","total"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc1878","https://www.rfc-editor.org/rfc/rfc3021#section-2"]}
   },
   {
     "prefix": 2,
     "netmask": "192.0.0.0",
     "wildcard": "63.255.255.255",
     "totalAddresses": "1073741824",
-    "usableHosts": "1073741822"
+    "usableHosts": "1073741822",
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable"]},{"tool":"netaddr","version":"1.3.0","checks":["netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["netmask","wildcard","total"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc1878","https://www.rfc-editor.org/rfc/rfc3021#section-2"]}
   },
   {
     "prefix": 3,
     "netmask": "224.0.0.0",
     "wildcard": "31.255.255.255",
     "totalAddresses": "536870912",
-    "usableHosts": "536870910"
+    "usableHosts": "536870910",
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable"]},{"tool":"netaddr","version":"1.3.0","checks":["netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["netmask","wildcard","total"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc1878","https://www.rfc-editor.org/rfc/rfc3021#section-2"]}
   },
   {
     "prefix": 4,
     "netmask": "240.0.0.0",
     "wildcard": "15.255.255.255",
     "totalAddresses": "268435456",
-    "usableHosts": "268435454"
+    "usableHosts": "268435454",
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable"]},{"tool":"netaddr","version":"1.3.0","checks":["netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["netmask","wildcard","total"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc1878","https://www.rfc-editor.org/rfc/rfc3021#section-2"]}
   },
   {
     "prefix": 5,
     "netmask": "248.0.0.0",
     "wildcard": "7.255.255.255",
     "totalAddresses": "134217728",
-    "usableHosts": "134217726"
+    "usableHosts": "134217726",
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable"]},{"tool":"netaddr","version":"1.3.0","checks":["netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["netmask","wildcard","total"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc1878","https://www.rfc-editor.org/rfc/rfc3021#section-2"]}
   },
   {
     "prefix": 6,
     "netmask": "252.0.0.0",
     "wildcard": "3.255.255.255",
     "totalAddresses": "67108864",
-    "usableHosts": "67108862"
+    "usableHosts": "67108862",
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable"]},{"tool":"netaddr","version":"1.3.0","checks":["netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["netmask","wildcard","total"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc1878","https://www.rfc-editor.org/rfc/rfc3021#section-2"]}
   },
   {
     "prefix": 7,
     "netmask": "254.0.0.0",
     "wildcard": "1.255.255.255",
     "totalAddresses": "33554432",
-    "usableHosts": "33554430"
+    "usableHosts": "33554430",
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable"]},{"tool":"netaddr","version":"1.3.0","checks":["netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["netmask","wildcard","total"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc1878","https://www.rfc-editor.org/rfc/rfc3021#section-2"]}
   },
   {
     "prefix": 8,
     "netmask": "255.0.0.0",
     "wildcard": "0.255.255.255",
     "totalAddresses": "16777216",
-    "usableHosts": "16777214"
+    "usableHosts": "16777214",
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable"]},{"tool":"netaddr","version":"1.3.0","checks":["netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["netmask","wildcard","total"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc1878","https://www.rfc-editor.org/rfc/rfc3021#section-2"]}
   },
   {
     "prefix": 9,
     "netmask": "255.128.0.0",
     "wildcard": "0.127.255.255",
     "totalAddresses": "8388608",
-    "usableHosts": "8388606"
+    "usableHosts": "8388606",
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable"]},{"tool":"netaddr","version":"1.3.0","checks":["netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["netmask","wildcard","total"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc1878","https://www.rfc-editor.org/rfc/rfc3021#section-2"]}
   },
   {
     "prefix": 10,
     "netmask": "255.192.0.0",
     "wildcard": "0.63.255.255",
     "totalAddresses": "4194304",
-    "usableHosts": "4194302"
+    "usableHosts": "4194302",
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable"]},{"tool":"netaddr","version":"1.3.0","checks":["netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["netmask","wildcard","total"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc1878","https://www.rfc-editor.org/rfc/rfc3021#section-2"]}
   },
   {
     "prefix": 11,
     "netmask": "255.224.0.0",
     "wildcard": "0.31.255.255",
     "totalAddresses": "2097152",
-    "usableHosts": "2097150"
+    "usableHosts": "2097150",
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable"]},{"tool":"netaddr","version":"1.3.0","checks":["netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["netmask","wildcard","total"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc1878","https://www.rfc-editor.org/rfc/rfc3021#section-2"]}
   },
   {
     "prefix": 12,
     "netmask": "255.240.0.0",
     "wildcard": "0.15.255.255",
     "totalAddresses": "1048576",
-    "usableHosts": "1048574"
+    "usableHosts": "1048574",
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable"]},{"tool":"netaddr","version":"1.3.0","checks":["netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["netmask","wildcard","total"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc1878","https://www.rfc-editor.org/rfc/rfc3021#section-2"]}
   },
   {
     "prefix": 13,
     "netmask": "255.248.0.0",
     "wildcard": "0.7.255.255",
     "totalAddresses": "524288",
-    "usableHosts": "524286"
+    "usableHosts": "524286",
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable"]},{"tool":"netaddr","version":"1.3.0","checks":["netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["netmask","wildcard","total"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc1878","https://www.rfc-editor.org/rfc/rfc3021#section-2"]}
   },
   {
     "prefix": 14,
     "netmask": "255.252.0.0",
     "wildcard": "0.3.255.255",
     "totalAddresses": "262144",
-    "usableHosts": "262142"
+    "usableHosts": "262142",
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable"]},{"tool":"netaddr","version":"1.3.0","checks":["netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["netmask","wildcard","total"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc1878","https://www.rfc-editor.org/rfc/rfc3021#section-2"]}
   },
   {
     "prefix": 15,
     "netmask": "255.254.0.0",
     "wildcard": "0.1.255.255",
     "totalAddresses": "131072",
-    "usableHosts": "131070"
+    "usableHosts": "131070",
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable"]},{"tool":"netaddr","version":"1.3.0","checks":["netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["netmask","wildcard","total"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc1878","https://www.rfc-editor.org/rfc/rfc3021#section-2"]}
   },
   {
     "prefix": 16,
     "netmask": "255.255.0.0",
     "wildcard": "0.0.255.255",
     "totalAddresses": "65536",
-    "usableHosts": "65534"
+    "usableHosts": "65534",
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable"]},{"tool":"netaddr","version":"1.3.0","checks":["netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["netmask","wildcard","total"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc1878","https://www.rfc-editor.org/rfc/rfc3021#section-2"]}
   },
   {
     "prefix": 17,
     "netmask": "255.255.128.0",
     "wildcard": "0.0.127.255",
     "totalAddresses": "32768",
-    "usableHosts": "32766"
+    "usableHosts": "32766",
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable"]},{"tool":"netaddr","version":"1.3.0","checks":["netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["netmask","wildcard","total"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc1878","https://www.rfc-editor.org/rfc/rfc3021#section-2"]}
   },
   {
     "prefix": 18,
     "netmask": "255.255.192.0",
     "wildcard": "0.0.63.255",
     "totalAddresses": "16384",
-    "usableHosts": "16382"
+    "usableHosts": "16382",
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable"]},{"tool":"netaddr","version":"1.3.0","checks":["netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["netmask","wildcard","total"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc1878","https://www.rfc-editor.org/rfc/rfc3021#section-2"]}
   },
   {
     "prefix": 19,
     "netmask": "255.255.224.0",
     "wildcard": "0.0.31.255",
     "totalAddresses": "8192",
-    "usableHosts": "8190"
+    "usableHosts": "8190",
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable"]},{"tool":"netaddr","version":"1.3.0","checks":["netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["netmask","wildcard","total"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc1878","https://www.rfc-editor.org/rfc/rfc3021#section-2"]}
   },
   {
     "prefix": 20,
     "netmask": "255.255.240.0",
     "wildcard": "0.0.15.255",
     "totalAddresses": "4096",
-    "usableHosts": "4094"
+    "usableHosts": "4094",
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable"]},{"tool":"netaddr","version":"1.3.0","checks":["netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["netmask","wildcard","total"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc1878","https://www.rfc-editor.org/rfc/rfc3021#section-2"]}
   },
   {
     "prefix": 21,
     "netmask": "255.255.248.0",
     "wildcard": "0.0.7.255",
     "totalAddresses": "2048",
-    "usableHosts": "2046"
+    "usableHosts": "2046",
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable"]},{"tool":"netaddr","version":"1.3.0","checks":["netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["netmask","wildcard","total"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc1878","https://www.rfc-editor.org/rfc/rfc3021#section-2"]}
   },
   {
     "prefix": 22,
     "netmask": "255.255.252.0",
     "wildcard": "0.0.3.255",
     "totalAddresses": "1024",
-    "usableHosts": "1022"
+    "usableHosts": "1022",
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable"]},{"tool":"netaddr","version":"1.3.0","checks":["netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["netmask","wildcard","total"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc1878","https://www.rfc-editor.org/rfc/rfc3021#section-2"]}
   },
   {
     "prefix": 23,
     "netmask": "255.255.254.0",
     "wildcard": "0.0.1.255",
     "totalAddresses": "512",
-    "usableHosts": "510"
+    "usableHosts": "510",
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable"]},{"tool":"netaddr","version":"1.3.0","checks":["netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["netmask","wildcard","total"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc1878","https://www.rfc-editor.org/rfc/rfc3021#section-2"]}
   },
   {
     "prefix": 24,
     "netmask": "255.255.255.0",
     "wildcard": "0.0.0.255",
     "totalAddresses": "256",
-    "usableHosts": "254"
+    "usableHosts": "254",
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable"]},{"tool":"netaddr","version":"1.3.0","checks":["netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["netmask","wildcard","total"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc1878","https://www.rfc-editor.org/rfc/rfc3021#section-2"]}
   },
   {
     "prefix": 25,
     "netmask": "255.255.255.128",
     "wildcard": "0.0.0.127",
     "totalAddresses": "128",
-    "usableHosts": "126"
+    "usableHosts": "126",
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable"]},{"tool":"netaddr","version":"1.3.0","checks":["netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["netmask","wildcard","total"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc1878","https://www.rfc-editor.org/rfc/rfc3021#section-2"]}
   },
   {
     "prefix": 26,
     "netmask": "255.255.255.192",
     "wildcard": "0.0.0.63",
     "totalAddresses": "64",
-    "usableHosts": "62"
+    "usableHosts": "62",
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable"]},{"tool":"netaddr","version":"1.3.0","checks":["netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["netmask","wildcard","total"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc1878","https://www.rfc-editor.org/rfc/rfc3021#section-2"]}
   },
   {
     "prefix": 27,
     "netmask": "255.255.255.224",
     "wildcard": "0.0.0.31",
     "totalAddresses": "32",
-    "usableHosts": "30"
+    "usableHosts": "30",
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable"]},{"tool":"netaddr","version":"1.3.0","checks":["netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["netmask","wildcard","total"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc1878","https://www.rfc-editor.org/rfc/rfc3021#section-2"]}
   },
   {
     "prefix": 28,
     "netmask": "255.255.255.240",
     "wildcard": "0.0.0.15",
     "totalAddresses": "16",
-    "usableHosts": "14"
+    "usableHosts": "14",
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable"]},{"tool":"netaddr","version":"1.3.0","checks":["netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["netmask","wildcard","total"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc1878","https://www.rfc-editor.org/rfc/rfc3021#section-2"]}
   },
   {
     "prefix": 29,
     "netmask": "255.255.255.248",
     "wildcard": "0.0.0.7",
     "totalAddresses": "8",
-    "usableHosts": "6"
+    "usableHosts": "6",
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable"]},{"tool":"netaddr","version":"1.3.0","checks":["netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["netmask","wildcard","total"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc1878","https://www.rfc-editor.org/rfc/rfc3021#section-2"]}
   },
   {
     "prefix": 30,
     "netmask": "255.255.255.252",
     "wildcard": "0.0.0.3",
     "totalAddresses": "4",
-    "usableHosts": "2"
+    "usableHosts": "2",
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable"]},{"tool":"netaddr","version":"1.3.0","checks":["netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["netmask","wildcard","total"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc1878","https://www.rfc-editor.org/rfc/rfc3021#section-2"]}
   },
   {
     "prefix": 31,
     "netmask": "255.255.255.254",
     "wildcard": "0.0.0.1",
     "totalAddresses": "2",
-    "usableHosts": "2"
+    "usableHosts": "2",
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable"]},{"tool":"netaddr","version":"1.3.0","checks":["netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["netmask","wildcard","total"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc1878","https://www.rfc-editor.org/rfc/rfc3021#section-2"]}
   },
   {
     "prefix": 32,
     "netmask": "255.255.255.255",
     "wildcard": "0.0.0.0",
     "totalAddresses": "1",
-    "usableHosts": "1"
+    "usableHosts": "1",
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable"]},{"tool":"netaddr","version":"1.3.0","checks":["netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["netmask","wildcard","total"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc1878","https://www.rfc-editor.org/rfc/rfc3021#section-2"]}
   }
 ]

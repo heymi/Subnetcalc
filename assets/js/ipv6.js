@@ -1,7 +1,7 @@
 // IPv6 tools page.
 import { generateUla } from '../../lib/subnet.js';
 import { DEFAULTS, renderAddress, renderSplit, renderEui, renderUla } from './ipv6-render.js';
-import { setParams, param, debounce } from './ui.js';
+import { setParams, param, debounce, setStale } from './ui.js';
 
 const $ = (s) => document.querySelector(s);
 const v6 = $('#v6');
@@ -12,11 +12,10 @@ const splitTo = $('#split-to');
 
 // Results that are null mean "still typing": keep the previous output, dimmed.
 function show(el, html) {
+  setStale([el], html === null);
   if (html === null) {
-    el.classList.add('is-stale');
     return;
   }
-  el.classList.remove('is-stale');
   el.innerHTML = html;
 }
 

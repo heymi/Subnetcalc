@@ -11,7 +11,7 @@ import {
   renderTree,
   fittingPrefix,
 } from './vlsm-render.js';
-import { esc, debounce, copyText, download } from './ui.js';
+import { esc, debounce, copyText, download, setStale } from './ui.js';
 
 const $ = (s) => document.querySelector(s);
 const form = $('[data-vlsm]');
@@ -92,10 +92,6 @@ function readUrl() {
 const syncUrl = debounce(writeUrl, 300);
 
 // ── render
-function setStale(stale) {
-  for (const s of resultSections) s.classList.toggle('is-stale', stale);
-}
-
 function render() {
   const parent = parentIn.value;
   const list = readRows();
@@ -103,17 +99,21 @@ function render() {
   const opts = { allowSlash31: s31.checked };
   if (!parent.trim()) {
     status.innerHTML = '';
-    setStale(true);
+    plan = null;
+    out.export.textContent = '';
+    setStale(resultSections, true);
     return;
   }
   const r = planVlsm(parent, list, opts);
   if (!r.ok) {
-    setStale(true);
+    plan = null;
+    out.export.textContent = '';
+    setStale(resultSections, true);
     status.innerHTML = errorHtml(r.error, list, opts);
     return;
   }
   plan = r.plan;
-  setStale(false);
+  setStale(resultSections, false);
   status.innerHTML = list.length ? '' : '<p class="notice">Add the subnets you need, with a host count for each.</p>';
   out.summary.innerHTML = renderSummary(plan);
   out.map.innerHTML = renderMap(plan);
@@ -222,6 +222,7 @@ document.addEventListener('click', (e) => {
 });
 
 function toggleNode(key) {
+  if (!plan) return;
   if (collapsed.has(key)) collapsed.delete(key);
   else collapsed.add(key);
   out.tree.innerHTML = renderTree(plan, collapsed);

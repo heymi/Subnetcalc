@@ -24,5 +24,5 @@ jobs:
         with:
           python-version: '3.13'
       - run: sudo apt-get update && sudo apt-get install -y sipcalc ipcalc ipv6calc
-      - run: pip install netaddr
+      - run: pip install netaddr==1.3.0
       - run: python test/vectors/crosscheck.py

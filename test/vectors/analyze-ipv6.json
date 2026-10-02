@@ -31,7 +31,8 @@
       "embedded": null,
       "slash64": null,
       "slash64Count": "65536"
-    }
+    },
+    "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["prefix","network","netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["prefix","address","network","netmask","wildcard","total","hostBitsSet","is_global (2001:db8::/32)","first","last","usable","type documentation","/64 count"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc4291#section-2","https://www.rfc-editor.org/rfc/rfc4380#section-4","https://www.iana.org/assignments/iana-ipv6-special-registry/"]}
   },
   {
     "input": "2001:db8:abcd:12::1/64",
@@ -65,7 +66,8 @@
       "embedded": null,
       "slash64": "2001:db8:abcd:12::/64",
       "slash64Count": null
-    }
+    },
+    "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["prefix","network","netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["prefix","address","network","netmask","wildcard","total","hostBitsSet","is_global (2001:db8::/32)","first","last","usable","type documentation","/64"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc4291#section-2","https://www.rfc-editor.org/rfc/rfc4380#section-4","https://www.iana.org/assignments/iana-ipv6-special-registry/"]}
   },
   {
     "input": "2001:DB8::1/64",
@@ -99,7 +101,8 @@
       "embedded": null,
       "slash64": "2001:db8::/64",
       "slash64Count": null
-    }
+    },
+    "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["prefix","network","netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["prefix","address","network","netmask","wildcard","total","hostBitsSet","is_global (2001:db8::/32)","first","last","usable","type documentation","/64"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc4291#section-2","https://www.rfc-editor.org/rfc/rfc4380#section-4","https://www.iana.org/assignments/iana-ipv6-special-registry/"]}
   },
   {
     "input": "::/0",
@@ -121,14 +124,20 @@
       "lastHost": "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff",
       "totalAddresses": "340282366920938463463374607431768211456",
       "usableHosts": "340282366920938463463374607431768211456",
-      "special": null,
+      "special": {
+        "block": "::/128",
+        "name": "Unspecified Address",
+        "rfc": "RFC 4291",
+        "globallyReachable": false
+      },
       "ipClass": null,
       "classfulPrefix": null,
-      "ipv6Type": null,
+      "ipv6Type": "unspecified",
       "embedded": null,
       "slash64": null,
       "slash64Count": "18446744073709551616"
-    }
+    },
+    "source": {"validators":[{"tool":"ipv6calc","version":"ipv6calc: version 4.4.0 DB_AS_REG DB_IPV4_REG DB_IPV6_REG DB_CC_REG DB_IEEE DB_IPV4_INFO DB_IPV6_INFO ANON_ZEROISE ANON_ANONYMIZE","checks":["type"]},{"tool":"netaddr","version":"1.3.0","checks":["prefix","network","netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["prefix","address","network","netmask","wildcard","total","hostBitsSet","is_global (::/128)","first","last","usable","type unspecified","/64 count"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc4291#section-2","https://www.rfc-editor.org/rfc/rfc4380#section-4","https://www.iana.org/assignments/iana-ipv6-special-registry/"]}
   },
   {
     "input": "::/128",
@@ -162,7 +171,8 @@
       "embedded": null,
       "slash64": "::/64",
       "slash64Count": null
-    }
+    },
+    "source": {"validators":[{"tool":"ipv6calc","version":"ipv6calc: version 4.4.0 DB_AS_REG DB_IPV4_REG DB_IPV6_REG DB_CC_REG DB_IEEE DB_IPV4_INFO DB_IPV6_INFO ANON_ZEROISE ANON_ANONYMIZE","checks":["type"]},{"tool":"netaddr","version":"1.3.0","checks":["prefix","network","netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["prefix","address","network","netmask","wildcard","total","hostBitsSet","is_global (::/128)","first","last","usable","type unspecified","/64"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc4291#section-2","https://www.rfc-editor.org/rfc/rfc4380#section-4","https://www.iana.org/assignments/iana-ipv6-special-registry/"]}
   },
   {
     "input": "::1",
@@ -196,7 +206,8 @@
       "embedded": null,
       "slash64": "::/64",
       "slash64Count": null
-    }
+    },
+    "source": {"validators":[{"tool":"ipv6calc","version":"ipv6calc: version 4.4.0 DB_AS_REG DB_IPV4_REG DB_IPV6_REG DB_CC_REG DB_IEEE DB_IPV4_INFO DB_IPV6_INFO ANON_ZEROISE ANON_ANONYMIZE","checks":["type"]},{"tool":"netaddr","version":"1.3.0","checks":["network","netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["address","network","netmask","wildcard","total","hostBitsSet","is_global (::1/128)","first","last","usable","type loopback","/64"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc4291#section-2","https://www.rfc-editor.org/rfc/rfc4380#section-4","https://www.iana.org/assignments/iana-ipv6-special-registry/"]}
   },
   {
     "input": "fe80::1%eth0/64",
@@ -230,7 +241,8 @@
       "embedded": null,
       "slash64": "fe80::/64",
       "slash64Count": null
-    }
+    },
+    "source": {"validators":[{"tool":"ipv6calc","version":"ipv6calc: version 4.4.0 DB_AS_REG DB_IPV4_REG DB_IPV6_REG DB_CC_REG DB_IEEE DB_IPV4_INFO DB_IPV6_INFO ANON_ZEROISE ANON_ANONYMIZE","checks":["type"]},{"tool":"netaddr","version":"1.3.0","checks":["prefix","network","netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["prefix","address","network","netmask","wildcard","total","hostBitsSet","is_global (fe80::/10)","first","last","usable","type link-local","/64"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc4291#section-2","https://www.rfc-editor.org/rfc/rfc4380#section-4","https://www.iana.org/assignments/iana-ipv6-special-registry/"]}
   },
   {
     "input": "fd12:3456:789a:1::/64",
@@ -264,7 +276,8 @@
       "embedded": null,
       "slash64": "fd12:3456:789a:1::/64",
       "slash64Count": null
-    }
+    },
+    "source": {"validators":[{"tool":"ipv6calc","version":"ipv6calc: version 4.4.0 DB_AS_REG DB_IPV4_REG DB_IPV6_REG DB_CC_REG DB_IEEE DB_IPV4_INFO DB_IPV6_INFO ANON_ZEROISE ANON_ANONYMIZE","checks":["type"]},{"tool":"netaddr","version":"1.3.0","checks":["prefix","network","netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["prefix","address","network","netmask","wildcard","total","hostBitsSet","is_global (fc00::/7)","first","last","usable","type ULA","/64"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc4291#section-2","https://www.rfc-editor.org/rfc/rfc4380#section-4","https://www.iana.org/assignments/iana-ipv6-special-registry/"]}
   },
   {
     "input": "ff02::1/128",
@@ -298,7 +311,8 @@
       "embedded": null,
       "slash64": "ff02::/64",
       "slash64Count": null
-    }
+    },
+    "source": {"validators":[{"tool":"ipv6calc","version":"ipv6calc: version 4.4.0 DB_AS_REG DB_IPV4_REG DB_IPV6_REG DB_CC_REG DB_IEEE DB_IPV4_INFO DB_IPV6_INFO ANON_ZEROISE ANON_ANONYMIZE","checks":["type"]},{"tool":"netaddr","version":"1.3.0","checks":["prefix","network","netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["prefix","address","network","netmask","wildcard","total","hostBitsSet","first","last","usable","type multicast","/64"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc4291#section-2","https://www.rfc-editor.org/rfc/rfc4380#section-4","https://www.iana.org/assignments/iana-ipv6-special-registry/"]}
   },
   {
     "input": "2002:c000:204::1/48",
@@ -335,7 +349,8 @@
       },
       "slash64": null,
       "slash64Count": "65536"
-    }
+    },
+    "source": {"validators":[{"tool":"ipv6calc","version":"ipv6calc: version 4.4.0 DB_AS_REG DB_IPV4_REG DB_IPV6_REG DB_CC_REG DB_IEEE DB_IPV4_INFO DB_IPV6_INFO ANON_ZEROISE ANON_ANONYMIZE","checks":["type","6to4 ipv4"]},{"tool":"netaddr","version":"1.3.0","checks":["prefix","network","netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["prefix","address","network","netmask","wildcard","total","hostBitsSet","first","last","usable","type 6to4","6to4 ipv4","/64 count"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc4291#section-2","https://www.rfc-editor.org/rfc/rfc4380#section-4","https://www.iana.org/assignments/iana-ipv6-special-registry/"]}
   },
   {
     "input": "2001:0:4136:e378:8000:63bf:3fff:fdd2/128",
@@ -375,7 +390,8 @@
       },
       "slash64": "2001:0:4136:e378::/64",
       "slash64Count": null
-    }
+    },
+    "source": {"validators":[{"tool":"ipv6calc","version":"ipv6calc: version 4.4.0 DB_AS_REG DB_IPV4_REG DB_IPV6_REG DB_CC_REG DB_IEEE DB_IPV4_INFO DB_IPV6_INFO ANON_ZEROISE ANON_ANONYMIZE","checks":["type","teredo port","teredo server","teredo client"]},{"tool":"netaddr","version":"1.3.0","checks":["prefix","network","netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["prefix","address","network","netmask","wildcard","total","hostBitsSet","first","last","usable","type teredo","teredo server","teredo client","/64"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc4291#section-2","https://www.rfc-editor.org/rfc/rfc4380#section-4","https://www.iana.org/assignments/iana-ipv6-special-registry/"]}
   },
   {
     "input": "::ffff:192.0.2.128/128",
@@ -412,7 +428,8 @@
       },
       "slash64": "::/64",
       "slash64Count": null
-    }
+    },
+    "source": {"validators":[{"tool":"ipv6calc","version":"ipv6calc: version 4.4.0 DB_AS_REG DB_IPV4_REG DB_IPV6_REG DB_CC_REG DB_IEEE DB_IPV4_INFO DB_IPV6_INFO ANON_ZEROISE ANON_ANONYMIZE","checks":["type","ipv4-mapped ipv4"]},{"tool":"netaddr","version":"1.3.0","checks":["prefix","network","netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["prefix","address","network","netmask","wildcard","total","hostBitsSet","is_global (::ffff:0:0/96)","first","last","usable","type ipv4-mapped","mapped ipv4","/64"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc4291#section-2","https://www.rfc-editor.org/rfc/rfc4380#section-4","https://www.iana.org/assignments/iana-ipv6-special-registry/"]}
   },
   {
     "input": "64:ff9b::192.0.2.33/96",
@@ -449,7 +466,8 @@
       },
       "slash64": "64:ff9b::/64",
       "slash64Count": null
-    }
+    },
+    "source": {"validators":[{"tool":"ipv6calc","version":"ipv6calc: version 4.4.0 DB_AS_REG DB_IPV4_REG DB_IPV6_REG DB_CC_REG DB_IEEE DB_IPV4_INFO DB_IPV6_INFO ANON_ZEROISE ANON_ANONYMIZE","checks":["type","nat64 ipv4"]},{"tool":"netaddr","version":"1.3.0","checks":["prefix","network","netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["prefix","address","network","netmask","wildcard","total","hostBitsSet","is_global (64:ff9b::/96)","first","last","usable","type nat64","/64"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc4291#section-2","https://www.rfc-editor.org/rfc/rfc4380#section-4","https://www.iana.org/assignments/iana-ipv6-special-registry/"]}
   },
   {
     "input": "2a02:1234:5678::/48",
@@ -478,7 +496,8 @@
       "embedded": null,
       "slash64": null,
       "slash64Count": "65536"
-    }
+    },
+    "source": {"validators":[{"tool":"ipv6calc","version":"ipv6calc: version 4.4.0 DB_AS_REG DB_IPV4_REG DB_IPV6_REG DB_CC_REG DB_IEEE DB_IPV4_INFO DB_IPV6_INFO ANON_ZEROISE ANON_ANONYMIZE","checks":["type"]},{"tool":"netaddr","version":"1.3.0","checks":["prefix","network","netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["prefix","address","network","netmask","wildcard","total","hostBitsSet","first","last","usable","type GUA","/64 count"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc4291#section-2","https://www.rfc-editor.org/rfc/rfc4380#section-4","https://www.iana.org/assignments/iana-ipv6-special-registry/"]}
   },
   {
     "input": "fec0::1/10",
@@ -512,7 +531,8 @@
       "embedded": null,
       "slash64": null,
       "slash64Count": "18014398509481984"
-    }
+    },
+    "source": {"validators":[{"tool":"ipv6calc","version":"ipv6calc: version 4.4.0 DB_AS_REG DB_IPV4_REG DB_IPV6_REG DB_CC_REG DB_IEEE DB_IPV4_INFO DB_IPV6_INFO ANON_ZEROISE ANON_ANONYMIZE","checks":["type"]},{"tool":"netaddr","version":"1.3.0","checks":["prefix","network","netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["prefix","address","network","netmask","wildcard","total","hostBitsSet","first","last","usable","type site-local","/64 count"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc4291#section-2","https://www.rfc-editor.org/rfc/rfc4380#section-4","https://www.iana.org/assignments/iana-ipv6-special-registry/"]}
   },
   {
     "input": "100::/64",
@@ -546,7 +566,8 @@
       "embedded": null,
       "slash64": "100::/64",
       "slash64Count": null
-    }
+    },
+    "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["prefix","network","netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["prefix","address","network","netmask","wildcard","total","hostBitsSet","is_global (100::/64)","first","last","usable","type discard","/64"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc4291#section-2","https://www.rfc-editor.org/rfc/rfc4380#section-4","https://www.iana.org/assignments/iana-ipv6-special-registry/"]}
   },
   {
     "input": "3fff::/20",
@@ -580,7 +601,8 @@
       "embedded": null,
       "slash64": null,
       "slash64Count": "17592186044416"
-    }
+    },
+    "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["prefix","network","netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["prefix","address","network","netmask","wildcard","total","hostBitsSet","is_global (3fff::/20)","first","last","usable","type documentation","/64 count"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc4291#section-2","https://www.rfc-editor.org/rfc/rfc4380#section-4","https://www.iana.org/assignments/iana-ipv6-special-registry/"]}
   },
   {
     "input": "1:2:3:4:5:6:7:8/64",
@@ -609,7 +631,8 @@
       "embedded": null,
       "slash64": "1:2:3:4::/64",
       "slash64Count": null
-    }
+    },
+    "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["prefix","network","netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["prefix","address","network","netmask","wildcard","total","hostBitsSet","first","last","usable","type reserved","/64"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc4291#section-2","https://www.rfc-editor.org/rfc/rfc4380#section-4","https://www.iana.org/assignments/iana-ipv6-special-registry/"]}
   },
   {
     "input": "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff/128",
@@ -643,7 +666,8 @@
       "embedded": null,
       "slash64": "ffff:ffff:ffff:ffff::/64",
       "slash64Count": null
-    }
+    },
+    "source": {"validators":[{"tool":"ipv6calc","version":"ipv6calc: version 4.4.0 DB_AS_REG DB_IPV4_REG DB_IPV6_REG DB_CC_REG DB_IEEE DB_IPV4_INFO DB_IPV6_INFO ANON_ZEROISE ANON_ANONYMIZE","checks":["type"]},{"tool":"netaddr","version":"1.3.0","checks":["prefix","network","netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["prefix","address","network","netmask","wildcard","total","hostBitsSet","first","last","usable","type multicast","/64"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc4291#section-2","https://www.rfc-editor.org/rfc/rfc4380#section-4","https://www.iana.org/assignments/iana-ipv6-special-registry/"]}
   },
   {
     "input": "2001:db8::/127",
@@ -677,7 +701,8 @@
       "embedded": null,
       "slash64": "2001:db8::/64",
       "slash64Count": null
-    }
+    },
+    "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["prefix","network","netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["prefix","address","network","netmask","wildcard","total","hostBitsSet","is_global (2001:db8::/32)","first","last","usable","type documentation","/64"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc4291#section-2","https://www.rfc-editor.org/rfc/rfc4380#section-4","https://www.iana.org/assignments/iana-ipv6-special-registry/"]}
   },
   {
     "input": "2001:db8:1:2:3:4:5:6/128",
@@ -711,7 +736,8 @@
       "embedded": null,
       "slash64": "2001:db8:1:2::/64",
       "slash64Count": null
-    }
+    },
+    "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["prefix","network","netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["prefix","address","network","netmask","wildcard","total","hostBitsSet","is_global (2001:db8::/32)","first","last","usable","type documentation","/64"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc4291#section-2","https://www.rfc-editor.org/rfc/rfc4380#section-4","https://www.iana.org/assignments/iana-ipv6-special-registry/"]}
   },
   {
     "input": "2001:db8::/32",
@@ -745,6 +771,7 @@
       "embedded": null,
       "slash64": null,
       "slash64Count": "4294967296"
-    }
+    },
+    "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["prefix","network","netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["prefix","address","network","netmask","wildcard","total","hostBitsSet","is_global (2001:db8::/32)","first","last","usable","type documentation","/64 count"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc4291#section-2","https://www.rfc-editor.org/rfc/rfc4380#section-4","https://www.iana.org/assignments/iana-ipv6-special-registry/"]}
   }
 ]

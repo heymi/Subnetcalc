@@ -61,7 +61,7 @@ document.addEventListener('keydown', (e) => {
 // ── Copy buttons: <button data-copy="text"> or <button data-copy-from="#id">
 document.addEventListener('click', (e) => {
   const b = e.target.closest('[data-copy], [data-copy-from]');
-  if (!b) return;
+  if (!b || b.disabled) return;
   const src = b.dataset.copyFrom ? document.querySelector(b.dataset.copyFrom) : null;
   const text = src ? (src.value ?? src.textContent) : b.dataset.copy;
   copyText(text, b.dataset.copyLabel || 'Copied');

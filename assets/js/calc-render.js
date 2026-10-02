@@ -59,7 +59,7 @@ export function renderResults(info) {
     r.push(row('Netmask', info.netmask));
     r.push(row('Wildcard', info.wildcard, { sub: 'ACL / OSPF' }));
     if (info.broadcast) r.push(row('Broadcast', info.broadcast));
-    else r.push(row('Broadcast', 'none', { copy: null, sub: info.prefix === 31 ? 'point-to-point, RFC 3021' : 'single host' }));
+    else r.push(row('Broadcast', 'none', { sub: info.prefix === 31 ? 'point-to-point, RFC 3021' : 'single host' }));
     r.push(row('First host', info.firstHost));
     r.push(row('Last host', info.lastHost));
     r.push(
@@ -72,7 +72,6 @@ export function renderResults(info) {
     r.push(row('Prefix', `/${info.prefix}`, { sub: `${info.prefix} network + ${32 - info.prefix} host bits` }));
     r.push(
       row('Class', info.ipClass, {
-        copy: null,
         sub: info.classfulPrefix ? `classful default /${info.classfulPrefix}` : info.ipClass === 'D' ? 'multicast' : 'reserved',
       }),
     );
@@ -83,6 +82,7 @@ export function renderResults(info) {
     r.push(row('Network', info.cidr, { em: true }));
     r.push(row('Prefix mask', info.netmask));
     r.push(row('Host mask', info.wildcard));
+    r.push(row('Prefix', `/${info.prefix}`, { sub: `${info.prefix} network + ${128 - info.prefix} host bits` }));
     r.push(row('First address', info.firstHost));
     r.push(row('Last address', info.lastHost));
     r.push(row('Addresses', count(info.totalAddresses), { copy: String(info.totalAddresses), em: true, sub: 'no broadcast in IPv6' }));
@@ -91,10 +91,10 @@ export function renderResults(info) {
     r.push(row('Expanded', formatAddress(info.parsed.value, 6, { expanded: true })));
   }
   if (info.version === 6 && info.ipv6Type) {
-    r.push(row('Type', V6_TYPE_LABEL[info.ipv6Type] || info.ipv6Type, { copy: null }));
+    r.push(row('Type', V6_TYPE_LABEL[info.ipv6Type] || info.ipv6Type));
   }
   const scope = scopeTag(info);
-  if (scope) r.push(row('Scope', scope.html, { copy: null, html: true }));
+  if (scope) r.push(row('Address scope', scope.html, { copy: scope.text, html: true, sub: 'classification of the entered address' }));
   const e = info.embedded;
   if (e) {
     const val =

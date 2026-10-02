@@ -27,7 +27,8 @@
       },
       "ipClass": "C",
       "classfulPrefix": 24
-    }
+    },
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable","class","HostMin","HostMax","broadcast"]},{"tool":"netaddr","version":"1.3.0","checks":["prefix","network","netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["prefix","address","network","netmask","wildcard","total","hostBitsSet","is_global (192.168.0.0/16)"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc3021#section-2","https://www.iana.org/assignments/iana-ipv4-special-registry/"]}
   },
   {
     "input": "192.168.1.0 255.255.255.0",
@@ -57,7 +58,8 @@
       },
       "ipClass": "C",
       "classfulPrefix": 24
-    }
+    },
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable","class","HostMin","HostMax","broadcast"]},{"tool":"netaddr","version":"1.3.0","checks":["prefix","network","netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["prefix","address","network","netmask","wildcard","total","hostBitsSet","is_global (192.168.0.0/16)"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc3021#section-2","https://www.iana.org/assignments/iana-ipv4-special-registry/"]}
   },
   {
     "input": "192.168.1.37/26",
@@ -87,7 +89,8 @@
       },
       "ipClass": "C",
       "classfulPrefix": 24
-    }
+    },
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable","class","HostMin","HostMax","broadcast"]},{"tool":"netaddr","version":"1.3.0","checks":["prefix","network","netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["prefix","address","network","netmask","wildcard","total","hostBitsSet","is_global (192.168.0.0/16)"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc3021#section-2","https://www.iana.org/assignments/iana-ipv4-special-registry/"]}
   },
   {
     "input": "10.0.0.0/8",
@@ -117,7 +120,8 @@
       },
       "ipClass": "A",
       "classfulPrefix": 8
-    }
+    },
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable","class","HostMin","HostMax","broadcast"]},{"tool":"netaddr","version":"1.3.0","checks":["prefix","network","netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["prefix","address","network","netmask","wildcard","total","hostBitsSet","is_global (10.0.0.0/8)"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc3021#section-2","https://www.iana.org/assignments/iana-ipv4-special-registry/"]}
   },
   {
     "input": "172.16.5.4/12",
@@ -147,7 +151,8 @@
       },
       "ipClass": "B",
       "classfulPrefix": 16
-    }
+    },
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable","class","HostMin","HostMax","broadcast"]},{"tool":"netaddr","version":"1.3.0","checks":["prefix","network","netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["prefix","address","network","netmask","wildcard","total","hostBitsSet","is_global (172.16.0.0/12)"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc3021#section-2","https://www.iana.org/assignments/iana-ipv4-special-registry/"]}
   },
   {
     "input": "172.31.255.255/20",
@@ -177,7 +182,8 @@
       },
       "ipClass": "B",
       "classfulPrefix": 16
-    }
+    },
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable","class","HostMin","HostMax","broadcast"]},{"tool":"netaddr","version":"1.3.0","checks":["prefix","network","netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["prefix","address","network","netmask","wildcard","total","hostBitsSet","is_global (172.16.0.0/12)"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc3021#section-2","https://www.iana.org/assignments/iana-ipv4-special-registry/"]}
   },
   {
     "input": "100.64.0.1/10",
@@ -207,7 +213,8 @@
       },
       "ipClass": "A",
       "classfulPrefix": 8
-    }
+    },
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable","class","HostMin","HostMax","broadcast"]},{"tool":"netaddr","version":"1.3.0","checks":["prefix","network","netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["prefix","address","network","netmask","wildcard","total","hostBitsSet","is_global (100.64.0.0/10)"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc3021#section-2","https://www.iana.org/assignments/iana-ipv4-special-registry/"]}
   },
   {
     "input": "0.0.0.0/0",
@@ -229,10 +236,16 @@
       "lastHost": "255.255.255.254",
       "totalAddresses": "4294967296",
       "usableHosts": "4294967294",
-      "special": null,
+      "special": {
+        "block": "0.0.0.0/32",
+        "name": "\"This host on this network\"",
+        "rfc": "RFC 1122",
+        "globallyReachable": false
+      },
       "ipClass": "A",
       "classfulPrefix": 8
-    }
+    },
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable","class","HostMin","HostMax","broadcast"]},{"tool":"netaddr","version":"1.3.0","checks":["prefix","network","netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["prefix","address","network","netmask","wildcard","total","hostBitsSet","is_global (0.0.0.0/32)"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc3021#section-2","https://www.iana.org/assignments/iana-ipv4-special-registry/"]}
   },
   {
     "input": "10.0.0.0/31",
@@ -262,7 +275,8 @@
       },
       "ipClass": "A",
       "classfulPrefix": 8
-    }
+    },
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable","class","HostMin","HostMax"]},{"tool":"netaddr","version":"1.3.0","checks":["prefix","network","netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["prefix","address","network","netmask","wildcard","total","hostBitsSet","is_global (10.0.0.0/8)"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc3021#section-2","https://www.iana.org/assignments/iana-ipv4-special-registry/"]}
   },
   {
     "input": "10.0.0.1/31",
@@ -292,7 +306,8 @@
       },
       "ipClass": "A",
       "classfulPrefix": 8
-    }
+    },
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable","class","HostMin","HostMax"]},{"tool":"netaddr","version":"1.3.0","checks":["prefix","network","netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["prefix","address","network","netmask","wildcard","total","hostBitsSet","is_global (10.0.0.0/8)"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc3021#section-2","https://www.iana.org/assignments/iana-ipv4-special-registry/"]}
   },
   {
     "input": "192.0.2.1/32",
@@ -322,7 +337,8 @@
       },
       "ipClass": "C",
       "classfulPrefix": 24
-    }
+    },
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable","class","hostroute"]},{"tool":"netaddr","version":"1.3.0","checks":["prefix","network","netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["prefix","address","network","netmask","wildcard","total","hostBitsSet","is_global (192.0.2.0/24)"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc3021#section-2","https://www.iana.org/assignments/iana-ipv4-special-registry/"]}
   },
   {
     "input": "192.0.2.1",
@@ -352,11 +368,12 @@
       },
       "ipClass": "C",
       "classfulPrefix": 24
-    }
+    },
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable","class","hostroute"]},{"tool":"netaddr","version":"1.3.0","checks":["network","netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["address","network","netmask","wildcard","total","hostBitsSet","is_global (192.0.2.0/24)"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc3021#section-2","https://www.iana.org/assignments/iana-ipv4-special-registry/"]}
   },
   {
     "input": "198.51.100.0/23",
-    "note": "spans beyond TEST-NET-2: no containing special block",
+    "note": "prefix spans beyond TEST-NET-2; scope still describes the entered address",
     "expect": {
       "version": 4,
       "address": "198.51.100.0",
@@ -374,10 +391,16 @@
       "lastHost": "198.51.101.254",
       "totalAddresses": "512",
       "usableHosts": "510",
-      "special": null,
+      "special": {
+        "block": "198.51.100.0/24",
+        "name": "Documentation (TEST-NET-2)",
+        "rfc": "RFC 5737",
+        "globallyReachable": false
+      },
       "ipClass": "C",
       "classfulPrefix": 24
-    }
+    },
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable","class","HostMin","HostMax","broadcast"]},{"tool":"netaddr","version":"1.3.0","checks":["prefix","network","netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["prefix","address","network","netmask","wildcard","total","hostBitsSet","is_global (198.51.100.0/24)"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc3021#section-2","https://www.iana.org/assignments/iana-ipv4-special-registry/"]}
   },
   {
     "input": "203.0.113.200/29",
@@ -407,7 +430,8 @@
       },
       "ipClass": "C",
       "classfulPrefix": 24
-    }
+    },
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable","class","HostMin","HostMax","broadcast"]},{"tool":"netaddr","version":"1.3.0","checks":["prefix","network","netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["prefix","address","network","netmask","wildcard","total","hostBitsSet","is_global (203.0.113.0/24)"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc3021#section-2","https://www.iana.org/assignments/iana-ipv4-special-registry/"]}
   },
   {
     "input": "169.254.10.20/16",
@@ -437,7 +461,8 @@
       },
       "ipClass": "B",
       "classfulPrefix": 16
-    }
+    },
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable","class","HostMin","HostMax","broadcast"]},{"tool":"netaddr","version":"1.3.0","checks":["prefix","network","netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["prefix","address","network","netmask","wildcard","total","hostBitsSet","is_global (169.254.0.0/16)"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc3021#section-2","https://www.iana.org/assignments/iana-ipv4-special-registry/"]}
   },
   {
     "input": "127.0.0.1/8",
@@ -467,7 +492,8 @@
       },
       "ipClass": "A",
       "classfulPrefix": 8
-    }
+    },
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable","class","HostMin","HostMax","broadcast"]},{"tool":"netaddr","version":"1.3.0","checks":["prefix","network","netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["prefix","address","network","netmask","wildcard","total","hostBitsSet","is_global (127.0.0.0/8)"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc3021#section-2","https://www.iana.org/assignments/iana-ipv4-special-registry/"]}
   },
   {
     "input": "224.0.0.251/32",
@@ -497,7 +523,8 @@
       },
       "ipClass": "D",
       "classfulPrefix": null
-    }
+    },
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable","class","hostroute"]},{"tool":"netaddr","version":"1.3.0","checks":["prefix","network","netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["prefix","address","network","netmask","wildcard","total","hostBitsSet"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc3021#section-2","https://www.iana.org/assignments/iana-ipv4-special-registry/"]}
   },
   {
     "input": "240.0.0.1/4",
@@ -527,7 +554,8 @@
       },
       "ipClass": "E",
       "classfulPrefix": null
-    }
+    },
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable","class","HostMin","HostMax","broadcast"]},{"tool":"netaddr","version":"1.3.0","checks":["prefix","network","netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["prefix","address","network","netmask","wildcard","total","hostBitsSet","is_global (240.0.0.0/4)"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc3021#section-2","https://www.iana.org/assignments/iana-ipv4-special-registry/"]}
   },
   {
     "input": "255.255.255.255/32",
@@ -557,7 +585,8 @@
       },
       "ipClass": "E",
       "classfulPrefix": null
-    }
+    },
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable","hostroute"]},{"tool":"netaddr","version":"1.3.0","checks":["prefix","network","netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["prefix","address","network","netmask","wildcard","total","hostBitsSet","is_global (255.255.255.255/32)"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc3021#section-2","https://www.iana.org/assignments/iana-ipv4-special-registry/"]}
   },
   {
     "input": "128.0.0.1/16",
@@ -582,7 +611,8 @@
       "special": null,
       "ipClass": "B",
       "classfulPrefix": 16
-    }
+    },
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable","class","HostMin","HostMax","broadcast"]},{"tool":"netaddr","version":"1.3.0","checks":["prefix","network","netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["prefix","address","network","netmask","wildcard","total","hostBitsSet"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc3021#section-2","https://www.iana.org/assignments/iana-ipv4-special-registry/"]}
   },
   {
     "input": "223.255.255.0/24",
@@ -607,7 +637,8 @@
       "special": null,
       "ipClass": "C",
       "classfulPrefix": 24
-    }
+    },
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable","class","HostMin","HostMax","broadcast"]},{"tool":"netaddr","version":"1.3.0","checks":["prefix","network","netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["prefix","address","network","netmask","wildcard","total","hostBitsSet"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc3021#section-2","https://www.iana.org/assignments/iana-ipv4-special-registry/"]}
   },
   {
     "input": "192.0.0.9/32",
@@ -637,7 +668,8 @@
       },
       "ipClass": "C",
       "classfulPrefix": 24
-    }
+    },
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable","class","hostroute"]},{"tool":"netaddr","version":"1.3.0","checks":["prefix","network","netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["prefix","address","network","netmask","wildcard","total","hostBitsSet","is_global (192.0.0.9/32)"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc3021#section-2","https://www.iana.org/assignments/iana-ipv4-special-registry/"]}
   },
   {
     "input": "192.0.0.0/24",
@@ -660,14 +692,15 @@
       "totalAddresses": "256",
       "usableHosts": "254",
       "special": {
-        "block": "192.0.0.0/24",
-        "name": "IETF Protocol Assignments",
-        "rfc": "RFC 6890",
+        "block": "192.0.0.0/29",
+        "name": "IPv4 Service Continuity Prefix",
+        "rfc": "RFC 7335",
         "globallyReachable": false
       },
       "ipClass": "C",
       "classfulPrefix": 24
-    }
+    },
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable","class","HostMin","HostMax","broadcast"]},{"tool":"netaddr","version":"1.3.0","checks":["prefix","network","netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["prefix","address","network","netmask","wildcard","total","hostBitsSet","is_global (192.0.0.0/29)"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc3021#section-2","https://www.iana.org/assignments/iana-ipv4-special-registry/"]}
   },
   {
     "input": "192.168.100.14/30",
@@ -697,7 +730,8 @@
       },
       "ipClass": "C",
       "classfulPrefix": 24
-    }
+    },
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable","class","HostMin","HostMax","broadcast"]},{"tool":"netaddr","version":"1.3.0","checks":["prefix","network","netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["prefix","address","network","netmask","wildcard","total","hostBitsSet","is_global (192.168.0.0/16)"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc3021#section-2","https://www.iana.org/assignments/iana-ipv4-special-registry/"]}
   },
   {
     "input": "10.10.10.10/28",
@@ -727,7 +761,8 @@
       },
       "ipClass": "A",
       "classfulPrefix": 8
-    }
+    },
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable","class","HostMin","HostMax","broadcast"]},{"tool":"netaddr","version":"1.3.0","checks":["prefix","network","netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["prefix","address","network","netmask","wildcard","total","hostBitsSet","is_global (10.0.0.0/8)"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc3021#section-2","https://www.iana.org/assignments/iana-ipv4-special-registry/"]}
   },
   {
     "input": "10.1.2.3/255.255.255.0",
@@ -757,7 +792,8 @@
       },
       "ipClass": "A",
       "classfulPrefix": 8
-    }
+    },
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable","class","HostMin","HostMax","broadcast"]},{"tool":"netaddr","version":"1.3.0","checks":["prefix","network","netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["prefix","address","network","netmask","wildcard","total","hostBitsSet","is_global (10.0.0.0/8)"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc3021#section-2","https://www.iana.org/assignments/iana-ipv4-special-registry/"]}
   },
   {
     "input": "  10.0.0.0/8  ",
@@ -787,7 +823,8 @@
       },
       "ipClass": "A",
       "classfulPrefix": 8
-    }
+    },
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable","class","HostMin","HostMax","broadcast"]},{"tool":"netaddr","version":"1.3.0","checks":["prefix","network","netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["prefix","address","network","netmask","wildcard","total","hostBitsSet","is_global (10.0.0.0/8)"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc3021#section-2","https://www.iana.org/assignments/iana-ipv4-special-registry/"]}
   },
   {
     "input": "10.1.2.3 0.0.255.255",
@@ -817,7 +854,8 @@
       },
       "ipClass": "A",
       "classfulPrefix": 8
-    }
+    },
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable","class","HostMin","HostMax","broadcast"]},{"tool":"netaddr","version":"1.3.0","checks":["prefix","network","netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["prefix","address","network","netmask","wildcard","total","hostBitsSet","is_global (10.0.0.0/8)"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc3021#section-2","https://www.iana.org/assignments/iana-ipv4-special-registry/"]}
   },
   {
     "input": "10.1.2.3 0.0.0.255",
@@ -847,7 +885,8 @@
       },
       "ipClass": "A",
       "classfulPrefix": 8
-    }
+    },
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable","class","HostMin","HostMax","broadcast"]},{"tool":"netaddr","version":"1.3.0","checks":["prefix","network","netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["prefix","address","network","netmask","wildcard","total","hostBitsSet","is_global (10.0.0.0/8)"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc3021#section-2","https://www.iana.org/assignments/iana-ipv4-special-registry/"]}
   },
   {
     "input": "10.1.2.3 0.0.0.0",
@@ -869,10 +908,16 @@
       "lastHost": "255.255.255.254",
       "totalAddresses": "4294967296",
       "usableHosts": "4294967294",
-      "special": null,
+      "special": {
+        "block": "10.0.0.0/8",
+        "name": "Private-Use",
+        "rfc": "RFC 1918",
+        "globallyReachable": false
+      },
       "ipClass": "A",
       "classfulPrefix": 8
-    }
+    },
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable","class","HostMin","HostMax","broadcast"]},{"tool":"netaddr","version":"1.3.0","checks":["prefix","network","netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["prefix","address","network","netmask","wildcard","total","hostBitsSet","is_global (10.0.0.0/8)"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc3021#section-2","https://www.iana.org/assignments/iana-ipv4-special-registry/"]}
   },
   {
     "input": "10.1.2.3 255.255.255.255",
@@ -902,7 +947,8 @@
       },
       "ipClass": "A",
       "classfulPrefix": 8
-    }
+    },
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable","class","hostroute"]},{"tool":"netaddr","version":"1.3.0","checks":["prefix","network","netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["prefix","address","network","netmask","wildcard","total","hostBitsSet","is_global (10.0.0.0/8)"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc3021#section-2","https://www.iana.org/assignments/iana-ipv4-special-registry/"]}
   },
   {
     "input": "10.1.2.3 0.0.0.0",
@@ -935,7 +981,8 @@
       },
       "ipClass": "A",
       "classfulPrefix": 8
-    }
+    },
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable","class","hostroute"]},{"tool":"netaddr","version":"1.3.0","checks":["network","netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["address","network","netmask","wildcard","total","hostBitsSet","is_global (10.0.0.0/8)"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc3021#section-2","https://www.iana.org/assignments/iana-ipv4-special-registry/"]}
   },
   {
     "input": "10.1.2.3 255.255.255.255",
@@ -960,10 +1007,16 @@
       "lastHost": "255.255.255.254",
       "totalAddresses": "4294967296",
       "usableHosts": "4294967294",
-      "special": null,
+      "special": {
+        "block": "10.0.0.0/8",
+        "name": "Private-Use",
+        "rfc": "RFC 1918",
+        "globallyReachable": false
+      },
       "ipClass": "A",
       "classfulPrefix": 8
-    }
+    },
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable","class","HostMin","HostMax","broadcast"]},{"tool":"netaddr","version":"1.3.0","checks":["network","netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["address","network","netmask","wildcard","total","hostBitsSet","is_global (10.0.0.0/8)"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc3021#section-2","https://www.iana.org/assignments/iana-ipv4-special-registry/"]}
   },
   {
     "input": "10.1.2.3 255.255.255.0",
@@ -996,6 +1049,7 @@
       },
       "ipClass": "A",
       "classfulPrefix": 8
-    }
+    },
+    "source": {"validators":[{"tool":"ipcalc","version":"0.51","checks":["usable","class","HostMin","HostMax","broadcast"]},{"tool":"netaddr","version":"1.3.0","checks":["prefix","network","netmask","wildcard","total"]},{"tool":"py","version":"3.13.15","checks":["prefix","address","network","netmask","wildcard","total","hostBitsSet","is_global (10.0.0.0/8)"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc3021#section-2","https://www.iana.org/assignments/iana-ipv4-special-registry/"]}
   }
 ]

@@ -3,90 +3,105 @@
     "input": "2001:0db8::0001",
     "note": "RFC 5952 4.1 leading zeros",
     "compressed": "2001:db8::1",
-    "expanded": "2001:0db8:0000:0000:0000:0000:0000:0001"
+    "expanded": "2001:0db8:0000:0000:0000:0000:0000:0001",
+    "source": {"validators":[{"tool":"ipv6calc","version":"ipv6calc: version 4.4.0 DB_AS_REG DB_IPV4_REG DB_IPV6_REG DB_CC_REG DB_IEEE DB_IPV4_INFO DB_IPV6_INFO ANON_ZEROISE ANON_ANONYMIZE","checks":["compressed","expanded"]},{"tool":"netaddr","version":"1.3.0","checks":["expanded"]},{"tool":"py","version":"3.13.15","checks":["compressed","expanded"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc5952#section-4"]}
   },
   {
     "input": "2001:db8:0:0:0:0:2:1",
     "note": "RFC 5952 4.2.1 longest zero run",
     "compressed": "2001:db8::2:1",
-    "expanded": "2001:0db8:0000:0000:0000:0000:0002:0001"
+    "expanded": "2001:0db8:0000:0000:0000:0000:0002:0001",
+    "source": {"validators":[{"tool":"ipv6calc","version":"ipv6calc: version 4.4.0 DB_AS_REG DB_IPV4_REG DB_IPV6_REG DB_CC_REG DB_IEEE DB_IPV4_INFO DB_IPV6_INFO ANON_ZEROISE ANON_ANONYMIZE","checks":["compressed","expanded"]},{"tool":"netaddr","version":"1.3.0","checks":["expanded"]},{"tool":"py","version":"3.13.15","checks":["compressed","expanded"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc5952#section-4"]}
   },
   {
     "input": "2001:db8:0:1:1:1:1:1",
     "note": "RFC 5952 4.2.2 single zero field not compressed",
     "compressed": "2001:db8:0:1:1:1:1:1",
-    "expanded": "2001:0db8:0000:0001:0001:0001:0001:0001"
+    "expanded": "2001:0db8:0000:0001:0001:0001:0001:0001",
+    "source": {"validators":[{"tool":"ipv6calc","version":"ipv6calc: version 4.4.0 DB_AS_REG DB_IPV4_REG DB_IPV6_REG DB_CC_REG DB_IEEE DB_IPV4_INFO DB_IPV6_INFO ANON_ZEROISE ANON_ANONYMIZE","checks":["compressed","expanded"]},{"tool":"netaddr","version":"1.3.0","checks":["expanded"]},{"tool":"py","version":"3.13.15","checks":["compressed","expanded"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc5952#section-4"]}
   },
   {
     "input": "2001:0:0:1:0:0:0:1",
     "note": "RFC 5952 4.2.3 longest run wins",
     "compressed": "2001:0:0:1::1",
-    "expanded": "2001:0000:0000:0001:0000:0000:0000:0001"
+    "expanded": "2001:0000:0000:0001:0000:0000:0000:0001",
+    "source": {"validators":[{"tool":"ipv6calc","version":"ipv6calc: version 4.4.0 DB_AS_REG DB_IPV4_REG DB_IPV6_REG DB_CC_REG DB_IEEE DB_IPV4_INFO DB_IPV6_INFO ANON_ZEROISE ANON_ANONYMIZE","checks":["compressed","expanded"]},{"tool":"netaddr","version":"1.3.0","checks":["expanded"]},{"tool":"py","version":"3.13.15","checks":["compressed","expanded"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc5952#section-4"]}
   },
   {
     "input": "2001:db8:0:0:1:0:0:1",
     "note": "RFC 5952 4.2.3 first run wins on tie",
     "compressed": "2001:db8::1:0:0:1",
-    "expanded": "2001:0db8:0000:0000:0001:0000:0000:0001"
+    "expanded": "2001:0db8:0000:0000:0001:0000:0000:0001",
+    "source": {"validators":[{"tool":"ipv6calc","version":"ipv6calc: version 4.4.0 DB_AS_REG DB_IPV4_REG DB_IPV6_REG DB_CC_REG DB_IEEE DB_IPV4_INFO DB_IPV6_INFO ANON_ZEROISE ANON_ANONYMIZE","checks":["compressed","expanded"]},{"tool":"netaddr","version":"1.3.0","checks":["expanded"]},{"tool":"py","version":"3.13.15","checks":["compressed","expanded"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc5952#section-4"]}
   },
   {
     "input": "2001:DB8::1",
     "note": "RFC 5952 4.3 lowercase",
     "compressed": "2001:db8::1",
-    "expanded": "2001:0db8:0000:0000:0000:0000:0000:0001"
+    "expanded": "2001:0db8:0000:0000:0000:0000:0000:0001",
+    "source": {"validators":[{"tool":"ipv6calc","version":"ipv6calc: version 4.4.0 DB_AS_REG DB_IPV4_REG DB_IPV6_REG DB_CC_REG DB_IEEE DB_IPV4_INFO DB_IPV6_INFO ANON_ZEROISE ANON_ANONYMIZE","checks":["compressed","expanded"]},{"tool":"netaddr","version":"1.3.0","checks":["expanded"]},{"tool":"py","version":"3.13.15","checks":["compressed","expanded"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc5952#section-4"]}
   },
   {
     "input": "::ffff:192.0.2.1",
     "note": "RFC 5952 5 IPv4-mapped mixed notation; expanded form is always 8 hex groups",
     "compressed": "::ffff:192.0.2.1",
-    "expanded": "0000:0000:0000:0000:0000:ffff:c000:0201"
+    "expanded": "0000:0000:0000:0000:0000:ffff:c000:0201",
+    "source": {"validators":[{"tool":"ipv6calc","version":"ipv6calc: version 4.4.0 DB_AS_REG DB_IPV4_REG DB_IPV6_REG DB_CC_REG DB_IEEE DB_IPV4_INFO DB_IPV6_INFO ANON_ZEROISE ANON_ANONYMIZE","checks":["compressed"]},{"tool":"netaddr","version":"1.3.0","checks":["expanded"]},{"tool":"py","version":"3.13.15","checks":["compressed"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc5952#section-4"]}
   },
   {
     "input": "::ffff:c000:0201",
     "note": "RFC 5952 5 IPv4-mapped from hex; expanded form is always 8 hex groups",
     "compressed": "::ffff:192.0.2.1",
-    "expanded": "0000:0000:0000:0000:0000:ffff:c000:0201"
+    "expanded": "0000:0000:0000:0000:0000:ffff:c000:0201",
+    "source": {"validators":[{"tool":"ipv6calc","version":"ipv6calc: version 4.4.0 DB_AS_REG DB_IPV4_REG DB_IPV6_REG DB_CC_REG DB_IEEE DB_IPV4_INFO DB_IPV6_INFO ANON_ZEROISE ANON_ANONYMIZE","checks":["compressed"]},{"tool":"netaddr","version":"1.3.0","checks":["expanded"]},{"tool":"py","version":"3.13.15","checks":["compressed"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc5952#section-4"]}
   },
   {
     "input": "0:0:0:0:0:0:0:0",
     "note": "all zeros",
     "compressed": "::",
-    "expanded": "0000:0000:0000:0000:0000:0000:0000:0000"
+    "expanded": "0000:0000:0000:0000:0000:0000:0000:0000",
+    "source": {"validators":[{"tool":"ipv6calc","version":"ipv6calc: version 4.4.0 DB_AS_REG DB_IPV4_REG DB_IPV6_REG DB_CC_REG DB_IEEE DB_IPV4_INFO DB_IPV6_INFO ANON_ZEROISE ANON_ANONYMIZE","checks":["compressed","expanded"]},{"tool":"netaddr","version":"1.3.0","checks":["expanded"]},{"tool":"py","version":"3.13.15","checks":["compressed","expanded"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc5952#section-4"]}
   },
   {
     "input": "0:0:0:0:0:0:0:1",
     "note": "loopback",
     "compressed": "::1",
-    "expanded": "0000:0000:0000:0000:0000:0000:0000:0001"
+    "expanded": "0000:0000:0000:0000:0000:0000:0000:0001",
+    "source": {"validators":[{"tool":"ipv6calc","version":"ipv6calc: version 4.4.0 DB_AS_REG DB_IPV4_REG DB_IPV6_REG DB_CC_REG DB_IEEE DB_IPV4_INFO DB_IPV6_INFO ANON_ZEROISE ANON_ANONYMIZE","checks":["compressed","expanded"]},{"tool":"netaddr","version":"1.3.0","checks":["expanded"]},{"tool":"py","version":"3.13.15","checks":["compressed","expanded"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc5952#section-4"]}
   },
   {
     "input": "1:0:0:0:0:0:0:0",
     "note": "trailing run",
     "compressed": "1::",
-    "expanded": "0001:0000:0000:0000:0000:0000:0000:0000"
+    "expanded": "0001:0000:0000:0000:0000:0000:0000:0000",
+    "source": {"validators":[{"tool":"ipv6calc","version":"ipv6calc: version 4.4.0 DB_AS_REG DB_IPV4_REG DB_IPV6_REG DB_CC_REG DB_IEEE DB_IPV4_INFO DB_IPV6_INFO ANON_ZEROISE ANON_ANONYMIZE","checks":["compressed","expanded"]},{"tool":"netaddr","version":"1.3.0","checks":["expanded"]},{"tool":"py","version":"3.13.15","checks":["compressed","expanded"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc5952#section-4"]}
   },
   {
     "input": "2001:db8:0:0:0:0:0:0",
     "note": "trailing run",
     "compressed": "2001:db8::",
-    "expanded": "2001:0db8:0000:0000:0000:0000:0000:0000"
+    "expanded": "2001:0db8:0000:0000:0000:0000:0000:0000",
+    "source": {"validators":[{"tool":"ipv6calc","version":"ipv6calc: version 4.4.0 DB_AS_REG DB_IPV4_REG DB_IPV6_REG DB_CC_REG DB_IEEE DB_IPV4_INFO DB_IPV6_INFO ANON_ZEROISE ANON_ANONYMIZE","checks":["compressed","expanded"]},{"tool":"netaddr","version":"1.3.0","checks":["expanded"]},{"tool":"py","version":"3.13.15","checks":["compressed","expanded"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc5952#section-4"]}
   },
   {
     "input": "fe80:0000:0000:0000:0204:61ff:fe9d:f156",
     "note": "link-local",
     "compressed": "fe80::204:61ff:fe9d:f156",
-    "expanded": "fe80:0000:0000:0000:0204:61ff:fe9d:f156"
+    "expanded": "fe80:0000:0000:0000:0204:61ff:fe9d:f156",
+    "source": {"validators":[{"tool":"ipv6calc","version":"ipv6calc: version 4.4.0 DB_AS_REG DB_IPV4_REG DB_IPV6_REG DB_CC_REG DB_IEEE DB_IPV4_INFO DB_IPV6_INFO ANON_ZEROISE ANON_ANONYMIZE","checks":["compressed","expanded"]},{"tool":"netaddr","version":"1.3.0","checks":["expanded"]},{"tool":"py","version":"3.13.15","checks":["compressed","expanded"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc5952#section-4"]}
   },
   {
     "input": "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff",
     "note": "max",
     "compressed": "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff",
-    "expanded": "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff"
+    "expanded": "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff",
+    "source": {"validators":[{"tool":"ipv6calc","version":"ipv6calc: version 4.4.0 DB_AS_REG DB_IPV4_REG DB_IPV6_REG DB_CC_REG DB_IEEE DB_IPV4_INFO DB_IPV6_INFO ANON_ZEROISE ANON_ANONYMIZE","checks":["compressed","expanded"]},{"tool":"netaddr","version":"1.3.0","checks":["expanded"]},{"tool":"py","version":"3.13.15","checks":["compressed","expanded"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc5952#section-4"]}
   },
   {
     "input": "64:ff9b::192.0.2.33",
     "note": "embedded IPv4 input, NAT64 prefix printed in hex",
     "compressed": "64:ff9b::c000:221",
-    "expanded": "0064:ff9b:0000:0000:0000:0000:c000:0221"
+    "expanded": "0064:ff9b:0000:0000:0000:0000:c000:0221",
+    "source": {"validators":[{"tool":"ipv6calc","version":"ipv6calc: version 4.4.0 DB_AS_REG DB_IPV4_REG DB_IPV6_REG DB_CC_REG DB_IEEE DB_IPV4_INFO DB_IPV6_INFO ANON_ZEROISE ANON_ANONYMIZE","checks":["compressed","expanded"]},{"tool":"netaddr","version":"1.3.0","checks":["expanded"]},{"tool":"py","version":"3.13.15","checks":["compressed","expanded"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc5952#section-4"]}
   }
 ]

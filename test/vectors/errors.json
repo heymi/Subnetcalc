@@ -1,150 +1,187 @@
 [
   {
     "input": "",
-    "code": "EMPTY"
+    "code": "EMPTY",
+    "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["rejects"]},{"tool":"py","version":"3.13.15","checks":["rejects"]}],"verifiedAt":"2026-10-02","references":["https://docs.python.org/3/library/ipaddress.html","https://netaddr.readthedocs.io/en/latest/api.html"]}
   },
   {
     "input": "   ",
-    "code": "EMPTY"
+    "code": "EMPTY",
+    "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["rejects"]},{"tool":"py","version":"3.13.15","checks":["rejects"]}],"verifiedAt":"2026-10-02","references":["https://docs.python.org/3/library/ipaddress.html","https://netaddr.readthedocs.io/en/latest/api.html"]}
   },
   {
     "input": "192.168.1.",
-    "code": "INCOMPLETE"
+    "code": "INCOMPLETE",
+    "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["rejects"]},{"tool":"py","version":"3.13.15","checks":["rejects"]}],"verifiedAt":"2026-10-02","references":["https://docs.python.org/3/library/ipaddress.html","https://netaddr.readthedocs.io/en/latest/api.html"]}
   },
   {
     "input": "192.168",
-    "code": "INCOMPLETE"
+    "code": "INCOMPLETE",
+    "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["rejects"]},{"tool":"py","version":"3.13.15","checks":["rejects"]}],"verifiedAt":"2026-10-02","references":["https://docs.python.org/3/library/ipaddress.html","https://netaddr.readthedocs.io/en/latest/api.html"]}
   },
   {
     "input": "192.168.1.0/",
-    "code": "INCOMPLETE"
+    "code": "INCOMPLETE",
+    "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["rejects"]},{"tool":"py","version":"3.13.15","checks":["rejects"]}],"verifiedAt":"2026-10-02","references":["https://docs.python.org/3/library/ipaddress.html","https://netaddr.readthedocs.io/en/latest/api.html"]}
   },
   {
     "input": "10.0.0.0 255.255.",
-    "code": "INCOMPLETE"
+    "code": "INCOMPLETE",
+    "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["rejects"]},{"tool":"py","version":"3.13.15","checks":["rejects"]}],"verifiedAt":"2026-10-02","references":["https://docs.python.org/3/library/ipaddress.html","https://netaddr.readthedocs.io/en/latest/api.html"]}
   },
   {
     "input": "2001:db8:",
-    "code": "INCOMPLETE"
+    "code": "INCOMPLETE",
+    "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["rejects"]},{"tool":"py","version":"3.13.15","checks":["rejects"]}],"verifiedAt":"2026-10-02","references":["https://docs.python.org/3/library/ipaddress.html","https://netaddr.readthedocs.io/en/latest/api.html"]}
   },
   {
     "input": "2001:db8",
-    "code": "INCOMPLETE"
+    "code": "INCOMPLETE",
+    "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["rejects"]},{"tool":"py","version":"3.13.15","checks":["rejects"]}],"verifiedAt":"2026-10-02","references":["https://docs.python.org/3/library/ipaddress.html","https://netaddr.readthedocs.io/en/latest/api.html"]}
   },
   {
     "input": "fe80::1%",
-    "code": "INCOMPLETE"
+    "code": "INCOMPLETE",
+    "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["rejects"]},{"tool":"py","version":"3.13.15","checks":["rejects"]}],"verifiedAt":"2026-10-02","references":["https://docs.python.org/3/library/ipaddress.html","https://netaddr.readthedocs.io/en/latest/api.html"]}
   },
   {
     "input": "192.168.1.256/24",
-    "code": "INVALID_ADDRESS"
+    "code": "INVALID_ADDRESS",
+    "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["rejects"]},{"tool":"py","version":"3.13.15","checks":["rejects"]}],"verifiedAt":"2026-10-02","references":["https://docs.python.org/3/library/ipaddress.html","https://netaddr.readthedocs.io/en/latest/api.html"]}
   },
   {
     "input": "192.168.01.1/24",
-    "code": "INVALID_ADDRESS"
+    "code": "INVALID_ADDRESS",
+    "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["rejects"]},{"tool":"py","version":"3.13.15","checks":["rejects"]}],"verifiedAt":"2026-10-02","references":["https://docs.python.org/3/library/ipaddress.html","https://netaddr.readthedocs.io/en/latest/api.html"]}
   },
   {
     "input": "1.2.3.4.5",
-    "code": "INVALID_ADDRESS"
+    "code": "INVALID_ADDRESS",
+    "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["rejects"]},{"tool":"py","version":"3.13.15","checks":["rejects"]}],"verifiedAt":"2026-10-02","references":["https://docs.python.org/3/library/ipaddress.html","https://netaddr.readthedocs.io/en/latest/api.html"]}
   },
   {
     "input": "2001:db8:::1",
-    "code": "INVALID_ADDRESS"
+    "code": "INVALID_ADDRESS",
+    "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["rejects"]},{"tool":"py","version":"3.13.15","checks":["rejects"]}],"verifiedAt":"2026-10-02","references":["https://docs.python.org/3/library/ipaddress.html","https://netaddr.readthedocs.io/en/latest/api.html"]}
   },
   {
     "input": "2001:db8::1::2",
-    "code": "INVALID_ADDRESS"
+    "code": "INVALID_ADDRESS",
+    "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["rejects"]},{"tool":"py","version":"3.13.15","checks":["rejects"]}],"verifiedAt":"2026-10-02","references":["https://docs.python.org/3/library/ipaddress.html","https://netaddr.readthedocs.io/en/latest/api.html"]}
   },
   {
     "input": "12345::1",
-    "code": "INVALID_ADDRESS"
+    "code": "INVALID_ADDRESS",
+    "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["rejects"]},{"tool":"py","version":"3.13.15","checks":["rejects"]}],"verifiedAt":"2026-10-02","references":["https://docs.python.org/3/library/ipaddress.html","https://netaddr.readthedocs.io/en/latest/api.html"]}
   },
   {
     "input": "gggg::1",
-    "code": "INVALID_ADDRESS"
+    "code": "INVALID_ADDRESS",
+    "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["rejects"]},{"tool":"py","version":"3.13.15","checks":["rejects"]}],"verifiedAt":"2026-10-02","references":["https://docs.python.org/3/library/ipaddress.html","https://netaddr.readthedocs.io/en/latest/api.html"]}
   },
   {
     "input": "hello",
-    "code": "INVALID_ADDRESS"
+    "code": "INVALID_ADDRESS",
+    "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["rejects"]},{"tool":"py","version":"3.13.15","checks":["rejects"]}],"verifiedAt":"2026-10-02","references":["https://docs.python.org/3/library/ipaddress.html","https://netaddr.readthedocs.io/en/latest/api.html"]}
   },
   {
     "input": "::ffff:256.0.0.1",
-    "code": "INVALID_ADDRESS"
+    "code": "INVALID_ADDRESS",
+    "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["rejects"]},{"tool":"py","version":"3.13.15","checks":["rejects"]}],"verifiedAt":"2026-10-02","references":["https://docs.python.org/3/library/ipaddress.html","https://netaddr.readthedocs.io/en/latest/api.html"]}
   },
   {
     "input": "1:2:3:4:5:6:7:8:9",
-    "code": "INVALID_ADDRESS"
+    "code": "INVALID_ADDRESS",
+    "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["rejects"]},{"tool":"py","version":"3.13.15","checks":["rejects"]}],"verifiedAt":"2026-10-02","references":["https://docs.python.org/3/library/ipaddress.html","https://netaddr.readthedocs.io/en/latest/api.html"]}
   },
   {
     "input": "1.2.3.-1",
-    "code": "INVALID_ADDRESS"
+    "code": "INVALID_ADDRESS",
+    "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["rejects"]},{"tool":"py","version":"3.13.15","checks":["rejects"]}],"verifiedAt":"2026-10-02","references":["https://docs.python.org/3/library/ipaddress.html","https://netaddr.readthedocs.io/en/latest/api.html"]}
   },
   {
     "input": "10.0.0.0/33",
-    "code": "INVALID_PREFIX"
+    "code": "INVALID_PREFIX",
+    "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["rejects"]},{"tool":"py","version":"3.13.15","checks":["rejects"]}],"verifiedAt":"2026-10-02","references":["https://docs.python.org/3/library/ipaddress.html","https://netaddr.readthedocs.io/en/latest/api.html"]}
   },
   {
     "input": "2001:db8::/129",
-    "code": "INVALID_PREFIX"
+    "code": "INVALID_PREFIX",
+    "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["rejects"]},{"tool":"py","version":"3.13.15","checks":["rejects"]}],"verifiedAt":"2026-10-02","references":["https://docs.python.org/3/library/ipaddress.html","https://netaddr.readthedocs.io/en/latest/api.html"]}
   },
   {
     "input": "10.0.0.0/-1",
-    "code": "INVALID_PREFIX"
+    "code": "INVALID_PREFIX",
+    "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["rejects"]},{"tool":"py","version":"3.13.15","checks":["rejects"]}],"verifiedAt":"2026-10-02","references":["https://docs.python.org/3/library/ipaddress.html","https://netaddr.readthedocs.io/en/latest/api.html"]}
   },
   {
     "input": "10.0.0.0/2a",
-    "code": "INVALID_PREFIX"
+    "code": "INVALID_PREFIX",
+    "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["rejects"]},{"tool":"py","version":"3.13.15","checks":["rejects"]}],"verifiedAt":"2026-10-02","references":["https://docs.python.org/3/library/ipaddress.html","https://netaddr.readthedocs.io/en/latest/api.html"]}
   },
   {
     "input": "10.0.0.0/24/24",
-    "code": "INVALID_PREFIX"
+    "code": "INVALID_PREFIX",
+    "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["rejects"]},{"tool":"py","version":"3.13.15","checks":["rejects"]}],"verifiedAt":"2026-10-02","references":["https://docs.python.org/3/library/ipaddress.html","https://netaddr.readthedocs.io/en/latest/api.html"]}
   },
   {
     "input": "2001:db8:: 255.255.255.0",
-    "code": "INVALID_MASK"
+    "code": "INVALID_MASK",
+    "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["rejects"]},{"tool":"py","version":"3.13.15","checks":["rejects"]}],"verifiedAt":"2026-10-02","references":["https://docs.python.org/3/library/ipaddress.html","https://netaddr.readthedocs.io/en/latest/api.html"]}
   },
   {
     "input": "10.0.0.0 255.255.255.256",
-    "code": "INVALID_MASK"
+    "code": "INVALID_MASK",
+    "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["rejects"]},{"tool":"py","version":"3.13.15","checks":["rejects"]}],"verifiedAt":"2026-10-02","references":["https://docs.python.org/3/library/ipaddress.html","https://netaddr.readthedocs.io/en/latest/api.html"]}
   },
   {
     "input": "10.0.0.0 255.0.255.0",
-    "code": "NON_CONTIGUOUS_MASK"
+    "code": "NON_CONTIGUOUS_MASK",
+    "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["rejects"]},{"tool":"py","version":"3.13.15","checks":["rejects"]}],"verifiedAt":"2026-10-02","references":["https://docs.python.org/3/library/ipaddress.html","https://netaddr.readthedocs.io/en/latest/api.html"]}
   },
   {
     "input": "10.0.0.0 0.255.0.255",
-    "code": "NON_CONTIGUOUS_MASK"
+    "code": "NON_CONTIGUOUS_MASK",
+    "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["rejects"]},{"tool":"py","version":"3.13.15","checks":["rejects"]}],"verifiedAt":"2026-10-02","references":["https://docs.python.org/3/library/ipaddress.html","https://netaddr.readthedocs.io/en/latest/api.html"]}
   },
   {
     "input": "2001",
-    "code": "INCOMPLETE"
+    "code": "INCOMPLETE",
+    "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["rejects"]},{"tool":"py","version":"3.13.15","checks":["rejects"]}],"verifiedAt":"2026-10-02","references":["https://docs.python.org/3/library/ipaddress.html","https://netaddr.readthedocs.io/en/latest/api.html"]}
   },
   {
     "input": "256",
-    "code": "INCOMPLETE"
+    "code": "INCOMPLETE",
+    "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["rejects"]},{"tool":"py","version":"3.13.15","checks":["rejects"]}],"verifiedAt":"2026-10-02","references":["https://docs.python.org/3/library/ipaddress.html","https://netaddr.readthedocs.io/en/latest/api.html"]}
   },
   {
     "input": "::ffff:1.2.3",
-    "code": "INCOMPLETE"
+    "code": "INCOMPLETE",
+    "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["rejects"]},{"tool":"py","version":"3.13.15","checks":["rejects"]}],"verifiedAt":"2026-10-02","references":["https://docs.python.org/3/library/ipaddress.html","https://netaddr.readthedocs.io/en/latest/api.html"]}
   },
   {
     "input": "1.2.3.4::",
-    "code": "INVALID_ADDRESS"
+    "code": "INVALID_ADDRESS",
+    "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["rejects"]},{"tool":"py","version":"3.13.15","checks":["rejects"]}],"verifiedAt":"2026-10-02","references":["https://docs.python.org/3/library/ipaddress.html","https://netaddr.readthedocs.io/en/latest/api.html"]}
   },
   {
     "input": "1.2.3.4.",
-    "code": "INVALID_ADDRESS"
+    "code": "INVALID_ADDRESS",
+    "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["rejects"]},{"tool":"py","version":"3.13.15","checks":["rejects"]}],"verifiedAt":"2026-10-02","references":["https://docs.python.org/3/library/ipaddress.html","https://netaddr.readthedocs.io/en/latest/api.html"]}
   },
   {
     "input": "10.0.0.1%eth0",
-    "code": "INVALID_ADDRESS"
+    "code": "INVALID_ADDRESS",
+    "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["rejects"]},{"tool":"py","version":"3.13.15","checks":["rejects"]}],"verifiedAt":"2026-10-02","references":["https://docs.python.org/3/library/ipaddress.html","https://netaddr.readthedocs.io/en/latest/api.html"]}
   },
   {
     "input": "12345",
-    "code": "INVALID_ADDRESS"
+    "code": "INVALID_ADDRESS",
+    "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["rejects"]},{"tool":"py","version":"3.13.15","checks":["rejects"]}],"verifiedAt":"2026-10-02","references":["https://docs.python.org/3/library/ipaddress.html","https://netaddr.readthedocs.io/en/latest/api.html"]}
   },
   {
     "input": "1:2:3:4:5:6:7:1.2.3.4",
-    "code": "INVALID_ADDRESS"
+    "code": "INVALID_ADDRESS",
+    "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["rejects"]},{"tool":"py","version":"3.13.15","checks":["rejects"]}],"verifiedAt":"2026-10-02","references":["https://docs.python.org/3/library/ipaddress.html","https://netaddr.readthedocs.io/en/latest/api.html"]}
   }
 ]
