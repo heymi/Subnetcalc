@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>CIDR Calculator: Aggregate, Overlaps, Range to CIDR – SubnetCalc</title>
+<meta name="description" content="Summarize networks into the fewest routes, find the supernet, detect overlapping subnets, convert IP ranges to CIDR, and look up /0–/32 masks.">
+<link rel="canonical" href="https://subnetcalc.dev/cidr/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="SubnetCalc">
+<meta property="og:title" content="CIDR Calculator: Aggregate, Overlaps, Range to CIDR">
+<meta property="og:description" content="Summarize routes, find a supernet, detect overlapping subnets and convert IP ranges to CIDR blocks.">
+<meta property="og:url" content="https://subnetcalc.dev/cidr/">
+<meta property="og:image" content="https://subnetcalc.dev/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<!-- @head -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="/assets/fonts/ibm-plex-mono-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/ibm-plex-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/css/site.css">
+<meta name="theme-color" content="#f8f9fb" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#14171c" media="(prefers-color-scheme: dark)">
+<script>try{var t=localStorage.getItem('theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
+<script type="module" src="/assets/js/common.js"></script>
+<!-- /@head -->
+<link rel="modulepreload" href="/assets/js/cidr.js">
+<link rel="modulepreload" href="/lib/subnet.js">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebApplication",
+      "name": "SubnetCalc CIDR Tools",
+      "url": "https://subnetcalc.dev/cidr/",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Any",
+      "browserRequirements": "Requires JavaScript",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "featureList": ["Route aggregation (summarization)", "Smallest common supernet", "Overlap detection", "IP range to CIDR conversion", "Prefix, netmask and wildcard table"]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "SubnetCalc", "item": "https://subnetcalc.dev/" },
+        { "@type": "ListItem", "position": 2, "name": "CIDR tools", "item": "https://subnetcalc.dev/cidr/" }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        { "@type": "Question", "name": "What is the difference between aggregation and a supernet?", "acceptedAnswer": { "@type": "Answer", "text": "Aggregation merges networks into the fewest CIDR blocks that cover exactly the same addresses. A supernet is one block that covers every input, and it may also cover addresses that were not in the list." } },
+        { "@type": "Question", "name": "How do I summarize 10.0.0.0/24 through 10.0.3.0/24?", "acceptedAnswer": { "@type": "Answer", "text": "The four /24s are contiguous and start on a multiple of four, so they summarize to 10.0.0.0/22." } },
+        { "@type": "Question", "name": "Why don't 10.0.1.0/24 and 10.0.2.0/24 merge into a /23?", "acceptedAnswer": { "@type": "Answer", "text": "A /23 must start on an even third octet. 10.0.1.0/24 and 10.0.2.0/24 are adjacent but straddle a /23 boundary, so the smallest single block that holds both is 10.0.0.0/22, which also includes 10.0.0.0/24 and 10.0.3.0/24." } },
+        { "@type": "Question", "name": "How do I convert an IP range to CIDR?", "acceptedAnswer": { "@type": "Answer", "text": "Starting at the first address, take the largest block that starts there and does not pass the end of the range, then repeat from the next address. 192.168.1.10 to 192.168.1.20 becomes 192.168.1.10/31, 192.168.1.12/30, 192.168.1.16/30 and 192.168.1.20/32." } },
+        { "@type": "Question", "name": "What does it mean when two subnets overlap?", "acceptedAnswer": { "@type": "Answer", "text": "CIDR blocks either do not overlap at all or one contains the other. An overlap usually means a duplicate route, a VPC peering conflict, or a subnet that was carved twice." } }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<!-- @header -->
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="wrap bar">
+    <a class="brand" href="/"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>SubnetCalc</a>
+    <nav class="site-nav" aria-label="Main">
+      <ul>
+      <li><a href="/">Subnet</a></li>
+      <li><a href="/vlsm/">VLSM</a></li>
+      <li><a href="/cidr/" aria-current="page">CIDR</a></li>
+      <li><a href="/ipv6/">IPv6</a></li>
+      <li><a href="/learn/">Learn</a></li>
+      </ul>
+    </nav>
+    <button type="button" class="btn btn-ghost icon-btn theme-toggle" data-theme-toggle aria-label="Switch theme"></button>
+  </div>
+</header>
+<!-- /@header -->
+<main id="main" class="wrap">
+  <div class="page-head">
+    <p class="eyebrow">Aggregate · supernet · overlaps · ranges</p>
+    <h1>CIDR Tools</h1>
+    <p class="lede">Paste a list of networks to summarize it and check it for overlaps, or turn an address range into CIDR blocks. IPv4 and IPv6.</p>
+  </div>
+
+  <section class="tools two" aria-labelledby="list-h">
+    <div class="tool">
+      <h2 id="list-h">Networks</h2>
+      <p>One per line, or separated by commas. Masks and wildcards work too.</p>
+      <label for="nets" class="visually-hidden">Networks</label>
+      <textarea id="nets" class="textarea" rows="9" spellcheck="false" autocorrect="off" autocapitalize="off" data-primary-input>10.0.0.0/24
+10.0.1.0/24
+10.0.2.0/24
+10.0.3.0/24
+10.0.2.128/25
+10.0.5.0 255.255.255.0
+10.0.8.0/24</textarea>
+      <div class="btn-row">
+        <button type="button" class="btn btn-ghost" data-nets-example>Load example</button>
+        <button type="button" class="btn btn-ghost" data-nets-clear>Clear</button>
+      </div>
+      <div id="nets-errors" class="stack status" role="status" aria-live="polite"></div>
+    </div>
+
+    <div class="tool" aria-live="polite">
+      <h2>Aggregated routes</h2>
+      <p>The fewest CIDR blocks that cover exactly the same addresses.</p>
+      <div class="out" id="agg-out" data-empty="Enter networks to summarize."><!-- @prerender:cidr-agg -->
+<div class="row"><span class="k">7 in → 3 out</span><button type="button" class="copy" data-copy="10.0.0.0/22
+10.0.5.0/24
+10.0.8.0/24">copy</button></div><ul><li>10.0.0.0/22</li><li>10.0.5.0/24</li><li>10.0.8.0/24</li></ul>
+<!-- /@prerender --></div>
+      <h2 style="margin-top: var(--s4)">Supernet</h2>
+      <p>The smallest single block that contains every network.</p>
+      <div class="out" id="sup-out" data-empty="Enter networks to find a supernet."><!-- @prerender:cidr-sup -->
+<div class="row"><b>10.0.0.0/20</b><button type="button" class="copy" data-copy="10.0.0.0/20">copy</button></div><div class="row"><span class="k">covers</span><span>4,096 addresses</span></div><div class="row"><span class="k">not in your list</span><span class="warn">2,560</span></div>
+<!-- /@prerender --></div>
+      <h2 style="margin-top: var(--s4)">Overlaps</h2>
+      <p>Pairs where one block contains the other, or both are the same.</p>
+      <div class="out" id="ovl-out" data-empty="Enter networks to check for overlaps."><!-- @prerender:cidr-ovl -->
+<ul><li><span class="warn">line 3</span> 10.0.2.0/24 contains <span class="warn">line 5</span> 10.0.2.128/25</li></ul>
+<!-- /@prerender --></div>
+    </div>
+  </section>
+
+  <section class="section tools two" aria-labelledby="range-h">
+    <div class="tool">
+      <h2 id="range-h">Range to CIDR</h2>
+      <p>First and last address of a range, inclusive. You can also paste <code>a - b</code> into the first field.</p>
+      <div class="inline-fields">
+        <div>
+          <label class="field-label" for="r-start">First address</label>
+          <input id="r-start" class="input" type="text" value="192.168.1.10" spellcheck="false" autocorrect="off" autocapitalize="off">
+        </div>
+        <div>
+          <label class="field-label" for="r-end">Last address</label>
+          <input id="r-end" class="input" type="text" value="192.168.1.20" spellcheck="false" autocorrect="off" autocapitalize="off">
+        </div>
+      </div>
+    </div>
+    <div class="tool" aria-live="polite">
+      <h2>CIDR blocks</h2>
+      <p>Each block is the largest one that starts at the next address and stays inside the range.</p>
+      <div class="out" id="range-out" data-empty="Enter a first and last address."><!-- @prerender:cidr-range -->
+<div class="row"><span class="k">4 blocks · 11 addresses</span><button type="button" class="copy" data-copy="192.168.1.10/31
+192.168.1.12/30
+192.168.1.16/30
+192.168.1.20/32">copy</button></div><ul><li><a href="/?q=192.168.1.10/31">192.168.1.10/31</a></li><li><a href="/?q=192.168.1.12/30">192.168.1.12/30</a></li><li><a href="/?q=192.168.1.16/30">192.168.1.16/30</a></li><li><a href="/?q=192.168.1.20/32">192.168.1.20/32</a></li></ul>
+<!-- /@prerender --></div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="table-h" id="prefix-table">
+    <div class="section-head">
+      <h2 id="table-h">Prefix, netmask and wildcard</h2>
+      <span class="meta"><a href="/learn/cidr-cheat-sheet/">printable cheat sheet</a></span>
+    </div>
+<!-- @prerender:prefix-table-v4 -->
+<div class="table-wrap" tabindex="0"><table class="data">
+<thead><tr><th scope="col">Prefix</th><th scope="col">Netmask</th><th scope="col">Wildcard</th><th scope="col" class="num">Addresses</th><th scope="col" class="num">Usable hosts</th></tr></thead>
+<tbody>
+<tr id="p0"><td>/0</td><td>0.0.0.0</td><td>255.255.255.255</td><td class="num">4,294,967,296</td><td class="num">4,294,967,294</td></tr>
+<tr id="p1"><td>/1</td><td>128.0.0.0</td><td>127.255.255.255</td><td class="num">2,147,483,648</td><td class="num">2,147,483,646</td></tr>
+<tr id="p2"><td>/2</td><td>192.0.0.0</td><td>63.255.255.255</td><td class="num">1,073,741,824</td><td class="num">1,073,741,822</td></tr>
+<tr id="p3"><td>/3</td><td>224.0.0.0</td><td>31.255.255.255</td><td class="num">536,870,912</td><td class="num">536,870,910</td></tr>
+<tr id="p4"><td>/4</td><td>240.0.0.0</td><td>15.255.255.255</td><td class="num">268,435,456</td><td class="num">268,435,454</td></tr>
+<tr id="p5"><td>/5</td><td>248.0.0.0</td><td>7.255.255.255</td><td class="num">134,217,728</td><td class="num">134,217,726</td></tr>
+<tr id="p6"><td>/6</td><td>252.0.0.0</td><td>3.255.255.255</td><td class="num">67,108,864</td><td class="num">67,108,862</td></tr>
+<tr id="p7"><td>/7</td><td>254.0.0.0</td><td>1.255.255.255</td><td class="num">33,554,432</td><td class="num">33,554,430</td></tr>
+<tr id="p8"><td>/8</td><td>255.0.0.0</td><td>0.255.255.255</td><td class="num">16,777,216</td><td class="num">16,777,214</td></tr>
+<tr id="p9"><td>/9</td><td>255.128.0.0</td><td>0.127.255.255</td><td class="num">8,388,608</td><td class="num">8,388,606</td></tr>
+<tr id="p10"><td>/10</td><td>255.192.0.0</td><td>0.63.255.255</td><td class="num">4,194,304</td><td class="num">4,194,302</td></tr>
+<tr id="p11"><td>/11</td><td>255.224.0.0</td><td>0.31.255.255</td><td class="num">2,097,152</td><td class="num">2,097,150</td></tr>
+<tr id="p12"><td>/12</td><td>255.240.0.0</td><td>0.15.255.255</td><td class="num">1,048,576</td><td class="num">1,048,574</td></tr>
+<tr id="p13"><td>/13</td><td>255.248.0.0</td><td>0.7.255.255</td><td class="num">524,288</td><td class="num">524,286</td></tr>
+<tr id="p14"><td>/14</td><td>255.252.0.0</td><td>0.3.255.255</td><td class="num">262,144</td><td class="num">262,142</td></tr>
+<tr id="p15"><td>/15</td><td>255.254.0.0</td><td>0.1.255.255</td><td class="num">131,072</td><td class="num">131,070</td></tr>
+<tr id="p16"><td>/16</td><td>255.255.0.0</td><td>0.0.255.255</td><td class="num">65,536</td><td class="num">65,534</td></tr>
+<tr id="p17"><td>/17</td><td>255.255.128.0</td><td>0.0.127.255</td><td class="num">32,768</td><td class="num">32,766</td></tr>
+<tr id="p18"><td>/18</td><td>255.255.192.0</td><td>0.0.63.255</td><td class="num">16,384</td><td class="num">16,382</td></tr>
+<tr id="p19"><td>/19</td><td>255.255.224.0</td><td>0.0.31.255</td><td class="num">8,192</td><td class="num">8,190</td></tr>
+<tr id="p20"><td>/20</td><td>255.255.240.0</td><td>0.0.15.255</td><td class="num">4,096</td><td class="num">4,094</td></tr>
+<tr id="p21"><td>/21</td><td>255.255.248.0</td><td>0.0.7.255</td><td class="num">2,048</td><td class="num">2,046</td></tr>
+<tr id="p22"><td>/22</td><td>255.255.252.0</td><td>0.0.3.255</td><td class="num">1,024</td><td class="num">1,022</td></tr>
+<tr id="p23"><td>/23</td><td>255.255.254.0</td><td>0.0.1.255</td><td class="num">512</td><td class="num">510</td></tr>
+<tr id="p24"><td>/24</td><td>255.255.255.0</td><td>0.0.0.255</td><td class="num">256</td><td class="num">254</td></tr>
+<tr id="p25"><td>/25</td><td>255.255.255.128</td><td>0.0.0.127</td><td class="num">128</td><td class="num">126</td></tr>
+<tr id="p26"><td>/26</td><td>255.255.255.192</td><td>0.0.0.63</td><td class="num">64</td><td class="num">62</td></tr>
+<tr id="p27"><td>/27</td><td>255.255.255.224</td><td>0.0.0.31</td><td class="num">32</td><td class="num">30</td></tr>
+<tr id="p28"><td>/28</td><td>255.255.255.240</td><td>0.0.0.15</td><td class="num">16</td><td class="num">14</td></tr>
+<tr id="p29"><td>/29</td><td>255.255.255.248</td><td>0.0.0.7</td><td class="num">8</td><td class="num">6</td></tr>
+<tr id="p30"><td>/30</td><td>255.255.255.252</td><td>0.0.0.3</td><td class="num">4</td><td class="num">2</td></tr>
+<tr id="p31"><td>/31</td><td>255.255.255.254</td><td>0.0.0.1</td><td class="num">2</td><td class="num">2</td></tr>
+<tr id="p32"><td>/32</td><td>255.255.255.255</td><td>0.0.0.0</td><td class="num">1</td><td class="num">1</td></tr>
+</tbody>
+</table></div>
+<!-- /@prerender -->
+  </section>
+
+  <div class="section prose">
+    <h2>What these tools do</h2>
+    <p><strong>Aggregation</strong> (route summarization) merges adjacent and overlapping blocks into the fewest prefixes that cover the same addresses, the list you would advertise from a router or put in a firewall object group. <strong>Supernet</strong> finds the single shortest prefix that holds everything; it is often broader than the inputs, and the tool reports how many extra addresses it pulls in. <strong>Overlap detection</strong> lists every pair where one block sits inside another, which is how duplicated routes and clashing VPC ranges show up.</p>
+    <h2>How to summarize routes by hand</h2>
+    <ol>
+      <li>Write the third octets of <code>10.0.0.0/24</code> to <code>10.0.3.0/24</code> in binary: 000000<b>00</b>, 000000<b>01</b>, 000000<b>10</b>, 000000<b>11</b>.</li>
+      <li>The first 6 bits of that octet are the same in all four, so the common prefix is 8 + 8 + 6 = 22 bits.</li>
+      <li>The summary is <code>10.0.0.0/22</code>. It covers exactly the four /24s because all four are present and the block starts on a multiple of four.</li>
+    </ol>
+    <p>If one of the four were missing, a single /22 would also cover the missing /24. Aggregation keeps the result exact; the supernet does not. Check any block in detail with the <a href="/?q=10.0.0.0/22">subnet calculator</a>.</p>
+  </div>
+
+  <section class="section faq" aria-labelledby="faq-h">
+    <h2 id="faq-h">Questions</h2>
+    <details>
+      <summary>What is the difference between aggregation and a supernet?</summary>
+      <div class="answer"><p>Aggregation merges networks into the fewest CIDR blocks that cover exactly the same addresses. A supernet is one block that covers every input, and it may also cover addresses that were not in the list.</p></div>
+    </details>
+    <details>
+      <summary>How do I summarize 10.0.0.0/24 through 10.0.3.0/24?</summary>
+      <div class="answer"><p>The four /24s are contiguous and start on a multiple of four, so they summarize to <code>10.0.0.0/22</code>.</p></div>
+    </details>
+    <details>
+      <summary>Why don't 10.0.1.0/24 and 10.0.2.0/24 merge into a /23?</summary>
+      <div class="answer"><p>A /23 must start on an even third octet. <code>10.0.1.0/24</code> and <code>10.0.2.0/24</code> are adjacent but straddle a /23 boundary, so the smallest single block that holds both is <code>10.0.0.0/22</code>, which also includes <code>10.0.0.0/24</code> and <code>10.0.3.0/24</code>.</p></div>
+    </details>
+    <details>
+      <summary>How do I convert an IP range to CIDR?</summary>
+      <div class="answer"><p>Starting at the first address, take the largest block that starts there and does not pass the end of the range, then repeat from the next address. 192.168.1.10 to 192.168.1.20 becomes <code>192.168.1.10/31</code>, <code>192.168.1.12/30</code>, <code>192.168.1.16/30</code> and <code>192.168.1.20/32</code>.</p></div>
+    </details>
+    <details>
+      <summary>What does it mean when two subnets overlap?</summary>
+      <div class="answer"><p>CIDR blocks either do not overlap at all or one contains the other. An overlap usually means a duplicate route, a VPC peering conflict, or a subnet that was carved twice.</p></div>
+    </details>
+  </section>
+</main>
+<!-- @footer -->
+<footer class="site-footer">
+  <div class="wrap footer-grid">
+    <div>
+      <h2>SubnetCalc</h2>
+      <p class="footer-note">Every calculation runs in your browser. Nothing you type is sent anywhere.</p>
+    </div>
+    <div>
+      <h2>Tools</h2>
+      <ul>
+        <li><a href="/">Subnet calculator</a></li>
+        <li><a href="/vlsm/">VLSM planner</a></li>
+        <li><a href="/cidr/">CIDR aggregation &amp; overlaps</a></li>
+        <li><a href="/ipv6/">IPv6 tools</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Learn</h2>
+      <ul>
+        <li><a href="/learn/subnetting/">Subnetting, step by step</a></li>
+        <li><a href="/learn/cidr-cheat-sheet/">CIDR cheat sheet</a></li>
+        <li><a href="/learn/ipv6-subnetting/">IPv6 subnetting</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Engine</h2>
+      <ul>
+        <li><a href="/lib/subnet.js">lib/subnet.js</a> · MIT</li>
+        <li><a href="/lib/data/special-purpose.json">IANA special-purpose data</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+<!-- /@footer -->
+<script type="module" src="/assets/js/cidr.js"></script>
+</body>
+</html>

@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Subnet Calculator for IPv4 and IPv6 – SubnetCalc</title>
+<meta name="description" content="Subnet calculator for IPv4 and IPv6: network, broadcast, netmask, wildcard, host range and a clickable binary breakdown. Accepts CIDR, netmask or wildcard.">
+<link rel="canonical" href="https://subnetcalc.dev/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="SubnetCalc">
+<meta property="og:title" content="Subnet Calculator for IPv4 and IPv6">
+<meta property="og:description" content="Network, broadcast, netmask, wildcard, host range and a clickable binary breakdown. CIDR, netmask or wildcard input.">
+<meta property="og:url" content="https://subnetcalc.dev/">
+<meta property="og:image" content="https://subnetcalc.dev/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<!-- @head -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="/assets/fonts/ibm-plex-mono-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/ibm-plex-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/css/site.css">
+<meta name="theme-color" content="#f8f9fb" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#14171c" media="(prefers-color-scheme: dark)">
+<script>try{var t=localStorage.getItem('theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
+<script type="module" src="/assets/js/common.js"></script>
+<!-- /@head -->
+<link rel="modulepreload" href="/assets/js/calc.js">
+<link rel="modulepreload" href="/lib/subnet.js">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebApplication",
+      "name": "SubnetCalc Subnet Calculator",
+      "url": "https://subnetcalc.dev/",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Any",
+      "browserRequirements": "Requires JavaScript",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "featureList": [
+        "IPv4 and IPv6 subnet calculation",
+        "CIDR, netmask and wildcard input",
+        "Clickable binary breakdown of address and mask",
+        "Copy results as text, JSON or CSV",
+        "Shareable URLs"
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        { "@type": "Question", "name": "How many hosts are in a /24?", "acceptedAnswer": { "@type": "Answer", "text": "A /24 has 256 addresses (2^8). The first is the network address and the last is the broadcast address, which leaves 254 usable hosts." } },
+        { "@type": "Question", "name": "How many hosts are in a /26?", "acceptedAnswer": { "@type": "Answer", "text": "A /26 has 64 addresses and 62 usable hosts. A /24 splits into four /26 blocks that start at .0, .64, .128 and .192." } },
+        { "@type": "Question", "name": "What is a wildcard mask?", "acceptedAnswer": { "@type": "Answer", "text": "A wildcard mask is the inverse of a netmask: 0 bits must match and 1 bits are ignored. Cisco ACLs and OSPF network statements use it. The wildcard for 255.255.255.0 is 0.0.0.255." } },
+        { "@type": "Question", "name": "Can I use a /31 on a point-to-point link?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. RFC 3021 allows both addresses of a /31 to be used on a point-to-point link, with no network or broadcast address. It saves two addresses per link compared with a /30." } },
+        { "@type": "Question", "name": "How do I convert a subnet mask to CIDR notation?", "acceptedAnswer": { "@type": "Answer", "text": "Count the 1 bits in the mask. 255.255.255.0 has 24 ones, so it is /24. 255.255.255.192 has 26 ones, so it is /26." } },
+        { "@type": "Question", "name": "What is the difference between the network address and the first usable host?", "acceptedAnswer": { "@type": "Answer", "text": "The network address has every host bit set to 0 and names the subnet itself. The first usable host is the next address. In IPv4 the network and broadcast addresses are not assigned to hosts, except in /31 and /32 blocks." } },
+        { "@type": "Question", "name": "Does IPv6 have a broadcast address?", "acceptedAnswer": { "@type": "Answer", "text": "No. IPv6 uses multicast instead, for example ff02::1 for all nodes on a link. Every address in an IPv6 prefix can be assigned. The address with an all-zero interface ID is the Subnet-Router anycast address (RFC 4291 section 2.6.1)." } },
+        { "@type": "Question", "name": "Is 172.32.0.1 a private IP address?", "acceptedAnswer": { "@type": "Answer", "text": "No. The RFC 1918 private block is 172.16.0.0/12, which runs from 172.16.0.0 to 172.31.255.255. 172.32.0.1 is outside it and is a public address." } }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<!-- @header -->
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="wrap bar">
+    <a class="brand" href="/"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>SubnetCalc</a>
+    <nav class="site-nav" aria-label="Main">
+      <ul>
+      <li><a href="/" aria-current="page">Subnet</a></li>
+      <li><a href="/vlsm/">VLSM</a></li>
+      <li><a href="/cidr/">CIDR</a></li>
+      <li><a href="/ipv6/">IPv6</a></li>
+      <li><a href="/learn/">Learn</a></li>
+      </ul>
+    </nav>
+    <button type="button" class="btn btn-ghost icon-btn theme-toggle" data-theme-toggle aria-label="Switch theme"></button>
+  </div>
+</header>
+<!-- /@header -->
+<main id="main" class="wrap">
+  <div class="page-head">
+    <p class="eyebrow">IPv4 · IPv6 · runs in your browser</p>
+    <h1>Subnet Calculator</h1>
+  </div>
+
+  <form class="calc" action="/" method="get" role="search" data-calc>
+    <label for="q" class="visually-hidden">IP address with prefix, netmask or wildcard</label>
+    <div class="prompt">
+      <input id="q" name="q" type="text" value="192.168.1.37/26" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="done" aria-describedby="q-hint" data-primary-input autofocus>
+      <kbd title="Press / to focus">/</kbd>
+    </div>
+    <p class="hint" id="q-hint">Type an address with a prefix, netmask or wildcard. Results update as you type. <kbd>Esc</kbd> clears.</p>
+    <div class="examples">
+      <span>Try</span>
+      <button type="button" data-example="10.0.0.0/8">10.0.0.0/8</button>
+      <button type="button" data-example="172.16.40.9 255.255.240.0">172.16.40.9 255.255.240.0</button>
+      <button type="button" data-example="10.20.0.0 0.0.255.255">10.20.0.0 0.0.255.255</button>
+      <button type="button" data-example="10.0.0.0/31">10.0.0.0/31</button>
+      <button type="button" data-example="2001:db8:abcd:12::1/64">2001:db8:abcd:12::1/64</button>
+      <button type="button" data-example="2002:c000:204::1/48">6to4</button>
+    </div>
+    <div class="stack status" id="status" role="status" aria-live="polite"><!-- @prerender:calc-notices -->
+<p class="notice"><strong>192.168.1.37</strong> is a host inside <strong>192.168.1.0/26</strong>. <button type="button" data-action="set" data-value="192.168.1.0/26">Show the network</button></p>
+<!-- /@prerender --></div>
+  </form>
+
+  <div class="calc-grid">
+    <section aria-labelledby="result-h" id="result">
+      <div class="section-head">
+        <h2 id="result-h">Result</h2>
+        <span class="meta" id="result-meta">192.168.1.0/26</span>
+      </div>
+      <div id="results"><!-- @prerender:calc-results -->
+<dl class="kv"><div><dt>Address</dt><dd><span>192.168.1.37</span></dd><dd class="act"><button type="button" class="copy" data-copy="192.168.1.37" aria-label="Copy address">copy</button></dd></div><div><dt>Network</dt><dd><span class="em">192.168.1.0/26</span></dd><dd class="act"><button type="button" class="copy" data-copy="192.168.1.0/26" aria-label="Copy network">copy</button></dd></div><div><dt>Netmask</dt><dd><span>255.255.255.192</span></dd><dd class="act"><button type="button" class="copy" data-copy="255.255.255.192" aria-label="Copy netmask">copy</button></dd></div><div><dt>Wildcard</dt><dd><span>0.0.0.63</span><span class="sub">ACL / OSPF</span></dd><dd class="act"><button type="button" class="copy" data-copy="0.0.0.63" aria-label="Copy wildcard">copy</button></dd></div><div><dt>Broadcast</dt><dd><span>192.168.1.63</span></dd><dd class="act"><button type="button" class="copy" data-copy="192.168.1.63" aria-label="Copy broadcast">copy</button></dd></div><div><dt>First host</dt><dd><span>192.168.1.1</span></dd><dd class="act"><button type="button" class="copy" data-copy="192.168.1.1" aria-label="Copy first host">copy</button></dd></div><div><dt>Last host</dt><dd><span>192.168.1.62</span></dd><dd class="act"><button type="button" class="copy" data-copy="192.168.1.62" aria-label="Copy last host">copy</button></dd></div><div><dt>Usable hosts</dt><dd><span class="em">62</span><span class="sub">of 64 addresses</span></dd><dd class="act"><button type="button" class="copy" data-copy="62" aria-label="Copy usable hosts">copy</button></dd></div><div><dt>Prefix</dt><dd><span>/26</span><span class="sub">26 network + 6 host bits</span></dd><dd class="act"><button type="button" class="copy" data-copy="/26" aria-label="Copy prefix">copy</button></dd></div><div><dt>Class</dt><dd><span>C</span><span class="sub">classful default /24</span></dd><dd class="act"></dd></div><div><dt>Integer</dt><dd><span>3232235813</span><span class="sub">0xC0A80125</span></dd><dd class="act"><button type="button" class="copy" data-copy="3232235813" aria-label="Copy integer">copy</button></dd></div><div><dt>Scope</dt><dd><span>Private-Use</span><span class="sub">RFC 1918</span><span class="tag is-private">not globally reachable</span></dd><dd class="act"></dd></div></dl>
+<!-- /@prerender --></div>
+      <div class="export-row no-print">
+        <span>Copy all as</span>
+        <button type="button" class="btn" data-export="text">Text</button>
+        <button type="button" class="btn" data-export="json">JSON</button>
+        <button type="button" class="btn" data-export="csv">CSV</button>
+        <button type="button" class="btn btn-ghost" data-share>Copy link</button>
+      </div>
+    </section>
+
+    <div>
+    <section aria-labelledby="binary-h" id="binary" class="bits-col">
+      <div class="section-head">
+        <h2 id="binary-h">Binary breakdown</h2>
+        <span class="meta">select a bit to see its weight</span>
+      </div>
+      <div class="bits-legend">
+        <span><i class="swatch n"></i>network bits</span>
+        <span><i class="swatch h"></i>host bits</span>
+        <span>A address · M mask · N network</span>
+      </div>
+      <div id="bits"><!-- @prerender:calc-binary -->
+<div class="groups"><div class="group"><div class="group-head"><span>octet 1</span><b>192</b></div><div class="bitrow" aria-label="address"><span class="lbl" aria-hidden="true">A</span><button type="button" class="bit n" data-i="0">1</button><button type="button" class="bit n" data-i="1">1</button><button type="button" class="bit n zero" data-i="2">0</button><button type="button" class="bit n zero" data-i="3">0</button><button type="button" class="bit n zero" data-i="4">0</button><button type="button" class="bit n zero" data-i="5">0</button><button type="button" class="bit n zero" data-i="6">0</button><button type="button" class="bit n zero" data-i="7">0</button></div><div class="bitrow" aria-label="mask"><span class="lbl" aria-hidden="true">M</span><button type="button" class="bit n" data-i="0">1</button><button type="button" class="bit n" data-i="1">1</button><button type="button" class="bit n" data-i="2">1</button><button type="button" class="bit n" data-i="3">1</button><button type="button" class="bit n" data-i="4">1</button><button type="button" class="bit n" data-i="5">1</button><button type="button" class="bit n" data-i="6">1</button><button type="button" class="bit n" data-i="7">1</button></div><div class="bitrow" aria-label="network"><span class="lbl" aria-hidden="true">N</span><button type="button" class="bit n" data-i="0">1</button><button type="button" class="bit n" data-i="1">1</button><button type="button" class="bit n zero" data-i="2">0</button><button type="button" class="bit n zero" data-i="3">0</button><button type="button" class="bit n zero" data-i="4">0</button><button type="button" class="bit n zero" data-i="5">0</button><button type="button" class="bit n zero" data-i="6">0</button><button type="button" class="bit n zero" data-i="7">0</button></div><div class="group-foot">192 = 128 + 64</div></div><div class="group"><div class="group-head"><span>octet 2</span><b>168</b></div><div class="bitrow" aria-label="address"><span class="lbl" aria-hidden="true">A</span><button type="button" class="bit n" data-i="8">1</button><button type="button" class="bit n zero" data-i="9">0</button><button type="button" class="bit n" data-i="10">1</button><button type="button" class="bit n zero" data-i="11">0</button><button type="button" class="bit n" data-i="12">1</button><button type="button" class="bit n zero" data-i="13">0</button><button type="button" class="bit n zero" data-i="14">0</button><button type="button" class="bit n zero" data-i="15">0</button></div><div class="bitrow" aria-label="mask"><span class="lbl" aria-hidden="true">M</span><button type="button" class="bit n" data-i="8">1</button><button type="button" class="bit n" data-i="9">1</button><button type="button" class="bit n" data-i="10">1</button><button type="button" class="bit n" data-i="11">1</button><button type="button" class="bit n" data-i="12">1</button><button type="button" class="bit n" data-i="13">1</button><button type="button" class="bit n" data-i="14">1</button><button type="button" class="bit n" data-i="15">1</button></div><div class="bitrow" aria-label="network"><span class="lbl" aria-hidden="true">N</span><button type="button" class="bit n" data-i="8">1</button><button type="button" class="bit n zero" data-i="9">0</button><button type="button" class="bit n" data-i="10">1</button><button type="button" class="bit n zero" data-i="11">0</button><button type="button" class="bit n" data-i="12">1</button><button type="button" class="bit n zero" data-i="13">0</button><button type="button" class="bit n zero" data-i="14">0</button><button type="button" class="bit n zero" data-i="15">0</button></div><div class="group-foot">168 = 128 + 32 + 8</div></div><div class="group"><div class="group-head"><span>octet 3</span><b>1</b></div><div class="bitrow" aria-label="address"><span class="lbl" aria-hidden="true">A</span><button type="button" class="bit n zero" data-i="16">0</button><button type="button" class="bit n zero" data-i="17">0</button><button type="button" class="bit n zero" data-i="18">0</button><button type="button" class="bit n zero" data-i="19">0</button><button type="button" class="bit n zero" data-i="20">0</button><button type="button" class="bit n zero" data-i="21">0</button><button type="button" class="bit n zero" data-i="22">0</button><button type="button" class="bit n" data-i="23">1</button></div><div class="bitrow" aria-label="mask"><span class="lbl" aria-hidden="true">M</span><button type="button" class="bit n" data-i="16">1</button><button type="button" class="bit n" data-i="17">1</button><button type="button" class="bit n" data-i="18">1</button><button type="button" class="bit n" data-i="19">1</button><button type="button" class="bit n" data-i="20">1</button><button type="button" class="bit n" data-i="21">1</button><button type="button" class="bit n" data-i="22">1</button><button type="button" class="bit n" data-i="23">1</button></div><div class="bitrow" aria-label="network"><span class="lbl" aria-hidden="true">N</span><button type="button" class="bit n zero" data-i="16">0</button><button type="button" class="bit n zero" data-i="17">0</button><button type="button" class="bit n zero" data-i="18">0</button><button type="button" class="bit n zero" data-i="19">0</button><button type="button" class="bit n zero" data-i="20">0</button><button type="button" class="bit n zero" data-i="21">0</button><button type="button" class="bit n zero" data-i="22">0</button><button type="button" class="bit n" data-i="23">1</button></div><div class="group-foot">1</div></div><div class="group"><div class="group-head"><span>octet 4</span><b>37</b></div><div class="bitrow" aria-label="address"><span class="lbl" aria-hidden="true">A</span><button type="button" class="bit n zero" data-i="24">0</button><button type="button" class="bit n zero edge" data-i="25">0</button><button type="button" class="bit h" data-i="26">1</button><button type="button" class="bit h zero" data-i="27">0</button><button type="button" class="bit h zero" data-i="28">0</button><button type="button" class="bit h" data-i="29">1</button><button type="button" class="bit h zero" data-i="30">0</button><button type="button" class="bit h" data-i="31">1</button></div><div class="bitrow" aria-label="mask"><span class="lbl" aria-hidden="true">M</span><button type="button" class="bit n" data-i="24">1</button><button type="button" class="bit n edge" data-i="25">1</button><button type="button" class="bit h zero" data-i="26">0</button><button type="button" class="bit h zero" data-i="27">0</button><button type="button" class="bit h zero" data-i="28">0</button><button type="button" class="bit h zero" data-i="29">0</button><button type="button" class="bit h zero" data-i="30">0</button><button type="button" class="bit h zero" data-i="31">0</button></div><div class="bitrow" aria-label="network"><span class="lbl" aria-hidden="true">N</span><button type="button" class="bit n zero" data-i="24">0</button><button type="button" class="bit n zero edge" data-i="25">0</button><button type="button" class="bit h zero" data-i="26">0</button><button type="button" class="bit h zero" data-i="27">0</button><button type="button" class="bit h zero" data-i="28">0</button><button type="button" class="bit h zero" data-i="29">0</button><button type="button" class="bit h zero" data-i="30">0</button><button type="button" class="bit h zero" data-i="31">0</button></div><div class="group-foot">37 = 32 + 4 + 1</div></div></div>
+<!-- /@prerender --></div>
+      <p class="bit-detail" id="bit-detail" aria-live="polite">Select any bit to see its position and weight.</p>
+
+    </section>
+    <section aria-labelledby="steps-h" id="worked" style="margin-top: var(--s6)">
+      <div class="section-head">
+        <h2 id="steps-h">How it is worked out</h2>
+      </div>
+      <div id="steps"><!-- @prerender:calc-steps -->
+<ol class="steps"><li><span><code>/26</code> means 26 network bits and 6 host bits (32 in total).</span></li><li><span>Write 26 ones then 6 zeros: the netmask is <code>255.255.255.192</code>.</span></li><li><span>The interesting octet is octet 4, where the mask is <code>192</code>. Block size: 256 − 192 = <code>64</code>.</span></li><li><span>Network: 37 AND 192 = <code>0</code> (the largest multiple of 64 not above 37), so the network is <code>192.168.1.0</code>.</span></li><li><span>Broadcast: set every host bit to 1, giving <code>192.168.1.63</code>.</span></li><li><span>Usable hosts: 2⁶ − 2 = <code>62</code>. The network and broadcast addresses are not assigned to hosts.</span></li></ol>
+<!-- /@prerender --></div>
+    </section>
+    </div>
+
+  </div>
+
+
+  <div class="section prose" id="about">
+    <h2>What a subnet calculator does</h2>
+    <p>An IP address and a prefix length (or netmask) together describe a block of addresses. The calculator splits the address into its <span class="net">network part</span> and <span class="host">host part</span> and reports what follows from that split: the network address, the broadcast address, the range you can assign to hosts, how many hosts fit, and the netmask and wildcard you would type into a router.</p>
+    <p>You can enter the same block in several forms. <code>192.168.10.0/24</code>, <code>192.168.10.0 255.255.255.0</code> and the ACL-style <code>192.168.10.0 0.0.0.255</code> all give the same result. IPv6 prefixes such as <code>2001:db8::/48</code> work in the same box. The calculator also reports the address type: RFC 1918 private ranges, documentation blocks, link-local and unique local IPv6, plus 6to4 and Teredo addresses with the IPv4 address decoded.</p>
+
+    <h2>How to calculate a subnet by hand</h2>
+    <ol>
+      <li>Write the prefix as a mask: <code>/26</code> is 26 ones followed by 6 zeros, which is <code>255.255.255.192</code>.</li>
+      <li>Find the octet where the mask stops being 255. Here it is the fourth octet, with value 192.</li>
+      <li>Block size = 256 − 192 = 64. Networks in that octet start at 0, 64, 128 and 192.</li>
+      <li>Pick the block that contains your address: <code>.37</code> falls in <code>.0–.63</code>, so the network is <code>192.168.1.0</code> and the broadcast is <code>192.168.1.63</code>.</li>
+      <li>Usable hosts = 2<sup>6</sup> − 2 = 62.</li>
+    </ol>
+    <p>The <a href="/learn/subnetting/">subnetting tutorial</a> goes through this from binary up to VLSM, with an exercise at each stage. If you need to split one block into subnets of different sizes, use the <a href="/vlsm/">VLSM planner</a>.</p>
+  </div>
+
+  <section class="section faq" aria-labelledby="faq-h">
+    <h2 id="faq-h">Questions</h2>
+    <details>
+      <summary>How many hosts are in a /24?</summary>
+      <div class="answer"><p>A /24 has 256 addresses (2<sup>8</sup>). The first is the network address and the last is the broadcast address, which leaves <strong>254 usable hosts</strong>. <a href="/?q=192.168.1.0/24" class="mono">192.168.1.0/24</a></p></div>
+    </details>
+    <details>
+      <summary>How many hosts are in a /26?</summary>
+      <div class="answer"><p>A /26 has 64 addresses and <strong>62 usable hosts</strong>. A /24 splits into four /26 blocks that start at .0, .64, .128 and .192. <a href="/?q=192.168.1.128/26" class="mono">192.168.1.128/26</a></p></div>
+    </details>
+    <details>
+      <summary>What is a wildcard mask?</summary>
+      <div class="answer"><p>A wildcard mask is the inverse of a netmask: 0 bits must match and 1 bits are ignored. Cisco ACLs and OSPF <code>network</code> statements use it. The wildcard for <code>255.255.255.0</code> is <code>0.0.0.255</code>. You can type a wildcard straight into the calculator: <a href="/?q=10.20.0.0%200.0.255.255" class="mono">10.20.0.0 0.0.255.255</a>.</p></div>
+    </details>
+    <details>
+      <summary>Can I use a /31 on a point-to-point link?</summary>
+      <div class="answer"><p>Yes. <a href="https://www.rfc-editor.org/rfc/rfc3021">RFC 3021</a> allows both addresses of a /31 to be used on a point-to-point link, with no network or broadcast address. It saves two addresses per link compared with a /30. <a href="/?q=10.0.0.0/31" class="mono">10.0.0.0/31</a></p></div>
+    </details>
+    <details>
+      <summary>How do I convert a subnet mask to CIDR notation?</summary>
+      <div class="answer"><p>Count the 1 bits in the mask. <code>255.255.255.0</code> has 24 ones, so it is /24. <code>255.255.255.192</code> has 26 ones, so it is /26. The <a href="/learn/cidr-cheat-sheet/">CIDR cheat sheet</a> lists every prefix from /0 to /32.</p></div>
+    </details>
+    <details>
+      <summary>What is the difference between the network address and the first usable host?</summary>
+      <div class="answer"><p>The network address has every host bit set to 0 and names the subnet itself. The first usable host is the next address. In IPv4 the network and broadcast addresses are not assigned to hosts, except in /31 and /32 blocks.</p></div>
+    </details>
+    <details>
+      <summary>Does IPv6 have a broadcast address?</summary>
+      <div class="answer"><p>No. IPv6 uses multicast instead, for example <code>ff02::1</code> for all nodes on a link. Every address in an IPv6 prefix can be assigned, and this calculator counts them all. The address with an all-zero interface ID is the Subnet-Router anycast address (<a href="https://www.rfc-editor.org/rfc/rfc4291#section-2.6.1">RFC 4291 §2.6.1</a>), which is why some tools leave it out.</p></div>
+    </details>
+    <details>
+      <summary>Is 172.32.0.1 a private IP address?</summary>
+      <div class="answer"><p>No. The RFC 1918 private block is <code>172.16.0.0/12</code>, which runs from 172.16.0.0 to 172.31.255.255. 172.32.0.1 is outside it and is a public address. <a href="/?q=172.16.0.0/12" class="mono">172.16.0.0/12</a></p></div>
+    </details>
+  </section>
+</main>
+<!-- @footer -->
+<footer class="site-footer">
+  <div class="wrap footer-grid">
+    <div>
+      <h2>SubnetCalc</h2>
+      <p class="footer-note">Every calculation runs in your browser. Nothing you type is sent anywhere.</p>
+    </div>
+    <div>
+      <h2>Tools</h2>
+      <ul>
+        <li><a href="/">Subnet calculator</a></li>
+        <li><a href="/vlsm/">VLSM planner</a></li>
+        <li><a href="/cidr/">CIDR aggregation &amp; overlaps</a></li>
+        <li><a href="/ipv6/">IPv6 tools</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Learn</h2>
+      <ul>
+        <li><a href="/learn/subnetting/">Subnetting, step by step</a></li>
+        <li><a href="/learn/cidr-cheat-sheet/">CIDR cheat sheet</a></li>
+        <li><a href="/learn/ipv6-subnetting/">IPv6 subnetting</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Engine</h2>
+      <ul>
+        <li><a href="/lib/subnet.js">lib/subnet.js</a> · MIT</li>
+        <li><a href="/lib/data/special-purpose.json">IANA special-purpose data</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+<!-- /@footer -->
+<script type="module" src="/assets/js/calc.js"></script>
+</body>
+</html>

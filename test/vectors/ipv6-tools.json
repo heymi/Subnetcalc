@@ -1,0 +1,70 @@
+{
+  "eui64": [
+    {
+      "mac": "34:56:78:9a:bc:de",
+      "prefix": "fe80::/64",
+      "note": "colon format",
+      "interfaceId": "3656:78ff:fe9a:bcde",
+      "address": "fe80::3656:78ff:fe9a:bcde"
+    },
+    {
+      "mac": "00-1A-2B-3C-4D-5E",
+      "prefix": "2001:db8:1:2::/64",
+      "note": "dash format, uppercase",
+      "interfaceId": "021a:2bff:fe3c:4d5e",
+      "address": "2001:db8:1:2:21a:2bff:fe3c:4d5e"
+    },
+    {
+      "mac": "001a.2b3c.4d5e",
+      "prefix": "fe80::/64",
+      "note": "Cisco dotted format",
+      "interfaceId": "021a:2bff:fe3c:4d5e",
+      "address": "fe80::21a:2bff:fe3c:4d5e"
+    },
+    {
+      "mac": "02:00:00:00:00:01",
+      "prefix": "fd00:1:2:3::/64",
+      "note": "U/L bit already set gets cleared",
+      "interfaceId": "0000:00ff:fe00:0001",
+      "address": "fd00:1:2:3:0:ff:fe00:1"
+    }
+  ],
+  "eui64Errors": [
+    {
+      "mac": "00:1a:2b:3c:4d",
+      "code": "INVALID_MAC"
+    },
+    {
+      "mac": "zz:1a:2b:3c:4d:5e",
+      "code": "INVALID_MAC"
+    },
+    {
+      "mac": "00:1a:2b:3c:4d:5e",
+      "prefix": "2001:db8::/48",
+      "code": "INVALID_PREFIX"
+    }
+  ],
+  "ula": [
+    {
+      "randomBytes": "123456789a",
+      "expect": {
+        "prefix": "fd12:3456:789a::/48",
+        "globalId": "123456789a"
+      }
+    },
+    {
+      "randomBytes": "0000000000",
+      "expect": {
+        "prefix": "fd00::/48",
+        "globalId": "0000000000"
+      }
+    },
+    {
+      "randomBytes": "ffffffffff",
+      "expect": {
+        "prefix": "fdff:ffff:ffff::/48",
+        "globalId": "ffffffffff"
+      }
+    }
+  ]
+}

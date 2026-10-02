@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>IPv6 Calculator: Compress, Expand, EUI-64, ULA – SubnetCalc</title>
+<meta name="description" content="IPv6 tools: compress and expand addresses (RFC 5952), find the /64, decode 6to4 and Teredo, build EUI-64 from a MAC and generate a random ULA /48.">
+<link rel="canonical" href="https://subnetcalc.dev/ipv6/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="SubnetCalc">
+<meta property="og:title" content="IPv6 Calculator: Compress, Expand, EUI-64, ULA">
+<meta property="og:description" content="Compress and expand IPv6 addresses, find the /64, decode 6to4 and Teredo, EUI-64 from a MAC, random ULA /48s.">
+<meta property="og:url" content="https://subnetcalc.dev/ipv6/">
+<meta property="og:image" content="https://subnetcalc.dev/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<!-- @head -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="/assets/fonts/ibm-plex-mono-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/ibm-plex-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/css/site.css">
+<meta name="theme-color" content="#f8f9fb" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#14171c" media="(prefers-color-scheme: dark)">
+<script>try{var t=localStorage.getItem('theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
+<script type="module" src="/assets/js/common.js"></script>
+<!-- /@head -->
+<link rel="modulepreload" href="/assets/js/ipv6.js">
+<link rel="modulepreload" href="/lib/subnet.js">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebApplication",
+      "name": "SubnetCalc IPv6 Tools",
+      "url": "https://subnetcalc.dev/ipv6/",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Any",
+      "browserRequirements": "Requires JavaScript",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "featureList": ["RFC 5952 compression and full expansion", "/64 network and reverse DNS names", "6to4 and Teredo decoding", "EUI-64 interface IDs from a MAC address", "Random RFC 4193 ULA /48 generator", "Prefix splitting"]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "SubnetCalc", "item": "https://subnetcalc.dev/" },
+        { "@type": "ListItem", "position": 2, "name": "IPv6 tools", "item": "https://subnetcalc.dev/ipv6/" }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        { "@type": "Question", "name": "How do I shorten an IPv6 address?", "acceptedAnswer": { "@type": "Answer", "text": "RFC 5952 defines one canonical form: drop leading zeros in each group, replace the longest run of two or more all-zero groups with ::, use the first run if two are equally long, and write hex digits in lowercase. 2001:0db8:0000:0000:0000:0000:0002:0001 becomes 2001:db8::2:1." } },
+        { "@type": "Question", "name": "What is an EUI-64 interface ID?", "acceptedAnswer": { "@type": "Answer", "text": "A 64-bit interface ID built from a 48-bit MAC address: split the MAC in half, insert ff:fe, and flip the universal/local bit (bit 7) of the first byte. 00:1a:2b:3c:4d:5e becomes 021a:2bff:fe3c:4d5e." } },
+        { "@type": "Question", "name": "How do I choose a ULA prefix?", "acceptedAnswer": { "@type": "Answer", "text": "RFC 4193 asks for fd00::/8 plus a 40-bit Global ID chosen at random, giving a /48. The randomness makes it unlikely that two networks pick the same prefix, so they can be connected later without renumbering." } },
+        { "@type": "Question", "name": "How many /64 subnets are in a /48?", "acceptedAnswer": { "@type": "Answer", "text": "65,536. A /48 leaves 16 bits for the subnet ID before the /64 boundary, and 2^16 = 65,536." } },
+        { "@type": "Question", "name": "How do I recognize a 6to4 or Teredo address?", "acceptedAnswer": { "@type": "Answer", "text": "6to4 addresses start with 2002::/16 and carry an IPv4 address in the next 32 bits. Teredo addresses start with 2001::/32 (2001:0000) and carry the server IPv4 address, flags, an obfuscated port and the obfuscated client IPv4 address." } },
+        { "@type": "Question", "name": "What is the reverse DNS zone for an IPv6 prefix?", "acceptedAnswer": { "@type": "Answer", "text": "Write the prefix as hex nibbles, reverse them, separate them with dots and add ip6.arpa. 2001:db8:abcd::/48 becomes d.c.b.a.8.b.d.0.1.0.0.2.ip6.arpa. Only prefixes on a 4-bit boundary map to a single zone." } }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<!-- @header -->
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="wrap bar">
+    <a class="brand" href="/"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>SubnetCalc</a>
+    <nav class="site-nav" aria-label="Main">
+      <ul>
+      <li><a href="/">Subnet</a></li>
+      <li><a href="/vlsm/">VLSM</a></li>
+      <li><a href="/cidr/">CIDR</a></li>
+      <li><a href="/ipv6/" aria-current="page">IPv6</a></li>
+      <li><a href="/learn/">Learn</a></li>
+      </ul>
+    </nav>
+    <button type="button" class="btn btn-ghost icon-btn theme-toggle" data-theme-toggle aria-label="Switch theme"></button>
+  </div>
+</header>
+<!-- /@header -->
+<main id="main" class="wrap">
+  <div class="page-head">
+    <p class="eyebrow">RFC 5952 · EUI-64 · RFC 4193 · 6to4 · Teredo</p>
+    <h1>IPv6 Tools</h1>
+    <p class="lede">Compress or expand an address, find its /64 and reverse DNS name, decode 6to4 and Teredo, build an EUI-64 address from a MAC, or generate a ULA prefix.</p>
+  </div>
+
+  <section class="tool" aria-labelledby="addr-h">
+    <h2 id="addr-h">Address and prefix</h2>
+    <label for="v6" class="visually-hidden">IPv6 address or prefix</label>
+    <div class="prompt">
+      <input id="v6" type="text" value="2001:db8:abcd:12::1/64" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-primary-input>
+      <kbd title="Press / to focus">/</kbd>
+    </div>
+    <div class="examples">
+      <span>Try</span>
+      <button type="button" data-v6="2001:0db8:0000:0000:0001:0000:0000:0001">long form</button>
+      <button type="button" data-v6="fe80::21a:2bff:fe3c:4d5e%eth0">link-local</button>
+      <button type="button" data-v6="2002:c000:204::1">6to4</button>
+      <button type="button" data-v6="2001:0:4136:e378:8000:63bf:3fff:fdd2">Teredo</button>
+      <button type="button" data-v6="::ffff:192.0.2.128">IPv4-mapped</button>
+      <button type="button" data-v6="fd12:3456:789a::/48">ULA /48</button>
+    </div>
+    <div id="v6-out" aria-live="polite"><!-- @prerender:v6-addr -->
+<dl class="kv"><div><dt>Address</dt><dd><span>2001:db8:abcd:12::1</span></dd><dd class="act"><button type="button" class="copy" data-copy="2001:db8:abcd:12::1" aria-label="Copy address">copy</button></dd></div><div><dt>Network</dt><dd><span class="em">2001:db8:abcd:12::/64</span></dd><dd class="act"><button type="button" class="copy" data-copy="2001:db8:abcd:12::/64" aria-label="Copy network">copy</button></dd></div><div><dt>Prefix mask</dt><dd><span>ffff:ffff:ffff:ffff::</span></dd><dd class="act"><button type="button" class="copy" data-copy="ffff:ffff:ffff:ffff::" aria-label="Copy prefix mask">copy</button></dd></div><div><dt>Host mask</dt><dd><span>::ffff:ffff:ffff:ffff</span></dd><dd class="act"><button type="button" class="copy" data-copy="::ffff:ffff:ffff:ffff" aria-label="Copy host mask">copy</button></dd></div><div><dt>First address</dt><dd><span>2001:db8:abcd:12::</span></dd><dd class="act"><button type="button" class="copy" data-copy="2001:db8:abcd:12::" aria-label="Copy first address">copy</button></dd></div><div><dt>Last address</dt><dd><span>2001:db8:abcd:12:ffff:ffff:ffff:ffff</span></dd><dd class="act"><button type="button" class="copy" data-copy="2001:db8:abcd:12:ffff:ffff:ffff:ffff" aria-label="Copy last address">copy</button></dd></div><div><dt>Addresses</dt><dd><span class="em">18,446,744,073,709,551,616 (2⁶⁴)</span><span class="sub">no broadcast in IPv6</span></dd><dd class="act"><button type="button" class="copy" data-copy="18446744073709551616" aria-label="Copy addresses">copy</button></dd></div><div><dt>/64 network</dt><dd><span>2001:db8:abcd:12::/64</span></dd><dd class="act"><button type="button" class="copy" data-copy="2001:db8:abcd:12::/64" aria-label="Copy /64 network">copy</button></dd></div><div><dt>Expanded</dt><dd><span>2001:0db8:abcd:0012:0000:0000:0000:0001</span></dd><dd class="act"><button type="button" class="copy" data-copy="2001:0db8:abcd:0012:0000:0000:0000:0001" aria-label="Copy expanded">copy</button></dd></div><div><dt>Type</dt><dd><span>Documentation</span></dd><dd class="act"></dd></div><div><dt>Scope</dt><dd><span>Documentation</span><span class="sub">RFC 3849</span><span class="tag is-private">not globally reachable</span></dd><dd class="act"></dd></div><div><dt>Reverse (PTR)</dt><dd><span>1.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.2.1.0.0.d.c.b.a.8.b.d.0.1.0.0.2.ip6.arpa</span></dd><dd class="act"><button type="button" class="copy" data-copy="1.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.2.1.0.0.d.c.b.a.8.b.d.0.1.0.0.2.ip6.arpa" aria-label="Copy reverse name">copy</button></dd></div><div><dt>Reverse zone</dt><dd><span>2.1.0.0.d.c.b.a.8.b.d.0.1.0.0.2.ip6.arpa</span></dd><dd class="act"><button type="button" class="copy" data-copy="2.1.0.0.d.c.b.a.8.b.d.0.1.0.0.2.ip6.arpa" aria-label="Copy reverse zone">copy</button></dd></div></dl><p class="hint" style="margin-top: var(--s3)"><a href="/?q=2001:db8:abcd:12::1/64">Open in the subnet calculator</a> for the bit-by-bit view.</p>
+<!-- /@prerender --></div>
+  </section>
+
+  <div class="section tools two">
+    <section class="tool" aria-labelledby="eui-h">
+      <h2 id="eui-h">EUI-64 from a MAC address</h2>
+      <p>Modified EUI-64 (RFC 4291 Appendix A), as used by SLAAC when stable privacy addresses are not enabled.</p>
+      <div class="inline-fields">
+        <div>
+          <label class="field-label" for="mac">MAC address</label>
+          <input id="mac" class="input" type="text" value="00:1a:2b:3c:4d:5e" spellcheck="false" autocorrect="off" autocapitalize="off">
+        </div>
+        <div>
+          <label class="field-label" for="eui-prefix">/64 prefix</label>
+          <input id="eui-prefix" class="input" type="text" value="fe80::/64" spellcheck="false" autocorrect="off" autocapitalize="off">
+        </div>
+      </div>
+      <div id="eui-out" aria-live="polite"><!-- @prerender:v6-eui -->
+<ol class="steps"><li><span>MAC address: <code>00:1a:2b:3c:4d:5e</code></span></li><li><span>Split it in half: <code>00:1a:2b</code> | <code>3c:4d:5e</code></span></li><li><span>Insert <code>ff:fe</code> in the middle: <code>00:1a:2b:<b>ff:fe</b>:3c:4d:5e</code></span></li><li><span>Flip bit 7 (universal/local) of the first byte: <code>00</code> = <code>000000<b>0</b>0</code> → <code>000000<b>1</b>0</code> = <code>02</code></span></li><li><span>Interface ID: <code>021a:2bff:fe3c:4d5e</code></span></li><li><span>Add the /64 prefix <code>fe80::/64</code>: <b><code>fe80::21a:2bff:fe3c:4d5e</code></b> <button type="button" class="copy" data-copy="fe80::21a:2bff:fe3c:4d5e">copy</button></span></li></ol>
+<!-- /@prerender --></div>
+    </section>
+
+    <section class="tool" aria-labelledby="ula-h">
+      <h2 id="ula-h">ULA prefix generator</h2>
+      <p>A random RFC 4193 /48: <code>fd</code> plus a 40-bit Global ID from your browser's cryptographic random source.</p>
+      <div class="btn-row"><button type="button" class="btn btn-primary" data-ula>Generate a new /48</button></div>
+      <div class="out" id="ula-out" aria-live="polite" style="min-height: 8.2rem" data-empty="Generating…"></div>
+    </section>
+  </div>
+
+  <section class="section tool" aria-labelledby="split-h">
+    <h2 id="split-h">Split a prefix</h2>
+    <p>Divide a prefix into equal subnets. Lists up to 65,536 subnets; the first 256 are shown.</p>
+    <div class="inline-fields" style="max-width: 40rem">
+      <div>
+        <label class="field-label" for="split-in">Prefix</label>
+        <input id="split-in" class="input" type="text" value="2001:db8:abcd::/48" spellcheck="false" autocorrect="off" autocapitalize="off">
+      </div>
+      <div>
+        <label class="field-label" for="split-to">New prefix length</label>
+        <input id="split-to" class="input" type="number" min="1" max="128" value="52" inputmode="numeric">
+      </div>
+    </div>
+    <div class="out" id="split-out" aria-live="polite" style="max-height: 22rem; overflow-y: auto"><!-- @prerender:v6-split -->
+<div class="row"><span class="k">2001:db8:abcd::/48 → /52</span><span><b>16</b> subnets of 75,557,863,725,914,323,419,136 (2⁷⁶) addresses</span><button type="button" class="copy" data-copy="2001:db8:abcd::/52
+2001:db8:abcd:1000::/52
+2001:db8:abcd:2000::/52
+2001:db8:abcd:3000::/52
+2001:db8:abcd:4000::/52
+2001:db8:abcd:5000::/52
+2001:db8:abcd:6000::/52
+2001:db8:abcd:7000::/52
+2001:db8:abcd:8000::/52
+2001:db8:abcd:9000::/52
+2001:db8:abcd:a000::/52
+2001:db8:abcd:b000::/52
+2001:db8:abcd:c000::/52
+2001:db8:abcd:d000::/52
+2001:db8:abcd:e000::/52
+2001:db8:abcd:f000::/52">copy all</button></div>
+<ul><li><a href="/?q=2001:db8:abcd::/52">2001:db8:abcd::/52</a></li><li><a href="/?q=2001:db8:abcd:1000::/52">2001:db8:abcd:1000::/52</a></li><li><a href="/?q=2001:db8:abcd:2000::/52">2001:db8:abcd:2000::/52</a></li><li><a href="/?q=2001:db8:abcd:3000::/52">2001:db8:abcd:3000::/52</a></li><li><a href="/?q=2001:db8:abcd:4000::/52">2001:db8:abcd:4000::/52</a></li><li><a href="/?q=2001:db8:abcd:5000::/52">2001:db8:abcd:5000::/52</a></li><li><a href="/?q=2001:db8:abcd:6000::/52">2001:db8:abcd:6000::/52</a></li><li><a href="/?q=2001:db8:abcd:7000::/52">2001:db8:abcd:7000::/52</a></li><li><a href="/?q=2001:db8:abcd:8000::/52">2001:db8:abcd:8000::/52</a></li><li><a href="/?q=2001:db8:abcd:9000::/52">2001:db8:abcd:9000::/52</a></li><li><a href="/?q=2001:db8:abcd:a000::/52">2001:db8:abcd:a000::/52</a></li><li><a href="/?q=2001:db8:abcd:b000::/52">2001:db8:abcd:b000::/52</a></li><li><a href="/?q=2001:db8:abcd:c000::/52">2001:db8:abcd:c000::/52</a></li><li><a href="/?q=2001:db8:abcd:d000::/52">2001:db8:abcd:d000::/52</a></li><li><a href="/?q=2001:db8:abcd:e000::/52">2001:db8:abcd:e000::/52</a></li><li><a href="/?q=2001:db8:abcd:f000::/52">2001:db8:abcd:f000::/52</a></li></ul>
+<!-- /@prerender --></div>
+  </section>
+
+  <div class="section prose">
+    <h2>Reading IPv6 addresses</h2>
+    <p>An IPv6 address is 128 bits written as eight groups of four hex digits. <a href="https://www.rfc-editor.org/rfc/rfc5952">RFC 5952</a> fixes one short form so the same address always looks the same in logs and configs: leading zeros go, the longest run of zero groups becomes <code>::</code>, and letters are lowercase. The expanded form, with every digit, is what you need for reverse DNS and for lining addresses up by eye.</p>
+    <p>Most LANs use a /64: the first 64 bits identify the subnet and the last 64 are the interface ID. That is why the tool reports the /64 an address sits in, and for shorter prefixes how many /64s they hold. For a full walk-through of prefix planning, read <a href="/learn/ipv6-subnetting/">IPv6 subnetting</a>.</p>
+    <h2>How to expand a compressed address</h2>
+    <ol>
+      <li>Count the groups present: <code>2001:db8::2:1</code> has four.</li>
+      <li>The <code>::</code> stands for the missing 8 − 4 = 4 groups of zeros.</li>
+      <li>Pad every group to four digits: <code>2001:0db8:0000:0000:0000:0000:0002:0001</code>.</li>
+    </ol>
+  </div>
+
+  <section class="section faq" aria-labelledby="faq-h">
+    <h2 id="faq-h">Questions</h2>
+    <details>
+      <summary>How do I shorten an IPv6 address?</summary>
+      <div class="answer"><p>RFC 5952 defines one canonical form: drop leading zeros in each group, replace the longest run of two or more all-zero groups with <code>::</code>, use the first run if two are equally long, and write hex digits in lowercase. <code>2001:0db8:0000:0000:0000:0000:0002:0001</code> becomes <code>2001:db8::2:1</code>.</p></div>
+    </details>
+    <details>
+      <summary>What is an EUI-64 interface ID?</summary>
+      <div class="answer"><p>A 64-bit interface ID built from a 48-bit MAC address: split the MAC in half, insert <code>ff:fe</code>, and flip the universal/local bit (bit 7) of the first byte. <code>00:1a:2b:3c:4d:5e</code> becomes <code>021a:2bff:fe3c:4d5e</code>.</p></div>
+    </details>
+    <details>
+      <summary>How do I choose a ULA prefix?</summary>
+      <div class="answer"><p><a href="https://www.rfc-editor.org/rfc/rfc4193">RFC 4193</a> asks for <code>fd00::/8</code> plus a 40-bit Global ID chosen at random, giving a /48. The randomness makes it unlikely that two networks pick the same prefix, so they can be connected later without renumbering.</p></div>
+    </details>
+    <details>
+      <summary>How many /64 subnets are in a /48?</summary>
+      <div class="answer"><p>65,536. A /48 leaves 16 bits for the subnet ID before the /64 boundary, and 2<sup>16</sup> = 65,536. <a class="mono" href="/?q=2001:db8:abcd::/48">2001:db8:abcd::/48</a></p></div>
+    </details>
+    <details>
+      <summary>How do I recognize a 6to4 or Teredo address?</summary>
+      <div class="answer"><p>6to4 addresses start with <code>2002::/16</code> and carry an IPv4 address in the next 32 bits. Teredo addresses start with <code>2001::/32</code> (2001:0000) and carry the server IPv4 address, flags, an obfuscated port and the obfuscated client IPv4 address. Paste either into the box above to decode it.</p></div>
+    </details>
+    <details>
+      <summary>What is the reverse DNS zone for an IPv6 prefix?</summary>
+      <div class="answer"><p>Write the prefix as hex nibbles, reverse them, separate them with dots and add <code>ip6.arpa</code>. <code>2001:db8:abcd::/48</code> becomes <code>d.c.b.a.8.b.d.0.1.0.0.2.ip6.arpa</code>. Only prefixes on a 4-bit boundary map to a single zone.</p></div>
+    </details>
+  </section>
+</main>
+<!-- @footer -->
+<footer class="site-footer">
+  <div class="wrap footer-grid">
+    <div>
+      <h2>SubnetCalc</h2>
+      <p class="footer-note">Every calculation runs in your browser. Nothing you type is sent anywhere.</p>
+    </div>
+    <div>
+      <h2>Tools</h2>
+      <ul>
+        <li><a href="/">Subnet calculator</a></li>
+        <li><a href="/vlsm/">VLSM planner</a></li>
+        <li><a href="/cidr/">CIDR aggregation &amp; overlaps</a></li>
+        <li><a href="/ipv6/">IPv6 tools</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Learn</h2>
+      <ul>
+        <li><a href="/learn/subnetting/">Subnetting, step by step</a></li>
+        <li><a href="/learn/cidr-cheat-sheet/">CIDR cheat sheet</a></li>
+        <li><a href="/learn/ipv6-subnetting/">IPv6 subnetting</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Engine</h2>
+      <ul>
+        <li><a href="/lib/subnet.js">lib/subnet.js</a> · MIT</li>
+        <li><a href="/lib/data/special-purpose.json">IANA special-purpose data</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+<!-- /@footer -->
+<script type="module" src="/assets/js/ipv6.js"></script>
+</body>
+</html>

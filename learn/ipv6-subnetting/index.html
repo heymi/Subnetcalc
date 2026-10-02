@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>IPv6 Subnetting: Prefixes, /64s and Nibbles – SubnetCalc</title>
+<meta name="description" content="IPv6 subnetting for engineers who know IPv4: RFC 5952 notation, the /64 rule, nibble boundaries, /48 site plans, /127 links and EUI-64, with worked examples.">
+<link rel="canonical" href="https://subnetcalc.dev/learn/ipv6-subnetting/">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="SubnetCalc">
+<meta property="og:title" content="IPv6 Subnetting: Prefixes, /64s and Nibble Boundaries">
+<meta property="og:description" content="RFC 5952 notation, the /64 rule, nibble boundaries, a /48 site plan, /127 links and EUI-64, with worked examples.">
+<meta property="og:url" content="https://subnetcalc.dev/learn/ipv6-subnetting/">
+<meta property="og:image" content="https://subnetcalc.dev/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<!-- @head -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="/assets/fonts/ibm-plex-mono-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/ibm-plex-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/css/site.css">
+<meta name="theme-color" content="#f8f9fb" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#14171c" media="(prefers-color-scheme: dark)">
+<script>try{var t=localStorage.getItem('theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
+<script type="module" src="/assets/js/common.js"></script>
+<!-- /@head -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "TechArticle",
+      "headline": "IPv6 Subnetting: Prefixes, /64s and Nibble Boundaries",
+      "description": "IPv6 subnetting for engineers who know IPv4: RFC 5952 notation, the /64 rule, nibble boundaries, /48 site plans, /127 links and EUI-64, with worked examples.",
+      "url": "https://subnetcalc.dev/learn/ipv6-subnetting/",
+      "inLanguage": "en",
+      "author": { "@type": "Organization", "name": "SubnetCalc" },
+      "publisher": { "@type": "Organization", "name": "SubnetCalc" }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "SubnetCalc", "item": "https://subnetcalc.dev/" },
+        { "@type": "ListItem", "position": 2, "name": "Learn", "item": "https://subnetcalc.dev/learn/" },
+        { "@type": "ListItem", "position": 3, "name": "IPv6 subnetting", "item": "https://subnetcalc.dev/learn/ipv6-subnetting/" }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        { "@type": "Question", "name": "How many /64s are in a /48?", "acceptedAnswer": { "@type": "Answer", "text": "65,536. A /48 leaves 16 bits before the /64 boundary, and 2^16 = 65,536. The same /48 holds 256 /56s of 256 /64s each." } },
+        { "@type": "Question", "name": "Can I use a /80 or /96 on a LAN?", "acceptedAnswer": { "@type": "Answer", "text": "The router will accept it, but SLAAC will not work: RFC 4862 makes hosts ignore a prefix when prefix length plus the 64-bit interface ID is not 128 bits. Hosts then need DHCPv6 or static addresses, and some operating systems do not take an address from DHCPv6 at all. Use a /64 on every LAN." } },
+        { "@type": "Question", "name": "Does IPv6 have a broadcast address?", "acceptedAnswer": { "@type": "Answer", "text": "No. Multicast replaces it: ff02::1 reaches all nodes on a link, and Neighbor Discovery uses solicited-node multicast instead of ARP broadcasts. This site counts every address in a prefix as usable. The all-zero interface ID is the Subnet-Router anycast address (RFC 4291 section 2.6.1), so do not give it to a host." } },
+        { "@type": "Question", "name": "What is the IPv6 equivalent of 192.168.0.0/16?", "acceptedAnswer": { "@type": "Answer", "text": "Unique local addresses in fd00::/8 (RFC 4193). A random 40-bit Global ID gives you a /48, such as fd5c:8e2f:419d::/48, which you subnet into /64s like any other. ULAs are not routed on the internet. Hosts usually have a global address as well, so using ULA does not imply NAT." } },
+        { "@type": "Question", "name": "How many addresses are in a /64?", "acceptedAnswer": { "@type": "Answer", "text": "2^64 = 18,446,744,073,709,551,616. No LAN fills it. The size lets hosts choose their own interface IDs, including random ones, with a negligible chance of collision." } }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<!-- @header -->
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="wrap bar">
+    <a class="brand" href="/"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>SubnetCalc</a>
+    <nav class="site-nav" aria-label="Main">
+      <ul>
+      <li><a href="/">Subnet</a></li>
+      <li><a href="/vlsm/">VLSM</a></li>
+      <li><a href="/cidr/">CIDR</a></li>
+      <li><a href="/ipv6/">IPv6</a></li>
+      <li><a href="/learn/" aria-current="page">Learn</a></li>
+      </ul>
+    </nav>
+    <button type="button" class="btn btn-ghost icon-btn theme-toggle" data-theme-toggle aria-label="Switch theme"></button>
+  </div>
+</header>
+<!-- /@header -->
+<main id="main" class="wrap">
+  <div class="page-head">
+    <p class="breadcrumb"><a href="/learn/">Learn</a> / IPv6 subnetting</p>
+    <h1>IPv6 subnetting</h1>
+    <p class="lede">IPv6 subnetting is the same prefix arithmetic as IPv4, on 128-bit addresses written in hex. This page covers notation, the /64 rule, nibble-aligned plans for a /48 site, point-to-point links and EUI-64, with worked examples you can open in the calculator.</p>
+  </div>
+  <div class="article-layout">
+    <nav class="toc" aria-label="On this page">
+      <strong>On this page</strong>
+      <ol>
+        <li><a href="#notation">Address format and short form</a></li>
+        <li><a href="#prefixes">Prefix lengths and the /64 rule</a></li>
+        <li><a href="#hierarchy">A typical hierarchy</a></li>
+        <li><a href="#nibbles">Nibble boundaries</a></li>
+        <li><a href="#plan">Planning a site</a></li>
+        <li><a href="#special">Address types</a></li>
+        <li><a href="#p2p">Point-to-point links and loopbacks</a></li>
+        <li><a href="#eui64">Interface IDs and EUI-64</a></li>
+        <li><a href="#faq">FAQ</a></li>
+      </ol>
+    </nav>
+    <article class="prose">
+      <h2 id="notation"><span class="sec-num">01</span>Address format and RFC 5952 short form</h2>
+      <p>An IPv6 address is 128 bits, written as eight 16-bit groups separated by colons. Each group, a hextet, is four hex digits.</p>
+<pre>2001:0db8:0000:0000:0001:0000:0000:0001
+  1    2    3    4    5    6    7    8    hextet</pre>
+      <p><a href="https://www.rfc-editor.org/rfc/rfc4291#section-2.2">RFC 4291</a> allows several text forms for one address. <a href="https://www.rfc-editor.org/rfc/rfc5952">RFC 5952</a> defines a single canonical form, so configs, logs and tools print the same string:</p>
+      <ol>
+        <li>Drop leading zeros in each hextet. <code>0db8</code> becomes <code>db8</code>, and <code>0000</code> becomes <code>0</code>.</li>
+        <li>Replace one run of two or more zero hextets with <code>::</code>. Only once: with two, the length of each gap would be ambiguous.</li>
+        <li>Compress the longest run. If two runs are equally long, compress the first.</li>
+        <li>Do not use <code>::</code> for a single zero hextet. Write <code>0</code>.</li>
+        <li>Write the hex digits a to f in lowercase.</li>
+      </ol>
+      <p>Worked example. Start with <code>2001:0db8:0000:0000:0001:0000:0000:0001</code>. Dropping leading zeros gives <code>2001:db8:0:0:1:0:0:1</code>. Two runs of zeros remain, hextets 3–4 and 6–7. They are equally long, so the first is compressed: <a class="try" href="/?q=2001:db8::1:0:0:1">2001:db8::1:0:0:1</a>.</p>
+      <div class="table-wrap" tabindex="0"><table class="data">
+        <thead><tr><th scope="col">Full form</th><th scope="col">RFC 5952 form</th><th scope="col">Rule applied</th></tr></thead>
+        <tbody>
+          <tr><td><code>2001:0db8:0000:0000:0000:ff00:0042:8329</code></td><td><code>2001:db8::ff00:42:8329</code></td><td>Leading zeros, one run of three</td></tr>
+          <tr><td><code>2001:0db8:0000:0000:0001:0000:0000:0000</code></td><td><code>2001:db8:0:0:1::</code></td><td>The run of three wins over the run of two</td></tr>
+          <tr><td><code>2001:0db8:0000:0001:0001:0001:0001:0001</code></td><td><code>2001:db8:0:1:1:1:1:1</code></td><td>A single zero hextet stays <code>0</code></td></tr>
+          <tr><td><code>2001:DB8::A</code></td><td><code>2001:db8::a</code></td><td>Lowercase</td></tr>
+        </tbody>
+      </table></div>
+      <p>To expand, fill <code>::</code> with as many zero hextets as are missing from eight. <code>2001:db8:abcd:12::1</code> shows five hextets, so <code>::</code> stands for three: <code>2001:0db8:abcd:0012:0000:0000:0000:0001</code>. The <a href="/ipv6/">IPv6 tools page</a> compresses and expands addresses. With a port, use brackets: <code>[2001:db8::1]:443</code>.</p>
+
+      <h2 id="prefixes"><span class="sec-num">02</span>Prefix lengths and the /64 rule</h2>
+      <p>As in IPv4, <code>/n</code> means the first n bits identify the network. There is no dotted netmask; you always write the prefix length.</p>
+      <p>A LAN is a /64: a 64-bit network prefix, then a 64-bit interface identifier (IID) that names one interface on the link.</p>
+<pre><span class="net">2001:0db8:abcd:0012</span>:<span class="host">0000:0000:0000:0001</span>
+<span class="net">|---- 64 bits ----|</span> <span class="host">|---- 64 bits ----|</span>
+  network prefix       interface ID</pre>
+      <p>The address <a class="try" href="/?q=2001:db8:abcd:12::1/64">2001:db8:abcd:12::1/64</a> sits in <code>2001:db8:abcd:12::/64</code>. That network runs from <code>2001:db8:abcd:12::</code> to <code>2001:db8:abcd:12:ffff:ffff:ffff:ffff</code>: 2<sup>64</sup> = 18,446,744,073,709,551,616 addresses. There is no broadcast address, and this site counts every address in the prefix as usable.</p>
+      <p>Why 64? <a href="https://www.rfc-editor.org/rfc/rfc4291#section-2.5.1">RFC 4291</a> requires 64-bit interface IDs for unicast addresses, except those that start with binary 000. The practical reason is SLAAC, stateless address autoconfiguration (<a href="https://www.rfc-editor.org/rfc/rfc4862">RFC 4862</a>). A router advertises a prefix, and each host appends its own 64-bit interface ID, with no DHCP server. RFC 4862 tells a host to ignore the prefix if prefix length plus interface ID length is not 128 bits. On Ethernet the interface ID is 64 bits, so SLAAC only works on a /64.</p>
+      <p><a href="https://www.rfc-editor.org/rfc/rfc7421">RFC 7421</a> analyses the 64-bit boundary and lists what would break if LANs used longer prefixes. Longer prefixes are normal where hosts do not autoconfigure: /127 on router links and /128 on loopbacks, covered in <a href="#p2p">section 07</a>.</p>
+
+      <h2 id="hierarchy"><span class="sec-num">03</span>A typical hierarchy</h2>
+      <p>Address space is delegated in blocks, each carved from the one above it:</p>
+<pre>/32  <span class="net">2001:0db8</span><span class="host">:0000:0000:0000:0000:0000:0000</span>   ISP allocation from an RIR
+/48  <span class="net">2001:0db8:abcd</span><span class="host">:0000:0000:0000:0000:0000</span>   one site
+/56  <span class="net">2001:0db8:abcd:12</span><span class="host">00:0000:0000:0000:0000</span>   one building, or one home
+/64  <span class="net">2001:0db8:abcd:1234</span><span class="host">:0000:0000:0000:0000</span>   one LAN</pre>
+      <p>In RFC 5952 form these are <a class="try" href="/?q=2001:db8::/32">2001:db8::/32</a>, <a class="try" href="/?q=2001:db8:abcd::/48">2001:db8:abcd::/48</a>, <a class="try" href="/?q=2001:db8:abcd:1200::/56">2001:db8:abcd:1200::/56</a> and <a class="try" href="/?q=2001:db8:abcd:1234::/64">2001:db8:abcd:1234::/64</a>. A regional internet registry (RIR) allocates an ISP a /32 or more. The ISP assigns a /48 to each business site and usually a /56 or /60 to a home. <a href="https://www.rfc-editor.org/rfc/rfc6177">RFC 6177</a> dropped the older rule that every end site gets a /48, but kept its goal: an end site should get room for many subnets and for growth.</p>
+      <p>The table shows how many /64 LANs each prefix holds. Every 4 bits added to the prefix length divide the count by 16: a /32 holds 4,294,967,296 /64s, a /48 holds 65,536, a /56 holds 256 and a /60 holds 16. /112 and /126 are listed because they still appear in existing configs.</p>
+<!-- @prerender:prefix-table-v6 -->
+<div class="table-wrap" tabindex="0"><table class="data">
+<thead><tr><th scope="col">Prefix</th><th scope="col" class="num">/64 subnets</th><th scope="col" class="num">Addresses</th><th scope="col">Common use</th></tr></thead>
+<tbody>
+<tr><td>/32</td><td class="num">4,294,967,296</td><td class="num">2<sup>96</sup></td><td>Typical RIR allocation to an ISP</td></tr>
+<tr><td>/40</td><td class="num">16,777,216</td><td class="num">2<sup>88</sup></td><td>Large customer or regional block</td></tr>
+<tr><td>/44</td><td class="num">1,048,576</td><td class="num">2<sup>84</sup></td><td>Mid-size organisation</td></tr>
+<tr><td>/48</td><td class="num">65,536</td><td class="num">2<sup>80</sup></td><td>One site (RFC 6177 guidance)</td></tr>
+<tr><td>/52</td><td class="num">4,096</td><td class="num">2<sup>76</sup></td><td>Building or campus zone</td></tr>
+<tr><td>/56</td><td class="num">256</td><td class="num">2<sup>72</sup></td><td>Home or small office from an ISP</td></tr>
+<tr><td>/60</td><td class="num">16</td><td class="num">2<sup>68</sup></td><td>Smallest common delegation to a home</td></tr>
+<tr><td>/64</td><td class="num">1</td><td class="num">2<sup>64</sup></td><td>One LAN / VLAN (SLAAC needs /64)</td></tr>
+<tr><td>/112</td><td class="num">—</td><td class="num">65,536</td><td>Sometimes used to save space on infrastructure</td></tr>
+<tr><td>/126</td><td class="num">—</td><td class="num">4</td><td>Point-to-point (avoid; prefer /127)</td></tr>
+<tr><td>/127</td><td class="num">—</td><td class="num">2</td><td>Point-to-point link (RFC 6164)</td></tr>
+<tr><td>/128</td><td class="num">—</td><td class="num">1</td><td>Single address (loopback, anycast)</td></tr>
+</tbody>
+</table></div>
+<!-- /@prerender -->
+
+      <h2 id="nibbles"><span class="sec-num">04</span>Subnetting on nibble boundaries</h2>
+      <p>One hex digit is 4 bits, a nibble. A prefix length that is a multiple of 4 ends between two hex digits, so the boundary is visible in the text. /48, /52, /56, /60 and /64 are nibble boundaries, and a plan built from them reads without binary.</p>
+      <p>Worked example: split <a class="try" href="/?q=2001:db8:abcd::/48">2001:db8:abcd::/48</a> into /52s. Going from /48 to /52 borrows 4 bits, the first hex digit of the fourth hextet. 2<sup>4</sup> = 16 subnets, one per value of that digit:</p>
+      <ul>
+        <li><a class="try" href="/?q=2001:db8:abcd::/52">2001:db8:abcd::/52</a> (in full, <code>2001:db8:abcd:0000::/52</code>)</li>
+        <li><a class="try" href="/?q=2001:db8:abcd:1000::/52">2001:db8:abcd:1000::/52</a></li>
+        <li><a class="try" href="/?q=2001:db8:abcd:2000::/52">2001:db8:abcd:2000::/52</a></li>
+        <li><a class="try" href="/?q=2001:db8:abcd:3000::/52">2001:db8:abcd:3000::/52</a></li>
+        <li>and so on, up to <a class="try" href="/?q=2001:db8:abcd:f000::/52">2001:db8:abcd:f000::/52</a></li>
+      </ul>
+      <p><code>2001:db8:abcd:1000::/52</code> runs from <code>2001:db8:abcd:1000::</code> to <code>2001:db8:abcd:1fff:ffff:ffff:ffff:ffff</code> and holds 4,096 /64s. Borrow two digits and the same /48 gives 256 /56s, from <code>2001:db8:abcd::/56</code> to <code>2001:db8:abcd:ff00::/56</code>. The pattern continues to the /64:</p>
+<pre><span class="net">2001:0db8:abcd:</span>X000::/52   X = 0-f               16 subnets
+<span class="net">2001:0db8:abcd:</span>XY00::/56   XY = 00-ff           256 subnets
+<span class="net">2001:0db8:abcd:</span>XYZ0::/60   XYZ = 000-fff      4,096 subnets
+<span class="net">2001:0db8:abcd:</span>XYZW::/64   XYZW = 0000-ffff  65,536 subnets</pre>
+      <p>The prefix splitter on the <a href="/ipv6/">IPv6 tools page</a> lists up to 65,536 subnets per split, exactly the number of /64s in a /48.</p>
+      <p>Prefixes that are not a multiple of 4 are legal. A /50 borrows 2 bits, so the /48 splits into four: <code>2001:db8:abcd::/50</code>, <code>2001:db8:abcd:4000::/50</code>, <code>2001:db8:abcd:8000::/50</code> and <code>2001:db8:abcd:c000::/50</code>. The boundary now falls inside a hex digit, so the range is no longer visible: <a class="try" href="/?q=2001:db8:abcd:4000::/50">2001:db8:abcd:4000::/50</a> ends at <code>2001:db8:abcd:7fff:ffff:ffff:ffff:ffff</code>. Reverse DNS also works per nibble, since <code>ip6.arpa</code> has one label per hex digit; a /50 needs four /52 zones.</p>
+      <p>The documentation block <a class="try" href="/?q=3fff::/20">3fff::/20</a> (<a href="https://www.rfc-editor.org/rfc/rfc9637">RFC 9637</a>) ends on a nibble inside the second hextet. <code>3fff:0</code> is fixed, so it runs from <code>3fff::</code> to <code>3fff:fff:ffff:ffff:ffff:ffff:ffff:ffff</code>.</p>
+
+      <h2 id="plan"><span class="sec-num">05</span>Planning a site</h2>
+      <p>Take <code>2001:db8:abcd::/48</code>. The provider fixes the first three hextets. The fourth is yours: 16 bits, or 65,536 /64s. Give each nibble a meaning and the address tells you where it lives. A campus scheme:</p>
+<pre><span class="net">2001:0db8:abcd:</span>0110::/64
+               |||
+               ||+-- VLAN 10, written as the digits 1 and 0 (00-99)
+               |+--- building 1 (1-f; 0 = campus core)
+               +---- purpose: 0 = LANs, f = infrastructure</pre>
+      <div class="table-wrap" tabindex="0"><table class="data">
+        <thead><tr><th scope="col">Network</th><th scope="col">4th hextet</th><th scope="col">Prefix</th></tr></thead>
+        <tbody>
+          <tr><td>Building 1, VLAN 10 (staff)</td><td><code>0110</code></td><td><a class="try" href="/?q=2001:db8:abcd:110::/64">2001:db8:abcd:110::/64</a></td></tr>
+          <tr><td>Building 1, VLAN 20 (voice)</td><td><code>0120</code></td><td><a class="try" href="/?q=2001:db8:abcd:120::/64">2001:db8:abcd:120::/64</a></td></tr>
+          <tr><td>Building 1, VLAN 99 (management)</td><td><code>0199</code></td><td><a class="try" href="/?q=2001:db8:abcd:199::/64">2001:db8:abcd:199::/64</a></td></tr>
+          <tr><td>Building 2, VLAN 10 (staff)</td><td><code>0210</code></td><td><a class="try" href="/?q=2001:db8:abcd:210::/64">2001:db8:abcd:210::/64</a></td></tr>
+          <tr><td>All of building 1</td><td><code>0100</code>–<code>01ff</code></td><td><a class="try" href="/?q=2001:db8:abcd:100::/56">2001:db8:abcd:100::/56</a></td></tr>
+          <tr><td>All LANs</td><td><code>0000</code>–<code>0fff</code></td><td><a class="try" href="/?q=2001:db8:abcd::/52">2001:db8:abcd::/52</a></td></tr>
+          <tr><td>Router loopbacks</td><td><code>f000</code></td><td><a class="try" href="/?q=2001:db8:abcd:f000::/64">2001:db8:abcd:f000::/64</a></td></tr>
+          <tr><td>Point-to-point links</td><td><code>f001</code></td><td><a class="try" href="/?q=2001:db8:abcd:f001::/64">2001:db8:abcd:f001::/64</a></td></tr>
+          <tr><td>All infrastructure</td><td><code>f000</code>–<code>ffff</code></td><td><a class="try" href="/?q=2001:db8:abcd:f000::/52">2001:db8:abcd:f000::/52</a></td></tr>
+        </tbody>
+      </table></div>
+      <ul>
+        <li>Leading zeros vanish in RFC 5952 form. You plan <code>0110</code>; routers and this calculator show <code>2001:db8:abcd:110::/64</code>.</li>
+        <li>VLAN 10 is written as the digits 1 and 0, not converted to hex (<code>0a</code>), so the address matches the VLAN ID. The cost: a to f never appear in those digits, so each building uses 100 of its 256 /64s.</li>
+        <li>Each building is a /56 and each purpose a /52. One route summarises a building, and one ACL entry matches all infrastructure. Purpose digits 1 to e stay free for growth.</li>
+        <li>With VLAN IDs above 99, a single-building site can use the full VLAN ID, 1 to 4094, as the four digits: VLAN 1010 becomes <a class="try" href="/?q=2001:db8:abcd:1010::/64">2001:db8:abcd:1010::/64</a>. Decimal digits never reach f, so <code>f000</code> and up stays free.</li>
+      </ul>
+
+      <h2 id="special"><span class="sec-num">06</span>Address types you will meet</h2>
+      <div class="table-wrap" tabindex="0"><table class="data">
+        <thead><tr><th scope="col">Type</th><th scope="col">Prefix</th><th scope="col">Defined in</th><th scope="col">Notes</th></tr></thead>
+        <tbody>
+          <tr><td>Global unicast (GUA)</td><td><a class="try" href="/?q=2000::/3">2000::/3</a></td><td>RFC 4291</td><td>Routed on the internet. IANA allocates from this block.</td></tr>
+          <tr><td>Unique local (ULA)</td><td><a class="try" href="/?q=fc00::/7">fc00::/7</a></td><td>RFC 4193</td><td>Private use. Only <code>fd00::/8</code> is in use.</td></tr>
+          <tr><td>Link-local</td><td><a class="try" href="/?q=fe80::/10">fe80::/10</a></td><td>RFC 4291</td><td>On every interface. Never routed.</td></tr>
+          <tr><td>Multicast</td><td><a class="try" href="/?q=ff00::/8">ff00::/8</a></td><td>RFC 4291</td><td>One to many. Replaces broadcast.</td></tr>
+          <tr><td>Loopback</td><td><a class="try" href="/?q=::1">::1</a></td><td>RFC 4291</td><td>Same role as <code>127.0.0.1</code>.</td></tr>
+          <tr><td>Unspecified</td><td><code>::</code></td><td>RFC 4291</td><td>Source address before a host has one.</td></tr>
+          <tr><td>IPv4-mapped</td><td><code>::ffff:0:0/96</code></td><td>RFC 4291</td><td>IPv4 inside an IPv6 socket, such as <a class="try" href="/?q=::ffff:192.0.2.1">::ffff:192.0.2.1</a>.</td></tr>
+          <tr><td>Documentation</td><td><a class="try" href="/?q=2001:db8::/32">2001:db8::/32</a></td><td><a href="https://www.rfc-editor.org/rfc/rfc3849">RFC 3849</a></td><td>For examples. Never routed.</td></tr>
+          <tr><td>Documentation</td><td><a class="try" href="/?q=3fff::/20">3fff::/20</a></td><td><a href="https://www.rfc-editor.org/rfc/rfc9637">RFC 9637</a></td><td>Larger block for examples. Never routed.</td></tr>
+        </tbody>
+      </table></div>
+      <p>ULAs are the IPv6 private space. <a href="https://www.rfc-editor.org/rfc/rfc4193">RFC 4193</a> splits <code>fc00::/7</code> on its eighth bit, L. L = 1 gives <code>fd00::/8</code>, the half in use; <code>fc00::/8</code> (L = 0) is not yet defined. After <code>fd</code> come 40 random bits, the Global ID, which gives each site its own /48:</p>
+<pre>fd5c:8e2f:419d:0110:0000:0000:0000:0001
+fd                                        prefix fd00::/8, L = 1    8 bits
+  5c:8e2f:419d                            Global ID, random        40 bits
+               0110                       subnet ID                16 bits
+                    0000:0000:0000:0001   interface ID             64 bits</pre>
+      <p>The random Global ID makes it unlikely that two ULA prefixes overlap when networks merge or connect over a VPN. Do not use <code>fd00::/48</code>; the <a href="/ipv6/">IPv6 tools page</a> generates a random ULA /48 in your browser. Inside the /48, subnetting works as with a global prefix: building 1, VLAN 10 is <a class="try" href="/?q=fd5c:8e2f:419d:110::/64">fd5c:8e2f:419d:110::/64</a>.</p>
+      <p>Link-local addresses, in <code>fe80::/64</code> on every interface, are never routed. Router Advertisements and OSPFv3 use them as next hops, written with the interface, as in <code>fe80::1%eth0</code>.</p>
+      <p>Multicast replaces broadcast. <code>ff02::1</code> reaches all nodes on a link and <code>ff02::2</code> all routers. Neighbor Discovery uses solicited-node groups in <code>ff02::1:ff00:0/104</code> where IPv4 sends an ARP broadcast.</p>
+
+      <h2 id="p2p"><span class="sec-num">07</span>Point-to-point links and loopbacks</h2>
+      <p>A link between two routers needs two addresses. Three prefix lengths are in use:</p>
+      <ul>
+        <li><strong>/64.</strong> Consistent with other links, but <a href="https://www.rfc-editor.org/rfc/rfc6164">RFC 6164</a> lists two problems. On routers without the RFC 4443 fix, a packet to an unused address can bounce between the two ends until its hop limit expires. A scan of the /64 can fill the neighbor cache.</li>
+        <li><strong>/127.</strong> Two addresses, both used, nothing to scan. RFC 6164 requires routers to support /127 on point-to-point links and to disable the Subnet-Router anycast address there.</li>
+        <li><strong>/126.</strong> Four addresses, an IPv4 /30 habit. With no broadcast to set aside, it has no advantage over /127.</li>
+      </ul>
+      <p>Worked example, using <code>2001:db8:abcd:f001::/64</code> from the site plan:</p>
+      <ul>
+        <li>Link 1: <a class="try" href="/?q=2001:db8:abcd:f001::2/127">2001:db8:abcd:f001::2/127</a>. Router A is <code>2001:db8:abcd:f001::2</code>, router B <code>2001:db8:abcd:f001::3</code>.</li>
+        <li>Link 2: <a class="try" href="/?q=2001:db8:abcd:f001::4/127">2001:db8:abcd:f001::4/127</a>. Router A is <code>2001:db8:abcd:f001::4</code>, router B <code>2001:db8:abcd:f001::5</code>.</li>
+      </ul>
+      <p>The calculator shows 2 usable addresses for each and no broadcast. <code>2001:db8:abcd:f001::/127</code> is skipped on purpose: its lower address has an all-zero interface ID, which RFC 4291 reserves as the Subnet-Router anycast address of the /64. RFC 6164 section 5.1 covers this case, and many operators skip that pair. Some operators instead reserve a /64 per link and configure a /127 inside it, so the link can later move to a /64.</p>
+      <p>Loopbacks are /128s, taken from one reserved /64: router 1 is <a class="try" href="/?q=2001:db8:abcd:f000::1/128">2001:db8:abcd:f000::1/128</a>, router 2 is <code>2001:db8:abcd:f000::2/128</code>. The IGP carries them as host routes, and they serve as stable source addresses for BGP sessions and management.</p>
+
+      <h2 id="eui64"><span class="sec-num">08</span>Interface IDs and EUI-64</h2>
+      <p>SLAAC needs a 64-bit interface ID. The original method, modified EUI-64 (<a href="https://www.rfc-editor.org/rfc/rfc4291#appendix-A">RFC 4291 appendix A</a>), builds it from the 48-bit MAC address. Worked example with <code>00:1a:2b:3c:4d:5e</code>:</p>
+      <ol>
+        <li>Split the MAC into halves: <code>00:1a:2b</code> and <code>3c:4d:5e</code>.</li>
+        <li>Insert <code>ff:fe</code> between them: <code>00:1a:2b:ff:fe:3c:4d:5e</code>, 64 bits.</li>
+        <li>Flip the universal/local (U/L) bit, the second-lowest bit of the first byte: <code>00</code> (<code>0000 0000</code>) becomes <code>02</code> (<code>0000 0010</code>).</li>
+        <li>Group into hextets: <code>021a:2bff:fe3c:4d5e</code>.</li>
+      </ol>
+<pre><span class="net">2001:0db8:abcd:0110</span>:<span class="host">021a:2bff:fe3c:4d5e</span>   /64 prefix + EUI-64 interface ID
+<span class="net">fe80:0000:0000:0000</span>:<span class="host">021a:2bff:fe3c:4d5e</span>   link-local, same interface ID</pre>
+      <p>On <code>2001:db8:abcd:110::/64</code> the address is <a class="try" href="/?q=2001:db8:abcd:110:21a:2bff:fe3c:4d5e/64">2001:db8:abcd:110:21a:2bff:fe3c:4d5e/64</a>, and the link-local address is <code>fe80::21a:2bff:fe3c:4d5e</code>. RFC 5952 drops the leading zero of <code>021a</code>. The <a href="/ipv6/">IPv6 tools page</a> computes this for any MAC and /64.</p>
+      <p>The flip is deliberate: in an interface ID the bit's meaning is inverted, so hand-configured IDs such as <code>::1</code> keep it at 0, which marks them as local.</p>
+      <p>An EUI-64 address exposes the MAC, so a device can be tracked from network to network. Hosts now use temporary addresses (RFC 8981) or stable, opaque IDs (RFC 7217) for global addresses; RFC 8064 recommends RFC 7217 as the default. EUI-64 remains common on network devices, for link-local addresses and in commands such as <code>ipv6 address 2001:db8:abcd:110::/64 eui-64</code> on Cisco IOS.</p>
+
+      <h2 id="faq"><span class="sec-num">09</span>FAQ</h2>
+      <div class="faq">
+        <details>
+          <summary>How many /64s are in a /48?</summary>
+          <div class="answer"><p>65,536. A /48 leaves 16 bits before the /64 boundary, and 2<sup>16</sup> = 65,536. The same /48 holds 256 /56s of 256 /64s each. <a class="try" href="/?q=2001:db8:abcd::/48">2001:db8:abcd::/48</a></p></div>
+        </details>
+        <details>
+          <summary>Can I use a /80 or /96 on a LAN?</summary>
+          <div class="answer"><p>The router will accept it, but SLAAC will not work: <a href="https://www.rfc-editor.org/rfc/rfc4862">RFC 4862</a> makes hosts ignore a prefix when prefix length plus the 64-bit interface ID is not 128 bits. Hosts then need DHCPv6 or static addresses, and some operating systems do not take an address from DHCPv6 at all. Use a /64 on every LAN.</p></div>
+        </details>
+        <details>
+          <summary>Does IPv6 have a broadcast address?</summary>
+          <div class="answer"><p>No. Multicast replaces it: <code>ff02::1</code> reaches all nodes on a link, and Neighbor Discovery uses solicited-node multicast instead of ARP broadcasts. This site counts every address in a prefix as usable. The all-zero interface ID is the Subnet-Router anycast address (<a href="https://www.rfc-editor.org/rfc/rfc4291#section-2.6.1">RFC 4291 section 2.6.1</a>), so do not give it to a host.</p></div>
+        </details>
+        <details>
+          <summary>What is the IPv6 equivalent of 192.168.0.0/16?</summary>
+          <div class="answer"><p>Unique local addresses in <code>fd00::/8</code> (<a href="https://www.rfc-editor.org/rfc/rfc4193">RFC 4193</a>). A random 40-bit Global ID gives you a /48, such as <a class="try" href="/?q=fd5c:8e2f:419d::/48">fd5c:8e2f:419d::/48</a>, which you subnet into /64s like any other. ULAs are not routed on the internet. Hosts usually have a global address as well, so using ULA does not imply NAT.</p></div>
+        </details>
+        <details>
+          <summary>How many addresses are in a /64?</summary>
+          <div class="answer"><p>2<sup>64</sup> = 18,446,744,073,709,551,616. No LAN fills it. The size lets hosts choose their own interface IDs, including random ones, with a negligible chance of collision. <a class="try" href="/?q=2001:db8:abcd:110::/64">2001:db8:abcd:110::/64</a></p></div>
+        </details>
+      </div>
+    </article>
+  </div>
+</main>
+<!-- @footer -->
+<footer class="site-footer">
+  <div class="wrap footer-grid">
+    <div>
+      <h2>SubnetCalc</h2>
+      <p class="footer-note">Every calculation runs in your browser. Nothing you type is sent anywhere.</p>
+    </div>
+    <div>
+      <h2>Tools</h2>
+      <ul>
+        <li><a href="/">Subnet calculator</a></li>
+        <li><a href="/vlsm/">VLSM planner</a></li>
+        <li><a href="/cidr/">CIDR aggregation &amp; overlaps</a></li>
+        <li><a href="/ipv6/">IPv6 tools</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Learn</h2>
+      <ul>
+        <li><a href="/learn/subnetting/">Subnetting, step by step</a></li>
+        <li><a href="/learn/cidr-cheat-sheet/">CIDR cheat sheet</a></li>
+        <li><a href="/learn/ipv6-subnetting/">IPv6 subnetting</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Engine</h2>
+      <ul>
+        <li><a href="/lib/subnet.js">lib/subnet.js</a> · MIT</li>
+        <li><a href="/lib/data/special-purpose.json">IANA special-purpose data</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+<!-- /@footer -->
+</body>
+</html>
