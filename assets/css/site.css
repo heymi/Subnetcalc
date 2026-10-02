@@ -764,13 +764,16 @@ p {
   background: var(--host);
 }
 /* Column counts keep every bit target at least 24px wide (WCAG 2.5.8). */
+.bits-col {
+  container-type: inline-size;
+}
 .groups {
   display: grid;
   grid-template-columns: 1fr;
   gap: var(--s4) var(--s5);
 }
-/* Phones: IPv6 shows the address row only (colour carries network/host), 8 bits per line. */
-@media (max-width: 33.99rem) {
+/* Narrow containers: IPv6 shows the address row only (colour carries network/host), 8 bits per line. */
+@container (max-width: 31.99rem) {
   .groups.v6 .bitrow:not([aria-label='address']) {
     display: none;
   }
@@ -787,20 +790,17 @@ p {
     margin-left: 0;
   }
 }
-@media (min-width: 34rem) {
-  .groups {
+@container (min-width: 29rem) {
+  .groups:not(.v6) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-  .groups.v6 {
-    grid-template-columns: 1fr;
-  }
 }
-@media (min-width: 60rem) {
+@container (min-width: 56rem) {
   .groups.v6 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
-@media (min-width: 70rem) {
+@container (min-width: 60rem) {
   .groups:not(.v6) {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
@@ -1270,7 +1270,11 @@ table.data .name {
   margin: var(--s2) 0 0;
   padding-left: 1.4em;
   display: grid;
-  gap: 0.15rem;
+  gap: 0;
+}
+.toc a {
+  display: inline-block;
+  padding-block: 0.22rem;
 }
 .article-layout {
   display: grid;

@@ -126,17 +126,8 @@
       </div>
     </section>
 
-    <section aria-labelledby="steps-h" id="worked">
-      <div class="section-head">
-        <h2 id="steps-h">How it is worked out</h2>
-      </div>
-      <div id="steps"><!-- @prerender:calc-steps -->
-<ol class="steps"><li><span><code>/26</code> means 26 network bits and 6 host bits (32 in total).</span></li><li><span>Write 26 ones then 6 zeros: the netmask is <code>255.255.255.192</code>.</span></li><li><span>The interesting octet is octet 4, where the mask is <code>192</code>. Block size: 256 − 192 = <code>64</code>.</span></li><li><span>Network: 37 AND 192 = <code>0</code> (the largest multiple of 64 not above 37), so the network is <code>192.168.1.0</code>.</span></li><li><span>Broadcast: set every host bit to 1, giving <code>192.168.1.63</code>.</span></li><li><span>Usable hosts: 2⁶ − 2 = <code>62</code>. The network and broadcast addresses are not assigned to hosts.</span></li></ol>
-<!-- /@prerender --></div>
-    </section>
-  </div>
-
-  <section class="section" aria-labelledby="binary-h" id="binary">
+    <div>
+    <section aria-labelledby="binary-h" id="binary" class="bits-col">
       <div class="section-head">
         <h2 id="binary-h">Binary breakdown</h2>
         <span class="meta">select a bit to see its weight</span>
@@ -151,7 +142,19 @@
 <!-- /@prerender --></div>
       <p class="bit-detail" id="bit-detail" aria-live="polite">Select any bit to see its position and weight.</p>
 
-  </section>
+    </section>
+    <section aria-labelledby="steps-h" id="worked" style="margin-top: var(--s6)">
+      <div class="section-head">
+        <h2 id="steps-h">How it is worked out</h2>
+      </div>
+      <div id="steps"><!-- @prerender:calc-steps -->
+<ol class="steps"><li><span><code>/26</code> means 26 network bits and 6 host bits (32 in total).</span></li><li><span>Write 26 ones then 6 zeros: the netmask is <code>255.255.255.192</code>.</span></li><li><span>The interesting octet is octet 4, where the mask is <code>192</code>. Block size: 256 − 192 = <code>64</code>.</span></li><li><span>Network: 37 AND 192 = <code>0</code> (the largest multiple of 64 not above 37), so the network is <code>192.168.1.0</code>.</span></li><li><span>Broadcast: set every host bit to 1, giving <code>192.168.1.63</code>.</span></li><li><span>Usable hosts: 2⁶ − 2 = <code>62</code>. The network and broadcast addresses are not assigned to hosts.</span></li></ol>
+<!-- /@prerender --></div>
+    </section>
+    </div>
+
+  </div>
+
 
   <div class="section prose" id="about">
     <h2>What a subnet calculator does</h2>
