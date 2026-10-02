@@ -46,6 +46,9 @@ netmask, and the result has `maskAmbiguous: true`. Pass `{ maskAs: 'wildcard' }`
   parent, and gives 2 hosts a /30 unless `allowSlash31` is set. Only IPv4 is supported.
 - **Special-purpose** data comes from the IANA registries and lives in
   [`lib/data/special-purpose.json`](lib/data/special-purpose.json), with source URLs and the retrieval date.
+  Scope and IPv6 type describe the entered address, even when its prefix spans other scopes.
+- **Splitting** requires an explicit positive integer `limit`, e.g.
+  `split('2001:db8::/48', 64, { limit: 65536 })`. Requests above the limit fail before allocation.
 - IPv6 output follows RFC 5952, with mixed notation for IPv4-mapped addresses.
 
 ## Exports
@@ -80,9 +83,12 @@ npm test               # node:test, reads test/vectors/*.json
 npm run crosscheck     # re-verifies every vector with CPython ipaddress, netaddr, sipcalc, ipcalc, ipv6calc
 ```
 
-The test vectors come from RFC examples and real-world cases. Each one must be confirmed by at least two
-independent tools before it is accepted. `crosscheck.py` documents where those tools disagree with each
-other, or with SubnetCalc's chosen semantics, and why.
+The 232 shared vectors include RFC rules, documentation examples and application policy cases.
+Each vector records at least two independent validators and their actual checks in `source`.
+See [vector provenance and semantic differences](test/vectors/README.md).
+
+Refresh the retained IANA snapshots with `python3 scripts/refresh-special-purpose.py`, then run
+`npm run build`, `npm run check` and `npm run crosscheck` before deploying.
 
 ## License
 

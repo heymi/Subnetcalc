@@ -83,3 +83,12 @@ export function setParams(params) {
 }
 
 export const param = (k) => new URL(location.href).searchParams.get(k);
+
+/** Keep the previous result visible, but prevent using it after invalid input. */
+export function setStale(sections, stale) {
+  for (const section of sections) {
+    section.classList.toggle('is-stale', stale);
+    section.inert = stale;
+    for (const button of section.querySelectorAll('button')) button.disabled = stale;
+  }
+}

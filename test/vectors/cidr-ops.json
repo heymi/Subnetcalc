@@ -7,7 +7,8 @@
       ],
       "expect": [
         "192.168.0.0/23"
-      ]
+      ],
+      "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["cidr_merge"]},{"tool":"py","version":"3.13.15","checks":["collapse"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc4632#section-3.1","https://developer.hashicorp.com/terraform/language/functions/cidrsubnet"]}
     },
     {
       "input": [
@@ -18,7 +19,8 @@
       ],
       "expect": [
         "10.0.0.0/22"
-      ]
+      ],
+      "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["cidr_merge"]},{"tool":"py","version":"3.13.15","checks":["collapse"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc4632#section-3.1","https://developer.hashicorp.com/terraform/language/functions/cidrsubnet"]}
     },
     {
       "input": [
@@ -28,7 +30,8 @@
       "expect": [
         "10.0.0.0/24",
         "10.0.2.0/24"
-      ]
+      ],
+      "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["cidr_merge"]},{"tool":"py","version":"3.13.15","checks":["collapse"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc4632#section-3.1","https://developer.hashicorp.com/terraform/language/functions/cidrsubnet"]}
     },
     {
       "input": [
@@ -38,7 +41,8 @@
       "expect": [
         "10.0.1.0/24",
         "10.0.2.0/24"
-      ]
+      ],
+      "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["cidr_merge"]},{"tool":"py","version":"3.13.15","checks":["collapse"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc4632#section-3.1","https://developer.hashicorp.com/terraform/language/functions/cidrsubnet"]}
     },
     {
       "input": [
@@ -47,7 +51,8 @@
       ],
       "expect": [
         "10.0.0.0/8"
-      ]
+      ],
+      "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["cidr_merge"]},{"tool":"py","version":"3.13.15","checks":["collapse"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc4632#section-3.1","https://developer.hashicorp.com/terraform/language/functions/cidrsubnet"]}
     },
     {
       "input": [
@@ -57,7 +62,8 @@
       ],
       "expect": [
         "192.168.1.0/24"
-      ]
+      ],
+      "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["cidr_merge"]},{"tool":"py","version":"3.13.15","checks":["collapse"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc4632#section-3.1","https://developer.hashicorp.com/terraform/language/functions/cidrsubnet"]}
     },
     {
       "input": [
@@ -66,7 +72,8 @@
       ],
       "expect": [
         "2001:db8::/47"
-      ]
+      ],
+      "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["cidr_merge"]},{"tool":"py","version":"3.13.15","checks":["collapse"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc4632#section-3.1","https://developer.hashicorp.com/terraform/language/functions/cidrsubnet"]}
     },
     {
       "input": [
@@ -77,7 +84,8 @@
       "expect": [
         "2001:db8::/47",
         "2001:db8:2::/48"
-      ]
+      ],
+      "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["cidr_merge"]},{"tool":"py","version":"3.13.15","checks":["collapse"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc4632#section-3.1","https://developer.hashicorp.com/terraform/language/functions/cidrsubnet"]}
     }
   ],
   "supernet": [
@@ -86,48 +94,55 @@
         "192.168.0.0/24",
         "192.168.3.0/24"
       ],
-      "expect": "192.168.0.0/22"
+      "expect": "192.168.0.0/22",
+      "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["spanning_cidr"]},{"tool":"py","version":"3.13.15","checks":["supernet"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc4632#section-3.1","https://developer.hashicorp.com/terraform/language/functions/cidrsubnet"]}
     },
     {
       "input": [
         "10.0.1.0/24",
         "10.0.2.0/24"
       ],
-      "expect": "10.0.0.0/22"
+      "expect": "10.0.0.0/22",
+      "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["spanning_cidr"]},{"tool":"py","version":"3.13.15","checks":["supernet"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc4632#section-3.1","https://developer.hashicorp.com/terraform/language/functions/cidrsubnet"]}
     },
     {
       "input": [
         "172.16.0.0/16",
         "172.31.0.0/16"
       ],
-      "expect": "172.16.0.0/12"
+      "expect": "172.16.0.0/12",
+      "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["spanning_cidr"]},{"tool":"py","version":"3.13.15","checks":["supernet"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc4632#section-3.1","https://developer.hashicorp.com/terraform/language/functions/cidrsubnet"]}
     },
     {
       "input": [
         "10.0.0.0/8",
         "192.168.0.0/16"
       ],
-      "expect": "0.0.0.0/0"
+      "expect": "0.0.0.0/0",
+      "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["spanning_cidr"]},{"tool":"py","version":"3.13.15","checks":["supernet"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc4632#section-3.1","https://developer.hashicorp.com/terraform/language/functions/cidrsubnet"]}
     },
     {
       "input": [
         "2001:db8:1::/48",
         "2001:db8:2::/48"
       ],
-      "expect": "2001:db8::/46"
+      "expect": "2001:db8::/46",
+      "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["spanning_cidr"]},{"tool":"py","version":"3.13.15","checks":["supernet"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc4632#section-3.1","https://developer.hashicorp.com/terraform/language/functions/cidrsubnet"]}
     },
     {
       "input": [
         "10.1.1.0/24"
       ],
-      "expect": "10.1.1.0/24"
+      "expect": "10.1.1.0/24",
+      "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["spanning_cidr"]},{"tool":"py","version":"3.13.15","checks":["supernet"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc4632#section-3.1","https://developer.hashicorp.com/terraform/language/functions/cidrsubnet"]}
     },
     {
       "input": [
         "192.168.1.0/24",
         "192.168.1.128/25"
       ],
-      "expect": "192.168.1.0/24"
+      "expect": "192.168.1.0/24",
+      "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["spanning_cidr"]},{"tool":"py","version":"3.13.15","checks":["supernet"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc4632#section-3.1","https://developer.hashicorp.com/terraform/language/functions/cidrsubnet"]}
     }
   ],
   "findOverlaps": [
@@ -154,14 +169,16 @@
           "j": 3,
           "relation": "contained"
         }
-      ]
+      ],
+      "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["overlaps"]},{"tool":"py","version":"3.13.15","checks":["overlaps"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc4632#section-3.1","https://developer.hashicorp.com/terraform/language/functions/cidrsubnet"]}
     },
     {
       "input": [
         "192.168.0.0/24",
         "192.168.1.0/24"
       ],
-      "expect": []
+      "expect": [],
+      "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["overlaps"]},{"tool":"py","version":"3.13.15","checks":["overlaps"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc4632#section-3.1","https://developer.hashicorp.com/terraform/language/functions/cidrsubnet"]}
     },
     {
       "input": [
@@ -174,7 +191,8 @@
           "j": 1,
           "relation": "contained"
         }
-      ]
+      ],
+      "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["overlaps"]},{"tool":"py","version":"3.13.15","checks":["overlaps"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc4632#section-3.1","https://developer.hashicorp.com/terraform/language/functions/cidrsubnet"]}
     },
     {
       "input": [
@@ -188,7 +206,8 @@
           "j": 1,
           "relation": "contains"
         }
-      ]
+      ],
+      "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["overlaps"]},{"tool":"py","version":"3.13.15","checks":["overlaps"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc4632#section-3.1","https://developer.hashicorp.com/terraform/language/functions/cidrsubnet"]}
     }
   ],
   "rangeToCidrs": [
@@ -197,7 +216,8 @@
       "end": "10.0.3.255",
       "expect": [
         "10.0.0.0/22"
-      ]
+      ],
+      "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["iprange_to_cidrs"]},{"tool":"py","version":"3.13.15","checks":["summarize"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc4632#section-3.1","https://developer.hashicorp.com/terraform/language/functions/cidrsubnet"]}
     },
     {
       "start": "192.168.1.10",
@@ -207,28 +227,32 @@
         "192.168.1.12/30",
         "192.168.1.16/30",
         "192.168.1.20/32"
-      ]
+      ],
+      "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["iprange_to_cidrs"]},{"tool":"py","version":"3.13.15","checks":["summarize"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc4632#section-3.1","https://developer.hashicorp.com/terraform/language/functions/cidrsubnet"]}
     },
     {
       "start": "0.0.0.0",
       "end": "255.255.255.255",
       "expect": [
         "0.0.0.0/0"
-      ]
+      ],
+      "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["iprange_to_cidrs"]},{"tool":"py","version":"3.13.15","checks":["summarize"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc4632#section-3.1","https://developer.hashicorp.com/terraform/language/functions/cidrsubnet"]}
     },
     {
       "start": "10.0.0.5",
       "end": "10.0.0.5",
       "expect": [
         "10.0.0.5/32"
-      ]
+      ],
+      "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["iprange_to_cidrs"]},{"tool":"py","version":"3.13.15","checks":["summarize"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc4632#section-3.1","https://developer.hashicorp.com/terraform/language/functions/cidrsubnet"]}
     },
     {
       "start": "2001:db8::",
       "end": "2001:db8::ff",
       "expect": [
         "2001:db8::/120"
-      ]
+      ],
+      "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["iprange_to_cidrs"]},{"tool":"py","version":"3.13.15","checks":["summarize"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc4632#section-3.1","https://developer.hashicorp.com/terraform/language/functions/cidrsubnet"]}
     },
     {
       "start": "2001:db8::1",
@@ -238,7 +262,8 @@
         "2001:db8::2/127",
         "2001:db8::4/127",
         "2001:db8::6/128"
-      ]
+      ],
+      "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["iprange_to_cidrs"]},{"tool":"py","version":"3.13.15","checks":["summarize"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc4632#section-3.1","https://developer.hashicorp.com/terraform/language/functions/cidrsubnet"]}
     }
   ],
   "split": [
@@ -250,7 +275,8 @@
         "192.168.1.64/26",
         "192.168.1.128/26",
         "192.168.1.192/26"
-      ]
+      ],
+      "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["subnet"]},{"tool":"py","version":"3.13.15","checks":["subnets"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc4632#section-3.1","https://developer.hashicorp.com/terraform/language/functions/cidrsubnet"]}
     },
     {
       "input": "10.0.0.0/30",
@@ -260,7 +286,8 @@
         "10.0.0.1/32",
         "10.0.0.2/32",
         "10.0.0.3/32"
-      ]
+      ],
+      "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["subnet"]},{"tool":"py","version":"3.13.15","checks":["subnets"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc4632#section-3.1","https://developer.hashicorp.com/terraform/language/functions/cidrsubnet"]}
     },
     {
       "input": "2001:db8::/48",
@@ -270,14 +297,16 @@
         "2001:db8:0:4000::/50",
         "2001:db8:0:8000::/50",
         "2001:db8:0:c000::/50"
-      ]
+      ],
+      "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["subnet"]},{"tool":"py","version":"3.13.15","checks":["subnets"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc4632#section-3.1","https://developer.hashicorp.com/terraform/language/functions/cidrsubnet"]}
     },
     {
       "input": "172.16.0.0/12",
       "newPrefix": 12,
       "expect": [
         "172.16.0.0/12"
-      ]
+      ],
+      "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["subnet"]},{"tool":"py","version":"3.13.15","checks":["subnets"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc4632#section-3.1","https://developer.hashicorp.com/terraform/language/functions/cidrsubnet"]}
     }
   ],
   "cidrsubnetArgs": [
@@ -288,7 +317,8 @@
       "expect": {
         "newbits": 4,
         "netnum": 2
-      }
+      },
+      "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["cidrsubnet","child in parent"]},{"tool":"py","version":"3.13.15","checks":["cidrsubnet"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc4632#section-3.1","https://developer.hashicorp.com/terraform/language/functions/cidrsubnet"]}
     },
     {
       "parent": "10.1.2.0/24",
@@ -297,7 +327,8 @@
       "expect": {
         "newbits": 4,
         "netnum": 15
-      }
+      },
+      "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["cidrsubnet","child in parent"]},{"tool":"py","version":"3.13.15","checks":["cidrsubnet"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc4632#section-3.1","https://developer.hashicorp.com/terraform/language/functions/cidrsubnet"]}
     },
     {
       "parent": "fd00:fd12:3456:7890::/56",
@@ -306,7 +337,8 @@
       "expect": {
         "newbits": 16,
         "netnum": 162
-      }
+      },
+      "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["cidrsubnet","child in parent"]},{"tool":"py","version":"3.13.15","checks":["cidrsubnet"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc4632#section-3.1","https://developer.hashicorp.com/terraform/language/functions/cidrsubnet"]}
     },
     {
       "parent": "192.168.1.0/24",
@@ -315,7 +347,8 @@
       "expect": {
         "newbits": 6,
         "netnum": 52
-      }
+      },
+      "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["cidrsubnet","child in parent"]},{"tool":"py","version":"3.13.15","checks":["cidrsubnet"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc4632#section-3.1","https://developer.hashicorp.com/terraform/language/functions/cidrsubnet"]}
     }
   ],
   "errors": [
@@ -325,7 +358,8 @@
         "10.0.0.0/8",
         "2001:db8::/32"
       ],
-      "code": "MIXED_VERSION"
+      "code": "MIXED_VERSION",
+      "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["invalid range/family/prefix or application limit"]},{"tool":"py","version":"3.13.15","checks":["rejects"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc4632#section-3.1","https://developer.hashicorp.com/terraform/language/functions/cidrsubnet"]}
     },
     {
       "op": "supernet",
@@ -333,43 +367,50 @@
         "10.0.0.0/8",
         "2001:db8::/32"
       ],
-      "code": "MIXED_VERSION"
+      "code": "MIXED_VERSION",
+      "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["invalid range/family/prefix or application limit"]},{"tool":"py","version":"3.13.15","checks":["rejects"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc4632#section-3.1","https://developer.hashicorp.com/terraform/language/functions/cidrsubnet"]}
     },
     {
       "op": "supernet",
       "input": [],
-      "code": "EMPTY"
+      "code": "EMPTY",
+      "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["invalid range/family/prefix or application limit"]},{"tool":"py","version":"3.13.15","checks":["rejects"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc4632#section-3.1","https://developer.hashicorp.com/terraform/language/functions/cidrsubnet"]}
     },
     {
       "op": "rangeToCidrs",
       "start": "10.0.0.10",
       "end": "10.0.0.1",
-      "code": "INVALID_RANGE"
+      "code": "INVALID_RANGE",
+      "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["invalid range/family/prefix or application limit"]},{"tool":"py","version":"3.13.15","checks":["rejects"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc4632#section-3.1","https://developer.hashicorp.com/terraform/language/functions/cidrsubnet"]}
     },
     {
       "op": "rangeToCidrs",
       "start": "10.0.0.1",
       "end": "2001:db8::1",
-      "code": "MIXED_VERSION"
+      "code": "MIXED_VERSION",
+      "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["invalid range/family/prefix or application limit"]},{"tool":"py","version":"3.13.15","checks":["rejects"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc4632#section-3.1","https://developer.hashicorp.com/terraform/language/functions/cidrsubnet"]}
     },
     {
       "op": "split",
       "input": "192.168.1.0/24",
       "newPrefix": 23,
-      "code": "INVALID_PREFIX"
+      "code": "INVALID_PREFIX",
+      "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["invalid range/family/prefix or application limit"]},{"tool":"py","version":"3.13.15","checks":["rejects"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc4632#section-3.1","https://developer.hashicorp.com/terraform/language/functions/cidrsubnet"]}
     },
     {
       "op": "split",
       "input": "2001:db8::/48",
       "newPrefix": 64,
       "limit": 4096,
-      "code": "TOO_MANY"
+      "code": "TOO_MANY",
+      "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["invalid range/family/prefix or application limit"]},{"tool":"py","version":"3.13.15","checks":["rejects"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc4632#section-3.1","https://developer.hashicorp.com/terraform/language/functions/cidrsubnet"]}
     },
     {
       "op": "cidrsubnetArgs",
       "parent": "10.0.0.0/16",
       "child": "10.1.0.0/24",
-      "code": "NOT_SUBNET"
+      "code": "NOT_SUBNET",
+      "source": {"validators":[{"tool":"netaddr","version":"1.3.0","checks":["invalid range/family/prefix or application limit"]},{"tool":"py","version":"3.13.15","checks":["rejects"]}],"verifiedAt":"2026-10-02","references":["https://www.rfc-editor.org/rfc/rfc4632#section-3.1","https://developer.hashicorp.com/terraform/language/functions/cidrsubnet"]}
     }
   ]
 }

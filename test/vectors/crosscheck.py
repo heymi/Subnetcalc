@@ -11,7 +11,10 @@ Tools (each one optional, but every vector must be confirmed by at least two):
   ipv6calc  apt install ipv6calc
 
 The vectors are the single source of truth: test/subnet.test.js reads the same
-files. This script never rewrites them; it only reports disagreements.
+files. --record-provenance updates source metadata only, after every check passes.
+Tool checks validate the fields listed in source.validators, not our error-code names.
+Application policies (/31 opt-in, IPv4-only VLSM and split limits) use tool-derived
+address widths/capacities; they are not claimed to be native tool behaviours.
 
 Where a tool's semantics differ from the ones SubnetCalc chose (for example
 CPython excludes the IPv6 Subnet-Router anycast address from hosts(), or an
@@ -25,6 +28,10 @@ import re
 import shutil
 import subprocess
 import sys
+import csv
+import hashlib
+from datetime import datetime, timezone
+from pathlib import Path
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(HERE))
@@ -42,6 +49,11 @@ HAVE = {
     'ipcalc': shutil.which('ipcalc') is not None,
     'ipv6calc': shutil.which('ipv6calc') is not None,
 }
+VERSIONS = {'py': sys.version.split()[0], 'netaddr': netaddr.__version__ if netaddr else None}
+for tool, flag in [('ipcalc', '-v'), ('ipv6calc', '-v'), ('sipcalc', '-v')]:
+    if HAVE[tool]:
+        result = subprocess.run([tool, flag], capture_output=True, text=True)
+        VERSIONS[tool] = (result.stdout or result.stderr).strip().splitlines()[0]
 
 # Blocks where CPython 3.13's "not globally reachable" table and our transcription
 # of the IANA registry legitimately disagree.
@@ -49,15 +61,30 @@ KNOWN_DIFFS = {
     '2001:1::3/128': 'RFC 9665 (2024) exception; in CPython main, not yet in 3.13',
     '5f00::/16': 'RFC 9602 (2024) SRv6 SIDs, Globally Reachable=False; not in CPython tables',
     '192.88.99.2/32': 'RFC 6751 6a44 relay anycast; CPython treats all of 192.88.99.0/24 as global',
+    '100:0:0:1::/64': 'RFC 9780 (2025) Dummy IPv6 Prefix; absent from CPython 3.13 tables',
 }
 
 failures = []
 counts = {}
+loaded = {}
+REFERENCES = {
+    'analyze-ipv4.json': ['https://www.rfc-editor.org/rfc/rfc3021#section-2', 'https://www.iana.org/assignments/iana-ipv4-special-registry/'],
+    'analyze-ipv6.json': ['https://www.rfc-editor.org/rfc/rfc4291#section-2', 'https://www.rfc-editor.org/rfc/rfc4380#section-4', 'https://www.iana.org/assignments/iana-ipv6-special-registry/'],
+    'ipv6-format.json': ['https://www.rfc-editor.org/rfc/rfc5952#section-4'],
+    'ipv6-tools.json': ['https://www.rfc-editor.org/rfc/rfc4291#appendix-A', 'https://www.rfc-editor.org/rfc/rfc4193#section-3.1'],
+    'cidr-ops.json': ['https://www.rfc-editor.org/rfc/rfc4632#section-3.1', 'https://developer.hashicorp.com/terraform/language/functions/cidrsubnet'],
+    'vlsm.json': ['https://www.rfc-editor.org/rfc/rfc1878', 'https://www.rfc-editor.org/rfc/rfc3021#section-2'],
+    'binary.json': ['https://www.rfc-editor.org/rfc/rfc1878'],
+    'prefix-table-ipv4.json': ['https://www.rfc-editor.org/rfc/rfc1878', 'https://www.rfc-editor.org/rfc/rfc3021#section-2'],
+    'errors.json': ['https://docs.python.org/3/library/ipaddress.html', 'https://netaddr.readthedocs.io/en/latest/api.html'],
+}
 
 
 def load(name):
-    with open(os.path.join(HERE, name)) as f:
-        return json.load(f)
+    if name not in loaded:
+        with open(os.path.join(HERE, name)) as f:
+            loaded[name] = json.load(f)
+    return loaded[name]
 
 
 def run(*args):
@@ -74,9 +101,11 @@ def kv(text, sep=r'\s+-\s+|:\s+'):
 
 
 class Check:
-    def __init__(self, label):
+    def __init__(self, label, vector):
         self.label = label
+        self.vector = vector
         self.tools = set()
+        self.fields = {}
         self.problems = []
 
     def eq(self, tool, what, got, want):
@@ -85,14 +114,20 @@ class Check:
         if got != want:
             self.problems.append(f'{tool}: {what}: tool says {got!r}, vector says {want!r}')
         self.tools.add(tool)
+        self.fields.setdefault(tool, []).append(what)
 
-    def done(self, minimum=2):
-        if len(self.tools) < minimum:
-            self.problems.append(f'only confirmed by {sorted(self.tools)} (need {minimum})')
+    def done(self):
+        if len(self.tools) < 2:
+            self.problems.append(f'only confirmed by {sorted(self.tools)} (need 2)')
         if self.problems:
             failures.append((self.label, self.problems))
         for t in self.tools:
             counts[t] = counts.get(t, 0) + 1
+        if not self.problems and '--record-provenance' in sys.argv:
+            self.vector['source'] = {
+                'validators': [{'tool': t, 'version': VERSIONS[t], 'checks': self.fields[t]} for t in sorted(self.tools)],
+                'verifiedAt': datetime.now(timezone.utc).date().isoformat(),
+            }
         return not self.problems
 
 
@@ -113,7 +148,7 @@ def canon(inp, opts=None):
 def check_analyze(file):
     for v in load(file):
         e = v['expect']
-        c = Check(f'{file}: {v["input"]!r}')
+        c = Check(f'{file}: {v["input"]!r}', v)
         a, m = canon(v['input'])
         forced = (v.get('options') or {}).get('maskAs') == 'wildcard' and e['maskAmbiguous']
         # interpretation of the mask part: python and netaddr parsers must agree with the vector
@@ -138,7 +173,7 @@ def check_analyze(file):
             c.eq('netaddr', 'total', str(nn.size), e['totalAddresses'])
         sp = e['special']
         if sp and sp['globallyReachable'] is not None and sp['block'] not in KNOWN_DIFFS:
-            c.eq('py', f'is_global ({sp["block"]})', n.network_address.is_global, sp['globallyReachable'])
+            c.eq('py', f'is_global ({sp["block"]})', addr.is_global, sp['globallyReachable'])
         if n.version == 4:
             check_v4_tools(c, cidr, n, e)
         else:
@@ -193,20 +228,20 @@ def check_v6_tools(c, a, cidr, n, e):
     c.eq('py', 'usable', str(n.num_addresses), e['usableHosts'])
     t = e['ipv6Type']
     py_type = {
-        'unspecified': n.network_address.is_unspecified and n.prefixlen == 128,
-        'loopback': n.network_address.is_loopback and n.prefixlen == 128,
-        'link-local': n.subnet_of(ip.ip_network('fe80::/10')),
-        'site-local': n.is_site_local,
-        'multicast': n.is_multicast,
+        'unspecified': addr.is_unspecified,
+        'loopback': addr.is_loopback,
+        'link-local': addr.is_link_local,
+        'site-local': addr.is_site_local,
+        'multicast': addr.is_multicast,
         'ipv4-mapped': addr.ipv4_mapped is not None,
         'teredo': addr.teredo is not None,
         '6to4': addr.sixtofour is not None,
-        'ULA': n.subnet_of(ip.ip_network('fc00::/7')),
-        'documentation': n.subnet_of(ip.ip_network('2001:db8::/32')) or n.subnet_of(ip.ip_network('3fff::/20')),
-        'reserved': n.is_reserved,
-        'GUA': n.subnet_of(ip.ip_network('2000::/3')) and n.is_global,
-        'nat64': n.subnet_of(ip.ip_network('64:ff9b::/96')),
-        'discard': n.subnet_of(ip.ip_network('100::/64')),
+        'ULA': addr in ip.ip_network('fc00::/7'),
+        'documentation': addr in ip.ip_network('2001:db8::/32') or addr in ip.ip_network('3fff::/20'),
+        'reserved': addr.is_reserved,
+        'GUA': addr in ip.ip_network('2000::/3'),
+        'nat64': addr in ip.ip_network('64:ff9b::/96'),
+        'discard': addr in ip.ip_network('100::/64'),
     }
     if t is not None:
         c.eq('py', f'type {t}', py_type[t], True)
@@ -255,7 +290,7 @@ def check_v6_tools(c, a, cidr, n, e):
 # ------------------------------------------------------------------ errors
 def check_errors():
     for v in load('errors.json'):
-        c = Check(f'errors.json: {v["input"]!r} -> {v["code"]}')
+        c = Check(f'errors.json: {v["input"]!r} -> {v["code"]}', v)
         s = v['input'].strip()
         s = '/'.join(s.split()) if s else s
         try:
@@ -276,11 +311,16 @@ def check_errors():
 def check_prefix_table():
     for v in load('prefix-table-ipv4.json'):
         p = v['prefix']
-        c = Check(f'prefix-table-ipv4.json: /{p}')
+        c = Check(f'prefix-table-ipv4.json: /{p}', v)
         n = ip.ip_network(f'0.0.0.0/{p}')
         c.eq('py', 'netmask', str(n.netmask), v['netmask'])
         c.eq('py', 'wildcard', str(n.hostmask), v['wildcard'])
         c.eq('py', 'total', str(n.num_addresses), v['totalAddresses'])
+        if netaddr:
+            nn = netaddr.IPNetwork(f'0.0.0.0/{p}')
+            c.eq('netaddr', 'netmask', str(nn.netmask), v['netmask'])
+            c.eq('netaddr', 'wildcard', str(nn.hostmask), v['wildcard'])
+            c.eq('netaddr', 'total', str(nn.size), v['totalAddresses'])
         if HAVE['sipcalc']:
             s = kv(run('sipcalc', f'0.0.0.0/{p}'))
             c.eq('sipcalc', 'netmask', s.get('Network mask'), v['netmask'])
@@ -296,7 +336,7 @@ def check_prefix_table():
 # ------------------------------------------------------------------ IPv6 formatting
 def check_ipv6_format():
     for v in load('ipv6-format.json'):
-        c = Check(f'ipv6-format.json: {v["input"]}')
+        c = Check(f'ipv6-format.json: {v["input"]}', v)
         a = ip.IPv6Address(v['input'])
         c.eq('py', 'compressed', str(a), v['compressed'])
         if '.' not in a.exploded:  # CPython 3.13 explodes IPv4-mapped as ...:ffff:a.b.c.d
@@ -317,7 +357,7 @@ def check_ipv6_format():
 # ------------------------------------------------------------------ binary
 def check_binary():
     for v in load('binary.json'):
-        c = Check(f'binary.json: {v["input"]}')
+        c = Check(f'binary.json: {v["input"]}', v)
         i = ip.ip_interface(v['input'])
         w, g, sep = (32, 8, '.') if i.version == 4 else (128, 16, ':')
 
@@ -348,13 +388,13 @@ def check_cidr_ops():
         return [ip.ip_network(x, strict=False) for x in l]
 
     for v in d['aggregate']:
-        c = Check(f'aggregate {v["input"]}')
+        c = Check(f'aggregate {v["input"]}', v)
         c.eq('py', 'collapse', [str(n) for n in ip.collapse_addresses(pn(v['input']))], v['expect'])
         if netaddr:
             c.eq('netaddr', 'cidr_merge', [str(ip.ip_network(str(n))) for n in netaddr.cidr_merge(v['input'])], v['expect'])
         c.done()
     for v in d['supernet']:
-        c = Check(f'supernet {v["input"]}')
+        c = Check(f'supernet {v["input"]}', v)
         ns = pn(v['input'])
         s = ns[0]
         while not all(n.subnet_of(s) for n in ns):
@@ -365,7 +405,7 @@ def check_cidr_ops():
             c.eq('netaddr', 'spanning_cidr', str(ip.ip_network(str(span))), v['expect'])
         c.done()
     for v in d['findOverlaps']:
-        c = Check(f'findOverlaps {v["input"]}')
+        c = Check(f'findOverlaps {v["input"]}', v)
         ns = pn(v['input'])
         got_py, got_na = [], []
         for i in range(len(ns)):
@@ -383,19 +423,19 @@ def check_cidr_ops():
             c.eq('netaddr', 'overlaps', got_na, v['expect'])
         c.done()
     for v in d['rangeToCidrs']:
-        c = Check(f'rangeToCidrs {v["start"]}-{v["end"]}')
+        c = Check(f'rangeToCidrs {v["start"]}-{v["end"]}', v)
         c.eq('py', 'summarize', [str(n) for n in ip.summarize_address_range(ip.ip_address(v['start']), ip.ip_address(v['end']))], v['expect'])
         if netaddr:
             c.eq('netaddr', 'iprange_to_cidrs', [str(ip.ip_network(str(n))) for n in netaddr.iprange_to_cidrs(v['start'], v['end'])], v['expect'])
         c.done()
     for v in d['split']:
-        c = Check(f'split {v["input"]} -> /{v["newPrefix"]}')
+        c = Check(f'split {v["input"]} -> /{v["newPrefix"]}', v)
         c.eq('py', 'subnets', [str(n) for n in ip.ip_network(v['input']).subnets(new_prefix=v['newPrefix'])], v['expect'])
         if netaddr:
             c.eq('netaddr', 'subnet', [str(ip.ip_network(str(n))) for n in netaddr.IPNetwork(v['input']).subnet(v['newPrefix'])], v['expect'])
         c.done()
     for v in d['cidrsubnetArgs']:
-        c = Check(f'cidrsubnetArgs {v["parent"]} {v["child"]}')
+        c = Check(f'cidrsubnetArgs {v["parent"]} {v["child"]}', v)
         P, C = ip.ip_network(v['parent'], strict=False), ip.ip_network(v['child'])
         nb, nn = v['expect']['newbits'], v['expect']['netnum']
         c.eq('py', 'cidrsubnet', str(list(P.subnets(prefixlen_diff=nb))[nn]) if nb <= 16 else
@@ -407,7 +447,7 @@ def check_cidr_ops():
             c.eq('netaddr', 'child in parent', netaddr.IPNetwork(v['child']) in NP, True)
         c.done()
     for v in d['errors']:
-        c = Check(f'cidr-ops error {v}')
+        c = Check(f'cidr-ops error {v}', v)
         try:
             if v['op'] in ('aggregate', 'supernet'):
                 if not v['input']:
@@ -427,7 +467,23 @@ def check_cidr_ops():
             c.eq('py', 'rejects', False, True)
         except (ValueError, TypeError):
             c.eq('py', 'rejects', True, True)
-        c.done(minimum=1)
+        if netaddr:
+            try:
+                if v['op'] in ('aggregate', 'supernet'):
+                    ns = [netaddr.IPNetwork(x) for x in v['input']]
+                    bad = not ns or len({n.version for n in ns}) != 1
+                elif v['op'] == 'rangeToCidrs':
+                    start, end = netaddr.IPAddress(v['start']), netaddr.IPAddress(v['end'])
+                    bad = start.version != end.version or start > end
+                elif v['op'] == 'split':
+                    n = netaddr.IPNetwork(v['input'])
+                    bad = v['newPrefix'] < n.prefixlen or 2 ** (v['newPrefix'] - n.prefixlen) > v.get('limit', 2 ** 32)
+                else:
+                    bad = netaddr.IPNetwork(v['child']) not in netaddr.IPNetwork(v['parent'])
+            except (ValueError, TypeError, netaddr.AddrFormatError):
+                bad = True
+            c.eq('netaddr', 'invalid range/family/prefix or application limit', bad, True)
+        c.done()
 
 
 # ------------------------------------------------------------------ VLSM
@@ -435,13 +491,20 @@ def check_vlsm():
     d = load('vlsm.json')
     for v in d['requiredPrefix']:
         h, p = v['hosts'], v['expect']
-        c = Check(f'requiredPrefix {h}{" /31" if v.get("allowSlash31") else ""}')
+        c = Check(f'requiredPrefix {h}{" /31" if v.get("allowSlash31") else ""}', v)
 
         def usable(pp):
             return 2 if pp == 31 else 1 if pp == 32 else 2 ** (32 - pp) - 2
         c.eq('py', 'fits', usable(p) >= h, True)
         smaller_ok = p < 32 and (p + 1 <= (31 if v.get('allowSlash31') else 30)) and usable(p + 1) >= h
         c.eq('py', 'minimal', smaller_ok, False)
+        if netaddr:
+            size = netaddr.IPNetwork(f'0.0.0.0/{p}').size
+            capacity = size if p >= 31 else size - 2
+            c.eq('netaddr', 'capacity fits hosts (/31 policy)', capacity >= h, True)
+            smaller = netaddr.IPNetwork(f'0.0.0.0/{p + 1}').size if p < 32 else 0
+            smaller_capacity = smaller if p + 1 >= 31 else smaller - 2
+            c.eq('netaddr', 'minimal under /31 policy', p < 32 and p + 1 <= (31 if v.get('allowSlash31') else 30) and smaller_capacity >= h, False)
         if HAVE['ipcalc']:
             s = kv(run('ipcalc', '-n', '-b', f'0.0.0.0/{p}'), sep=r':\s+')
             c.eq('ipcalc', 'fits', int(s['Hosts/Net'].split()[0]) >= h, True)
@@ -450,7 +513,7 @@ def check_vlsm():
                 c.eq('ipcalc', 'minimal', int(s2['Hosts/Net'].split()[0]) >= h, False)
         c.done()
     for v in d['plans']:
-        c = Check(f'vlsm {v["parent"]} {v["note"]}')
+        c = Check(f'vlsm {v["parent"]} {v["note"]}', v)
         e = v['expect']
         P = ip.ip_network(v['parent'], strict=False)
         if not e['ok']:
@@ -464,6 +527,8 @@ def check_vlsm():
                     pp for pp in range(30, -1, -1) if 2 ** (32 - pp) - 2 >= r['hosts'])
                 blocks.append(2 ** (32 - p))
             c.eq('py', 'demand exceeds parent', sum(blocks) > P.num_addresses, True)
+            if netaddr:
+                c.eq('netaddr', 'demand exceeds parent', sum(blocks) > netaddr.IPNetwork(v['parent']).size, True)
             if HAVE['ipcalc']:
                 s = kv(run('ipcalc', '-n', '-b', str(P)), sep=r':\s+')
                 c.eq('ipcalc', 'demand exceeds parent', sum(blocks) > int(s['Hosts/Net'].split()[0]) + 2, True)
@@ -493,7 +558,7 @@ def check_vlsm():
             c.eq('netaddr', 'free size', str(free.size), e['freeAddresses'])
         c.done()
     for v in d['errors'] + d['requiredPrefixErrors']:
-        c = Check(f'vlsm error {v}')
+        c = Check(f'vlsm error {v}', v)
         bad = False
         try:
             if 'parent' in v:
@@ -504,14 +569,24 @@ def check_vlsm():
         except ValueError:
             bad = True
         c.eq('py', 'rejects', bad, True)
-        c.done(minimum=1)
+        if netaddr:
+            try:
+                if 'parent' in v:
+                    P = netaddr.IPNetwork(v['parent'])
+                    bad = P.version != 4 or any(not float(r['hosts']).is_integer() or not 1 <= r['hosts'] <= netaddr.IPNetwork('0.0.0.0/0').size - 2 for r in v['requests'])
+                else:
+                    bad = not (1 <= v['hosts'] <= netaddr.IPNetwork('0.0.0.0/0').size - 2)
+            except (ValueError, netaddr.AddrFormatError):
+                bad = True
+            c.eq('netaddr', 'invalid parent/hosts under IPv4 VLSM policy', bad, True)
+        c.done()
 
 
 # ------------------------------------------------------------------ EUI-64 / ULA
 def check_ipv6_tools():
     d = load('ipv6-tools.json')
     for v in d['eui64']:
-        c = Check(f'eui64 {v["mac"]}')
+        c = Check(f'eui64 {v["mac"]}', v)
         if netaddr:
             e = netaddr.EUI(v['mac'])
             iid = int(e.modified_eui64())
@@ -524,7 +599,7 @@ def check_ipv6_tools():
             c.eq('ipv6calc', 'address', str(ip.ip_interface(out).ip), v['address'])
         c.done()
     for v in d['eui64Errors']:
-        c = Check(f'eui64 error {v}')
+        c = Check(f'eui64 error {v}', v)
         bad = False
         if netaddr:
             try:
@@ -534,9 +609,14 @@ def check_ipv6_tools():
             except (netaddr.AddrFormatError, ValueError, TypeError):
                 bad = True
             c.eq('netaddr', 'rejects', bad, True)
-        c.done(minimum=1)
+        if 'prefix' in v:
+            c.eq('py', 'prefix is not /64 (application policy)', ip.ip_network(v['prefix']).prefixlen != 64, True)
+        elif HAVE['ipv6calc']:
+            result = subprocess.run(['ipv6calc', '-q', '--action', 'prefixmac2ipv6', '--in', 'prefix+mac', '--out', 'ipv6addr', 'fe80::/64', v['mac']], capture_output=True, text=True)
+            c.eq('ipv6calc', 'rejects MAC', result.returncode != 0, True)
+        c.done()
     for v in d['ula']:
-        c = Check(f'ula {v["randomBytes"]}')
+        c = Check(f'ula {v["randomBytes"]}', v)
         n = ip.ip_network(v['expect']['prefix'])
         c.eq('py', 'in fd00::/8 (RFC 4193 L=1)', n.subnet_of(ip.ip_network('fd00::/8')), True)
         c.eq('py', '/48', n.prefixlen, 48)
@@ -551,29 +631,18 @@ def check_ipv6_tools():
 def check_special_purpose():
     with open(os.path.join(ROOT, 'lib', 'data', 'special-purpose.json')) as f:
         sp = json.load(f)
-    for fam, cls in (('ipv4', ip.IPv4Network), ('ipv6', ip.IPv6Network)):
-        const = cls._constants
-        for e in sp[fam]:
-            c = Check(f'special-purpose {e["block"]} {e["name"]}')
-            n = cls(e['block'])
-            if e['block'] in KNOWN_DIFFS:
-                print(f'  note: {e["block"]}: {KNOWN_DIFFS[e["block"]]}')
-                continue
-            if e['globallyReachable'] is None:
-                continue
-            c.eq('py', 'is_global', n.network_address.is_global, e['globallyReachable'])
-            c.done(minimum=1)
-        # every block CPython lists as not globally reachable must be in our table with False
-        blocks = {str(cls(e['block'])): e for e in sp[fam]}
-        for n in const._private_networks:
-            c = Check(f'special-purpose covers CPython {n}')
-            e = blocks.get(str(n))
-            if e is None and str(n) == '192.0.0.170/31':
-                e = blocks.get('192.0.0.170/32')
-            c.eq('py', 'present', e is not None, True)
-            if e is not None and e['globallyReachable'] is not None:
-                c.eq('py', 'not reachable', e['globallyReachable'], False)
-            c.done(minimum=1)
+    for fam in ('ipv4', 'ipv6'):
+        raw = Path(ROOT, 'lib/data/sources', f'iana-{fam}.csv').read_bytes()
+        assert hashlib.sha256(raw).hexdigest() == sp['_sha256'][fam], f'{fam}: CSV hash mismatch'
+        rows = []
+        for row in csv.DictReader(raw.decode('utf-8-sig').splitlines()):
+            reachable = re.match(r'^(True|False)\b', row['Globally Reachable'])
+            for block in row['Address Block'].split(','):
+                rows.append({'block': block.split()[0], 'name': row['Name'],
+                    'rfc': ', '.join('RFC ' + n for n in re.findall(r'\[RFC(\d+)\]', row['RFC'])),
+                    'globallyReachable': reachable.group(1) == 'True' if reachable else None})
+        assert rows == sp[fam], f'{fam}: JSON differs from IANA snapshot'
+    print('IANA snapshots: all registry fields and SHA-256 hashes match')
 
 
 def main():
@@ -599,6 +668,20 @@ def main():
                 print(f'     {p}')
         print(f'{len(failures)} vector(s) failed cross-check')
         sys.exit(1)
+    for filename, data in loaded.items():
+        vectors = data if isinstance(data, list) else [v for group in data.values() for v in group]
+        for v in vectors:
+            if '--record-provenance' in sys.argv:
+                v['source']['references'] = REFERENCES[filename]
+            source = v.get('source', {})
+            assert len({x['tool'] for x in source.get('validators', [])}) >= 2, f'{filename}: missing provenance'
+            assert source.get('references'), f'{filename}: missing references'
+        if '--record-provenance' in sys.argv:
+            text = json.dumps(data, indent=2)
+            # Keep provenance on one line; the input and expected values stay readable.
+            text = re.sub(r'(?ms)^([ ]*)"source": (\{\n.*?^\1\})',
+                lambda m: m[1] + '"source": ' + json.dumps(json.loads(m[2]), separators=(',', ':')), text)
+            Path(HERE, filename).write_text(text + '\n')
     print('all vectors cross-checked OK')
 
 

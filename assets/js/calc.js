@@ -2,7 +2,7 @@
 import { analyze } from '../../lib/subnet.js';
 import { toText, toJSON, toCSV } from '../../lib/export.js';
 import { renderResults, renderNotices, renderBinary, renderSteps, describeBit } from './calc-render.js';
-import { esc, debounce, setParams, param, copyText } from './ui.js';
+import { esc, setParams, param, copyText, setStale } from './ui.js';
 
 const $ = (s) => document.querySelector(s);
 const form = $('[data-calc]');
@@ -17,17 +17,13 @@ const resultSections = [$('#result'), $('#worked'), $('#binary')];
 
 const BASE_TITLE = document.title;
 const DETAIL_HINT = detail.textContent;
-let maskAs; // 'wildcard' when the user flips an ambiguous mask
+let maskAs = param('maskAs') === 'wildcard' ? 'wildcard' : undefined;
 let info = null;
 let selected = null;
 
-const syncUrl = debounce((q) => {
-  setParams({ q: q.trim() });
+function syncUrl(q) {
+  setParams({ q: q.trim(), maskAs });
   document.title = q.trim() ? `${q.trim()} – Subnet Calculator` : BASE_TITLE;
-}, 300);
-
-function setStale(stale) {
-  for (const s of resultSections) s.classList.toggle('is-stale', stale);
 }
 
 function render() {
@@ -35,7 +31,8 @@ function render() {
   const r = analyze(q, maskAs ? { maskAs } : undefined);
   syncUrl(q);
   if (!r.ok) {
-    setStale(true);
+    info = null;
+    setStale(resultSections, true);
     if (r.error.code === 'INCOMPLETE' || r.error.code === 'EMPTY') {
       status.innerHTML = '';
     } else {
@@ -44,7 +41,7 @@ function render() {
     return;
   }
   info = r.info;
-  setStale(false);
+  setStale(resultSections, false);
   status.innerHTML = renderNotices(info);
   results.innerHTML = renderResults(info);
   meta.textContent = info.cidr;
@@ -117,10 +114,8 @@ document.addEventListener('click', (e) => {
     copyText(text, `Copied as ${fmt.toUpperCase()}`);
     return;
   }
-  if (e.target.closest('[data-share]')) {
-    const url = new URL(location.href);
-    url.searchParams.set('q', input.value.trim());
-    copyText(url.href, 'Link copied');
+  if (e.target.closest('[data-share]') && info) {
+    copyText(location.href, 'Link copied');
   }
 });
 

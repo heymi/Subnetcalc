@@ -1,0 +1,2 @@
+# Preserve IANA snapshot bytes (mixed CRLF/LF) for their SHA-256 checks.
+lib/data/sources/*.csv -text whitespace=cr-at-eol

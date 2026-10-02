@@ -40,6 +40,18 @@ const vectors = (name) => JSON.parse(readFileSync(new URL(`./vectors/${name}`, i
 // BigInt -> decimal string so results compare against JSON vectors.
 const plain = (v) => JSON.parse(JSON.stringify(v, (_, x) => (typeof x === 'bigint' ? x.toString() : x)));
 
+test('every shared vector records at least two independent validators and references', () => {
+  for (const file of ['analyze-ipv4.json', 'analyze-ipv6.json', 'binary.json', 'cidr-ops.json', 'errors.json', 'ipv6-format.json', 'ipv6-tools.json', 'prefix-table-ipv4.json', 'vlsm.json']) {
+    const data = vectors(file);
+    const rows = Array.isArray(data) ? data : Object.values(data).flat();
+    for (const row of rows) {
+      assert.ok(row.source?.references.length, `${file}: missing references`);
+      assert.ok(new Set(row.source.validators.map((v) => v.tool)).size >= 2, `${file}: missing validators`);
+      for (const v of row.source.validators) assert.ok(v.version && v.checks.length);
+    }
+  }
+});
+
 function assertCode(fn, code) {
   assert.throws(fn, (err) => {
     assert.ok(err instanceof SubnetError, `expected SubnetError, got ${err}`);
@@ -105,7 +117,7 @@ describe('analyze: invalid and incomplete input', () => {
 });
 
 describe('masks and the /0–/32 table', () => {
-  const table = vectors('prefix-table-ipv4.json');
+  const table = vectors('prefix-table-ipv4.json').map(({ source, ...row }) => row);
   test('prefixTable(4) matches vectors', () => {
     assert.deepEqual(plain(prefixTable(4)), table);
   });
@@ -199,7 +211,7 @@ describe('CIDR operations', () => {
   }
   for (const v of ops.split) {
     test(`split ${v.input} -> /${v.newPrefix}`, () => {
-      assert.deepEqual(split(v.input, v.newPrefix).map(formatCidr), v.expect);
+      assert.deepEqual(split(v.input, v.newPrefix, { limit: v.limit ?? v.expect.length }).map(formatCidr), v.expect);
     });
   }
   for (const v of ops.cidrsubnetArgs) {
@@ -234,15 +246,19 @@ describe('CIDR operations', () => {
     assert.deepEqual(sorted, ['9.0.0.0/8', '10.0.0.0/16', '10.0.0.0/24', '10.0.1.0/24', '2001:db8::/32']);
   });
 
-  test('split defaults to a safety limit', () => {
-    assertCode(() => split('10.0.0.0/8', 32), 'TOO_MANY');
+  test('split requires an explicit positive, finite limit', () => {
+    assertCode(() => split('2001:db8::/48', 64), 'INVALID_LIMIT');
+    for (const limit of [0, -1, 1.5, Infinity, Number.MAX_SAFE_INTEGER + 1]) {
+      assertCode(() => split('10.0.0.0/24', 26, { limit }), 'INVALID_LIMIT');
+    }
+    assertCode(() => split('10.0.0.0/8', 32, { limit: 65536 }), 'TOO_MANY');
     assert.equal(split('10.0.0.0/8', 24, { limit: 65536 }).length, 65536);
   });
 
   test('aggregate(split(x)) round-trips', () => {
     for (const s of ['10.0.0.0/8', '192.168.4.0/22', '2001:db8:40::/42', '0.0.0.0/0']) {
       const n = parseCidr(s);
-      const parts = split(n, Math.min(n.prefix + 6, n.version === 4 ? 32 : 128));
+      const parts = split(n, Math.min(n.prefix + 6, n.version === 4 ? 32 : 128), { limit: 64 });
       assert.deepEqual(aggregate(parts).map(formatCidr), [s]);
       assert.equal(formatCidr(supernet(parts)), s);
     }
@@ -250,6 +266,18 @@ describe('CIDR operations', () => {
 });
 
 describe('parsing details', () => {
+  test('scope and IPv6 type describe the input address even with a broad prefix', () => {
+    assert.equal(analyze('192.168.1.1/8').info.special.block, '192.168.0.0/16');
+    assert.equal(analyze('10.1.2.3/0').info.special.block, '10.0.0.0/8');
+    assert.equal(analyze('fd12:3456::1/0').info.ipv6Type, 'ULA');
+    assert.equal(analyze('fd12:3456::1/0').info.special.block, 'fc00::/7');
+  });
+  test('IANA RFC 9780 dummy prefix is recognized', () => {
+    const info = analyze('100:0:0:1::1/64').info;
+    assert.equal(info.special.block, '100:0:0:1::/64');
+    assert.equal(info.special.rfc, 'RFC 9780');
+    assert.equal(info.special.globallyReachable, false);
+  });
   test('parseCidr keeps host bits; networkOf clears them', () => {
     const c = parseCidr('192.168.1.37/26');
     assert.equal(formatCidr(c), '192.168.1.37/26');

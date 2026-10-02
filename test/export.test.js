@@ -143,6 +143,18 @@ test('planToTerraform escapes HCL strings', () => {
   assert.match(planToTerraform(p), /"a \\"b\\" \$\$\{c\}" = cidrsubnet/);
 });
 
+test('planToTerraform preserves all subnets with duplicate names and suffix collisions', () => {
+  const p = planVlsm('10.0.0.0/24', [
+    { name: 'Sales', hosts: 50 },
+    { name: 'Sales', hosts: 10 },
+    { name: 'Sales (2)', hosts: 2 },
+  ]).plan;
+  const tf = planToTerraform(p);
+  const keys = [...tf.matchAll(/^\s+"([^"]+)"\s+= cidrsubnet/gm)].map((m) => m[1]);
+  assert.deepEqual(keys, ['Sales', 'Sales (3)', 'Sales (2)']);
+  assert.equal(new Set(keys).size, p.allocations.length);
+});
+
 test('planToAWS and planToAzure warn about provider limits', () => {
   const aws = planToAWS(plan);
   assert.match(aws, /^192\.168\.1\.0\/25 {4}# Sales \(120 hosts\)$/m);
