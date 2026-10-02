@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Learn Subnetting: Tutorials and Cheat Sheets – SubnetCalc</title>
+<meta name="description" content="Subnetting from binary to VLSM, a printable CIDR cheat sheet for /0 to /32, and IPv6 prefix planning. Every example opens in the calculator.">
+<link rel="canonical" href="https://subnetcalc.dev/learn/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="SubnetCalc">
+<meta property="og:title" content="Learn Subnetting – SubnetCalc">
+<meta property="og:description" content="Subnetting from binary to VLSM, a printable CIDR cheat sheet and IPv6 prefix planning.">
+<meta property="og:url" content="https://subnetcalc.dev/learn/">
+<meta property="og:image" content="https://subnetcalc.dev/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<!-- @head -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="/assets/fonts/ibm-plex-mono-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/ibm-plex-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/css/site.css">
+<meta name="theme-color" content="#f8f9fb" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#14171c" media="(prefers-color-scheme: dark)">
+<script>try{var t=localStorage.getItem('theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
+<script type="module" src="/assets/js/common.js"></script>
+<!-- /@head -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "SubnetCalc", "item": "https://subnetcalc.dev/" },
+    { "@type": "ListItem", "position": 2, "name": "Learn", "item": "https://subnetcalc.dev/learn/" }
+  ]
+}
+</script>
+</head>
+<body>
+<!-- @header -->
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="wrap bar">
+    <a class="brand" href="/"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>SubnetCalc</a>
+    <nav class="site-nav" aria-label="Main">
+      <ul>
+      <li><a href="/">Subnet</a></li>
+      <li><a href="/vlsm/">VLSM</a></li>
+      <li><a href="/cidr/">CIDR</a></li>
+      <li><a href="/ipv6/">IPv6</a></li>
+      <li><a href="/learn/" aria-current="page">Learn</a></li>
+      </ul>
+    </nav>
+    <button type="button" class="btn btn-ghost icon-btn theme-toggle" data-theme-toggle aria-label="Switch theme"></button>
+  </div>
+</header>
+<!-- /@header -->
+<main id="main" class="wrap">
+  <div class="page-head">
+    <p class="eyebrow">Learn</p>
+    <h1>Subnetting, explained with working examples</h1>
+    <p class="lede">Written for CCNA students and for engineers who want the reasoning behind the numbers. Every example opens in the calculator with the values filled in.</p>
+  </div>
+  <ul class="learn-list">
+    <li>
+      <a href="/learn/subnetting/">Subnetting, step by step</a>
+      <p>Binary, masks and prefixes, network and broadcast addresses, the block-size shortcut, equal subnets and VLSM, with practice questions.</p>
+    </li>
+    <li>
+      <a href="/learn/cidr-cheat-sheet/">CIDR cheat sheet</a>
+      <p>Every prefix from /0 to /32 with netmask, wildcard and host counts, plus /24 subnet starts, mask octet values and private ranges. Prints on one A4 page.</p>
+    </li>
+    <li>
+      <a href="/learn/ipv6-subnetting/">IPv6 subnetting</a>
+      <p>RFC 5952 notation, why LANs are /64, planning a /48 on nibble boundaries, ULA, /127 links and EUI-64 interface IDs.</p>
+    </li>
+  </ul>
+</main>
+<!-- @footer -->
+<footer class="site-footer">
+  <div class="wrap footer-grid">
+    <div>
+      <h2>SubnetCalc</h2>
+      <p class="footer-note">Every calculation runs in your browser. Nothing you type is sent anywhere.</p>
+    </div>
+    <div>
+      <h2>Tools</h2>
+      <ul>
+        <li><a href="/">Subnet calculator</a></li>
+        <li><a href="/vlsm/">VLSM planner</a></li>
+        <li><a href="/cidr/">CIDR aggregation &amp; overlaps</a></li>
+        <li><a href="/ipv6/">IPv6 tools</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Learn</h2>
+      <ul>
+        <li><a href="/learn/subnetting/">Subnetting, step by step</a></li>
+        <li><a href="/learn/cidr-cheat-sheet/">CIDR cheat sheet</a></li>
+        <li><a href="/learn/ipv6-subnetting/">IPv6 subnetting</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Engine</h2>
+      <ul>
+        <li><a href="/lib/subnet.js">lib/subnet.js</a> · MIT</li>
+        <li><a href="/lib/data/special-purpose.json">IANA special-purpose data</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+<!-- /@footer -->
+</body>
+</html>

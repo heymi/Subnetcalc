@@ -77,7 +77,7 @@ export function renderTable(plan) {
 </tr>`,
     )
     .join('\n');
-  return `<div class="table-wrap"><table class="data">
+  return `<div class="table-wrap" tabindex="0"><table class="data">
 <thead><tr><th scope="col">Name</th><th scope="col" class="num">Hosts</th><th scope="col">Subnet</th><th scope="col">Netmask</th><th scope="col">Usable range</th><th scope="col">Broadcast</th><th scope="col" class="num">Usable</th><th scope="col" class="num">Unused</th></tr></thead>
 <tbody>
 ${rows}

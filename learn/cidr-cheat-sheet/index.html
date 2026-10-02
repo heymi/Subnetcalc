@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>CIDR Cheat Sheet: /0–/32 Masks and Host Counts – SubnetCalc</title>
+<meta name="description" content="Printable CIDR cheat sheet: netmask, wildcard and host counts for /0 to /32, plus /24 subnet starts, mask octets, private ranges and IPv6 sizes.">
+<link rel="canonical" href="https://subnetcalc.dev/learn/cidr-cheat-sheet/">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="SubnetCalc">
+<meta property="og:title" content="CIDR Cheat Sheet: /0 to /32">
+<meta property="og:description" content="Netmask, wildcard and host counts for every IPv4 prefix, plus /24 subnet starts, private ranges and IPv6 prefix sizes. Printable.">
+<meta property="og:url" content="https://subnetcalc.dev/learn/cidr-cheat-sheet/">
+<meta property="og:image" content="https://subnetcalc.dev/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<!-- @head -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="/assets/fonts/ibm-plex-mono-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/ibm-plex-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/css/site.css">
+<meta name="theme-color" content="#f8f9fb" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#14171c" media="(prefers-color-scheme: dark)">
+<script>try{var t=localStorage.getItem('theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
+<script type="module" src="/assets/js/common.js"></script>
+<!-- /@head -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "TechArticle",
+      "headline": "CIDR Cheat Sheet: /0 to /32 Netmasks, Wildcards and Host Counts",
+      "description": "Every IPv4 prefix with netmask, wildcard, address and host counts, plus /24 subnet starts, mask octet values, private ranges and IPv6 prefix sizes.",
+      "url": "https://subnetcalc.dev/learn/cidr-cheat-sheet/",
+      "inLanguage": "en",
+      "author": { "@type": "Organization", "name": "SubnetCalc" },
+      "publisher": { "@type": "Organization", "name": "SubnetCalc" }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "SubnetCalc", "item": "https://subnetcalc.dev/" },
+        { "@type": "ListItem", "position": 2, "name": "Learn", "item": "https://subnetcalc.dev/learn/" },
+        { "@type": "ListItem", "position": 3, "name": "CIDR cheat sheet", "item": "https://subnetcalc.dev/learn/cidr-cheat-sheet/" }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<!-- @header -->
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="wrap bar">
+    <a class="brand" href="/"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>SubnetCalc</a>
+    <nav class="site-nav" aria-label="Main">
+      <ul>
+      <li><a href="/">Subnet</a></li>
+      <li><a href="/vlsm/">VLSM</a></li>
+      <li><a href="/cidr/">CIDR</a></li>
+      <li><a href="/ipv6/">IPv6</a></li>
+      <li><a href="/learn/" aria-current="page">Learn</a></li>
+      </ul>
+    </nav>
+    <button type="button" class="btn btn-ghost icon-btn theme-toggle" data-theme-toggle aria-label="Switch theme"></button>
+  </div>
+</header>
+<!-- /@header -->
+<main id="main" class="wrap">
+  <div class="page-head">
+    <p class="breadcrumb no-print"><a href="/learn/">Learn</a> / CIDR cheat sheet</p>
+    <h1>CIDR cheat sheet</h1>
+    <p class="lede">Every IPv4 prefix with its netmask, wildcard and host count, and the smaller tables you need for subnetting by hand. Select any row's prefix in the <a href="/">calculator</a> to see the bits.</p>
+    <div class="btn-row no-print" style="margin-top: var(--s2)"><button type="button" class="btn" data-print>Print this page</button></div>
+  </div>
+
+  <section aria-labelledby="all-h">
+    <div class="section-head">
+      <h2 id="all-h">IPv4 prefixes /0 to /32</h2>
+      <span class="meta">usable = addresses − 2, except /31 (RFC 3021) and /32</span>
+    </div>
+<!-- @prerender:prefix-table-v4 -->
+<div class="table-wrap" tabindex="0"><table class="data">
+<thead><tr><th scope="col">Prefix</th><th scope="col">Netmask</th><th scope="col">Wildcard</th><th scope="col" class="num">Addresses</th><th scope="col" class="num">Usable hosts</th></tr></thead>
+<tbody>
+<tr id="p0"><td>/0</td><td>0.0.0.0</td><td>255.255.255.255</td><td class="num">4,294,967,296</td><td class="num">4,294,967,294</td></tr>
+<tr id="p1"><td>/1</td><td>128.0.0.0</td><td>127.255.255.255</td><td class="num">2,147,483,648</td><td class="num">2,147,483,646</td></tr>
+<tr id="p2"><td>/2</td><td>192.0.0.0</td><td>63.255.255.255</td><td class="num">1,073,741,824</td><td class="num">1,073,741,822</td></tr>
+<tr id="p3"><td>/3</td><td>224.0.0.0</td><td>31.255.255.255</td><td class="num">536,870,912</td><td class="num">536,870,910</td></tr>
+<tr id="p4"><td>/4</td><td>240.0.0.0</td><td>15.255.255.255</td><td class="num">268,435,456</td><td class="num">268,435,454</td></tr>
+<tr id="p5"><td>/5</td><td>248.0.0.0</td><td>7.255.255.255</td><td class="num">134,217,728</td><td class="num">134,217,726</td></tr>
+<tr id="p6"><td>/6</td><td>252.0.0.0</td><td>3.255.255.255</td><td class="num">67,108,864</td><td class="num">67,108,862</td></tr>
+<tr id="p7"><td>/7</td><td>254.0.0.0</td><td>1.255.255.255</td><td class="num">33,554,432</td><td class="num">33,554,430</td></tr>
+<tr id="p8"><td>/8</td><td>255.0.0.0</td><td>0.255.255.255</td><td class="num">16,777,216</td><td class="num">16,777,214</td></tr>
+<tr id="p9"><td>/9</td><td>255.128.0.0</td><td>0.127.255.255</td><td class="num">8,388,608</td><td class="num">8,388,606</td></tr>
+<tr id="p10"><td>/10</td><td>255.192.0.0</td><td>0.63.255.255</td><td class="num">4,194,304</td><td class="num">4,194,302</td></tr>
+<tr id="p11"><td>/11</td><td>255.224.0.0</td><td>0.31.255.255</td><td class="num">2,097,152</td><td class="num">2,097,150</td></tr>
+<tr id="p12"><td>/12</td><td>255.240.0.0</td><td>0.15.255.255</td><td class="num">1,048,576</td><td class="num">1,048,574</td></tr>
+<tr id="p13"><td>/13</td><td>255.248.0.0</td><td>0.7.255.255</td><td class="num">524,288</td><td class="num">524,286</td></tr>
+<tr id="p14"><td>/14</td><td>255.252.0.0</td><td>0.3.255.255</td><td class="num">262,144</td><td class="num">262,142</td></tr>
+<tr id="p15"><td>/15</td><td>255.254.0.0</td><td>0.1.255.255</td><td class="num">131,072</td><td class="num">131,070</td></tr>
+<tr id="p16"><td>/16</td><td>255.255.0.0</td><td>0.0.255.255</td><td class="num">65,536</td><td class="num">65,534</td></tr>
+<tr id="p17"><td>/17</td><td>255.255.128.0</td><td>0.0.127.255</td><td class="num">32,768</td><td class="num">32,766</td></tr>
+<tr id="p18"><td>/18</td><td>255.255.192.0</td><td>0.0.63.255</td><td class="num">16,384</td><td class="num">16,382</td></tr>
+<tr id="p19"><td>/19</td><td>255.255.224.0</td><td>0.0.31.255</td><td class="num">8,192</td><td class="num">8,190</td></tr>
+<tr id="p20"><td>/20</td><td>255.255.240.0</td><td>0.0.15.255</td><td class="num">4,096</td><td class="num">4,094</td></tr>
+<tr id="p21"><td>/21</td><td>255.255.248.0</td><td>0.0.7.255</td><td class="num">2,048</td><td class="num">2,046</td></tr>
+<tr id="p22"><td>/22</td><td>255.255.252.0</td><td>0.0.3.255</td><td class="num">1,024</td><td class="num">1,022</td></tr>
+<tr id="p23"><td>/23</td><td>255.255.254.0</td><td>0.0.1.255</td><td class="num">512</td><td class="num">510</td></tr>
+<tr id="p24"><td>/24</td><td>255.255.255.0</td><td>0.0.0.255</td><td class="num">256</td><td class="num">254</td></tr>
+<tr id="p25"><td>/25</td><td>255.255.255.128</td><td>0.0.0.127</td><td class="num">128</td><td class="num">126</td></tr>
+<tr id="p26"><td>/26</td><td>255.255.255.192</td><td>0.0.0.63</td><td class="num">64</td><td class="num">62</td></tr>
+<tr id="p27"><td>/27</td><td>255.255.255.224</td><td>0.0.0.31</td><td class="num">32</td><td class="num">30</td></tr>
+<tr id="p28"><td>/28</td><td>255.255.255.240</td><td>0.0.0.15</td><td class="num">16</td><td class="num">14</td></tr>
+<tr id="p29"><td>/29</td><td>255.255.255.248</td><td>0.0.0.7</td><td class="num">8</td><td class="num">6</td></tr>
+<tr id="p30"><td>/30</td><td>255.255.255.252</td><td>0.0.0.3</td><td class="num">4</td><td class="num">2</td></tr>
+<tr id="p31"><td>/31</td><td>255.255.255.254</td><td>0.0.0.1</td><td class="num">2</td><td class="num">2</td></tr>
+<tr id="p32"><td>/32</td><td>255.255.255.255</td><td>0.0.0.0</td><td class="num">1</td><td class="num">1</td></tr>
+</tbody>
+</table></div>
+<!-- /@prerender -->
+  </section>
+
+  <div class="tools two section">
+    <section aria-labelledby="s24-h">
+      <div class="section-head">
+        <h2 id="s24-h">Splitting a /24</h2>
+        <span class="meta">last octet</span>
+      </div>
+<!-- @prerender:slash24-table -->
+<div class="table-wrap" tabindex="0"><table class="data">
+<thead><tr><th scope="col">Prefix</th><th scope="col">Last mask octet</th><th scope="col" class="num">Subnets in a /24</th><th scope="col" class="num">Block size</th><th scope="col" class="num">Usable hosts</th><th scope="col">Networks start at .x</th></tr></thead>
+<tbody>
+<tr><td>/24</td><td>0</td><td class="num">1</td><td class="num">256</td><td class="num">254</td><td>0</td></tr>
+<tr><td>/25</td><td>128</td><td class="num">2</td><td class="num">128</td><td class="num">126</td><td>0, 128</td></tr>
+<tr><td>/26</td><td>192</td><td class="num">4</td><td class="num">64</td><td class="num">62</td><td>0, 64, 128, 192</td></tr>
+<tr><td>/27</td><td>224</td><td class="num">8</td><td class="num">32</td><td class="num">30</td><td>0, 32, 64, 96, 128, 160, 192, 224</td></tr>
+<tr><td>/28</td><td>240</td><td class="num">16</td><td class="num">16</td><td class="num">14</td><td>0, 16, 32, 48, … 240</td></tr>
+<tr><td>/29</td><td>248</td><td class="num">32</td><td class="num">8</td><td class="num">6</td><td>0, 8, 16, 24, … 248</td></tr>
+<tr><td>/30</td><td>252</td><td class="num">64</td><td class="num">4</td><td class="num">2</td><td>0, 4, 8, 12, … 252</td></tr>
+<tr><td>/31</td><td>254</td><td class="num">128</td><td class="num">2</td><td class="num">2</td><td>0, 2, 4, 6, … 254</td></tr>
+<tr><td>/32</td><td>255</td><td class="num">256</td><td class="num">1</td><td class="num">1</td><td>0, 1, 2, 3, … 255</td></tr>
+</tbody>
+</table></div>
+<!-- /@prerender -->
+    </section>
+    <section aria-labelledby="oct-h">
+      <div class="section-head">
+        <h2 id="oct-h">Mask octet values</h2>
+        <span class="meta">block size = 256 − octet</span>
+      </div>
+<!-- @prerender:mask-octet-table -->
+<div class="table-wrap" tabindex="0"><table class="data">
+<thead><tr><th scope="col">Ones</th><th scope="col">Binary</th><th scope="col" class="num">Mask octet</th><th scope="col" class="num">Block size</th><th scope="col" class="num">Wildcard octet</th></tr></thead>
+<tbody>
+<tr><td>0</td><td>00000000</td><td class="num">0</td><td class="num">256</td><td class="num">255</td></tr>
+<tr><td>1</td><td>10000000</td><td class="num">128</td><td class="num">128</td><td class="num">127</td></tr>
+<tr><td>2</td><td>11000000</td><td class="num">192</td><td class="num">64</td><td class="num">63</td></tr>
+<tr><td>3</td><td>11100000</td><td class="num">224</td><td class="num">32</td><td class="num">31</td></tr>
+<tr><td>4</td><td>11110000</td><td class="num">240</td><td class="num">16</td><td class="num">15</td></tr>
+<tr><td>5</td><td>11111000</td><td class="num">248</td><td class="num">8</td><td class="num">7</td></tr>
+<tr><td>6</td><td>11111100</td><td class="num">252</td><td class="num">4</td><td class="num">3</td></tr>
+<tr><td>7</td><td>11111110</td><td class="num">254</td><td class="num">2</td><td class="num">1</td></tr>
+<tr><td>8</td><td>11111111</td><td class="num">255</td><td class="num">1</td><td class="num">0</td></tr>
+</tbody>
+</table></div>
+<!-- /@prerender -->
+    </section>
+  </div>
+
+  <div class="tools two section">
+    <section aria-labelledby="priv-h">
+      <div class="section-head">
+        <h2 id="priv-h">Private and special IPv4 ranges</h2>
+      </div>
+      <div class="table-wrap" tabindex="0"><table class="data">
+        <thead><tr><th scope="col">Block</th><th scope="col">Range</th><th scope="col">Use</th><th scope="col">RFC</th></tr></thead>
+        <tbody>
+          <tr><td>10.0.0.0/8</td><td>10.0.0.0 – 10.255.255.255</td><td>Private</td><td>1918</td></tr>
+          <tr><td>172.16.0.0/12</td><td>172.16.0.0 – 172.31.255.255</td><td>Private</td><td>1918</td></tr>
+          <tr><td>192.168.0.0/16</td><td>192.168.0.0 – 192.168.255.255</td><td>Private</td><td>1918</td></tr>
+          <tr><td>100.64.0.0/10</td><td>100.64.0.0 – 100.127.255.255</td><td>Carrier-grade NAT</td><td>6598</td></tr>
+          <tr><td>127.0.0.0/8</td><td>127.0.0.0 – 127.255.255.255</td><td>Loopback</td><td>1122</td></tr>
+          <tr><td>169.254.0.0/16</td><td>169.254.0.0 – 169.254.255.255</td><td>Link-local</td><td>3927</td></tr>
+          <tr><td>192.0.2.0/24</td><td>192.0.2.0 – 192.0.2.255</td><td>Documentation</td><td>5737</td></tr>
+          <tr><td>198.51.100.0/24</td><td>198.51.100.0 – 198.51.100.255</td><td>Documentation</td><td>5737</td></tr>
+          <tr><td>203.0.113.0/24</td><td>203.0.113.0 – 203.0.113.255</td><td>Documentation</td><td>5737</td></tr>
+          <tr><td>198.18.0.0/15</td><td>198.18.0.0 – 198.19.255.255</td><td>Benchmarking</td><td>2544</td></tr>
+          <tr><td>224.0.0.0/4</td><td>224.0.0.0 – 239.255.255.255</td><td>Multicast</td><td>5771</td></tr>
+          <tr><td>240.0.0.0/4</td><td>240.0.0.0 – 255.255.255.254</td><td>Reserved</td><td>1112</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+    <section aria-labelledby="v6-h">
+      <div class="section-head">
+        <h2 id="v6-h">IPv6 prefix sizes</h2>
+        <span class="meta">see <a href="/learn/ipv6-subnetting/">IPv6 subnetting</a></span>
+      </div>
+<!-- @prerender:prefix-table-v6 -->
+<div class="table-wrap" tabindex="0"><table class="data">
+<thead><tr><th scope="col">Prefix</th><th scope="col" class="num">/64 subnets</th><th scope="col" class="num">Addresses</th><th scope="col">Common use</th></tr></thead>
+<tbody>
+<tr><td>/32</td><td class="num">4,294,967,296</td><td class="num">2<sup>96</sup></td><td>Typical RIR allocation to an ISP</td></tr>
+<tr><td>/40</td><td class="num">16,777,216</td><td class="num">2<sup>88</sup></td><td>Large customer or regional block</td></tr>
+<tr><td>/44</td><td class="num">1,048,576</td><td class="num">2<sup>84</sup></td><td>Mid-size organisation</td></tr>
+<tr><td>/48</td><td class="num">65,536</td><td class="num">2<sup>80</sup></td><td>One site (RFC 6177 guidance)</td></tr>
+<tr><td>/52</td><td class="num">4,096</td><td class="num">2<sup>76</sup></td><td>Building or campus zone</td></tr>
+<tr><td>/56</td><td class="num">256</td><td class="num">2<sup>72</sup></td><td>Home or small office from an ISP</td></tr>
+<tr><td>/60</td><td class="num">16</td><td class="num">2<sup>68</sup></td><td>Smallest common delegation to a home</td></tr>
+<tr><td>/64</td><td class="num">1</td><td class="num">2<sup>64</sup></td><td>One LAN / VLAN (SLAAC needs /64)</td></tr>
+<tr><td>/112</td><td class="num">—</td><td class="num">65,536</td><td>Sometimes used to save space on infrastructure</td></tr>
+<tr><td>/126</td><td class="num">—</td><td class="num">4</td><td>Point-to-point (avoid; prefer /127)</td></tr>
+<tr><td>/127</td><td class="num">—</td><td class="num">2</td><td>Point-to-point link (RFC 6164)</td></tr>
+<tr><td>/128</td><td class="num">—</td><td class="num">1</td><td>Single address (loopback, anycast)</td></tr>
+</tbody>
+</table></div>
+<!-- /@prerender -->
+    </section>
+  </div>
+
+  <div class="section prose no-print">
+    <h2>Using the tables</h2>
+    <p>To size a subnet, find the first row whose usable hosts cover what you need: 50 hosts need a /26 (62 usable). To find the network an address belongs to, take the block size from the mask octet table and round the address down to a multiple of it: <code>192.168.1.77/27</code> has block size 32, and 77 rounds down to 64, so the network is <a href="/?q=192.168.1.77/27">192.168.1.64/27</a>. The <a href="/learn/subnetting/">subnetting tutorial</a> explains each step, and the <a href="/vlsm/">VLSM planner</a> does it for a whole list of subnets.</p>
+  </div>
+</main>
+<!-- @footer -->
+<footer class="site-footer">
+  <div class="wrap footer-grid">
+    <div>
+      <h2>SubnetCalc</h2>
+      <p class="footer-note">Every calculation runs in your browser. Nothing you type is sent anywhere.</p>
+    </div>
+    <div>
+      <h2>Tools</h2>
+      <ul>
+        <li><a href="/">Subnet calculator</a></li>
+        <li><a href="/vlsm/">VLSM planner</a></li>
+        <li><a href="/cidr/">CIDR aggregation &amp; overlaps</a></li>
+        <li><a href="/ipv6/">IPv6 tools</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Learn</h2>
+      <ul>
+        <li><a href="/learn/subnetting/">Subnetting, step by step</a></li>
+        <li><a href="/learn/cidr-cheat-sheet/">CIDR cheat sheet</a></li>
+        <li><a href="/learn/ipv6-subnetting/">IPv6 subnetting</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Engine</h2>
+      <ul>
+        <li><a href="/lib/subnet.js">lib/subnet.js</a> · MIT</li>
+        <li><a href="/lib/data/special-purpose.json">IANA special-purpose data</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+<!-- /@footer -->
+</body>
+</html>

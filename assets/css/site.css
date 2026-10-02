@@ -50,6 +50,7 @@
   --line-strong: oklch(0.72 0.015 258);
   --net: oklch(0.47 0.17 260);
   --net-bg: oklch(0.925 0.04 260);
+  --net-alt: oklch(0.37 0.13 262);
   --host: oklch(0.52 0.16 42);
   --host-bg: oklch(0.935 0.045 55);
   --danger: oklch(0.5 0.18 27);
@@ -91,6 +92,7 @@
   --line-strong: oklch(0.47 0.02 258);
   --net: oklch(0.76 0.12 255);
   --net-bg: oklch(0.3 0.06 260);
+  --net-alt: oklch(0.64 0.1 255);
   --host: oklch(0.8 0.13 62);
   --host-bg: oklch(0.32 0.055 55);
   --danger: oklch(0.75 0.15 25);
@@ -110,6 +112,7 @@
     --line-strong: oklch(0.47 0.02 258);
     --net: oklch(0.76 0.12 255);
     --net-bg: oklch(0.3 0.06 260);
+  --net-alt: oklch(0.64 0.1 255);
     --host: oklch(0.8 0.13 62);
     --host-bg: oklch(0.32 0.055 55);
     --danger: oklch(0.75 0.15 25);
@@ -760,13 +763,47 @@ p {
 .swatch.h {
   background: var(--host);
 }
+/* Column counts keep every bit target at least 24px wide (WCAG 2.5.8). */
 .groups {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 9.6rem), 1fr));
-  gap: var(--s4) var(--s3);
+  grid-template-columns: 1fr;
+  gap: var(--s4) var(--s5);
 }
-.groups.v6 {
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 15.5rem), 1fr));
+/* Phones: IPv6 shows the address row only (colour carries network/host), 8 bits per line. */
+@media (max-width: 33.99rem) {
+  .groups.v6 .bitrow:not([aria-label='address']) {
+    display: none;
+  }
+  .groups.v6 .bitrow {
+    flex-wrap: wrap;
+  }
+  .groups.v6 .lbl {
+    display: none;
+  }
+  .groups.v6 .bit {
+    flex: 0 0 12.5%;
+  }
+  .groups.v6 .bit.nib {
+    margin-left: 0;
+  }
+}
+@media (min-width: 34rem) {
+  .groups {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .groups.v6 {
+    grid-template-columns: 1fr;
+  }
+}
+@media (min-width: 60rem) {
+  .groups.v6 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (min-width: 70rem) {
+  .groups:not(.v6) {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
 }
 .group {
   font-family: var(--mono);
@@ -802,6 +839,7 @@ p {
 .bit {
   flex: 1 1 0;
   min-width: 0;
+  min-height: 1.6rem;
   font: 400 var(--step-0) / 1 var(--mono);
   text-align: center;
   padding: 0.28rem 0;
@@ -968,6 +1006,10 @@ table.data .name {
 .out .warn {
   color: var(--danger);
 }
+.out a {
+  display: inline-block;
+  padding-block: 0.22rem;
+}
 .inline-fields {
   display: grid;
   gap: var(--s3);
@@ -1055,7 +1097,7 @@ table.data .name {
   color: var(--bg);
 }
 .addr-bar .a.alt {
-  background: color-mix(in oklch, var(--net) 72%, var(--bg));
+  background: var(--net-alt);
 }
 .addr-bar .f > span {
   color: var(--muted);
@@ -1339,5 +1381,30 @@ table.data .name {
   a {
     color: inherit;
     text-decoration: none;
+  }
+  .section {
+    padding-top: 1.2rem;
+  }
+  .page-head {
+    padding-block: 0 0.6rem;
+  }
+  .page-head .lede {
+    font-size: 9pt;
+  }
+  .tools.two {
+    grid-template-columns: 1fr 1fr;
+    gap: 1.2rem;
+  }
+  .section-head {
+    margin-bottom: 0.3rem;
+  }
+  .section-head h2 {
+    font-size: 11pt;
+  }
+  table.data th {
+    font-size: 7pt;
+  }
+  table.data tr {
+    break-inside: avoid;
   }
 }

@@ -128,7 +128,7 @@ function prefixTableHtml() {
         `<tr id="p${r.prefix}"><td>/${r.prefix}</td><td>${r.netmask}</td><td>${r.wildcard}</td><td class="num">${group(r.totalAddresses)}</td><td class="num">${group(r.usableHosts)}</td></tr>`,
     )
     .join('\n');
-  return `<div class="table-wrap"><table class="data">
+  return `<div class="table-wrap" tabindex="0"><table class="data">
 <thead><tr><th scope="col">Prefix</th><th scope="col">Netmask</th><th scope="col">Wildcard</th><th scope="col" class="num">Addresses</th><th scope="col" class="num">Usable hosts</th></tr></thead>
 <tbody>
 ${rows}
@@ -158,10 +158,47 @@ function ipv6PrefixTableHtml() {
       return `<tr><td>/${p}</td><td class="num">${n64}</td><td class="num">${addrs}</td><td>${use}</td></tr>`;
     })
     .join('\n');
-  return `<div class="table-wrap"><table class="data">
+  return `<div class="table-wrap" tabindex="0"><table class="data">
 <thead><tr><th scope="col">Prefix</th><th scope="col" class="num">/64 subnets</th><th scope="col" class="num">Addresses</th><th scope="col">Common use</th></tr></thead>
 <tbody>
 ${body}
+</tbody>
+</table></div>`;
+}
+
+function slash24Html() {
+  const rows = [];
+  for (let p = 24; p <= 32; p++) {
+    const block = 2 ** (32 - p);
+    const n = 2 ** (p - 24);
+    const usable = p === 32 ? 1 : p === 31 ? 2 : block - 2;
+    const starts = Array.from({ length: n }, (_, i) => i * block);
+    const list = starts.length > 8 ? `${starts.slice(0, 4).join(', ')}, … ${starts.at(-1)}` : starts.join(', ');
+    const mask = 256 - block;
+    rows.push(
+      `<tr><td>/${p}</td><td>${mask === 256 ? 0 : mask}</td><td class="num">${n}</td><td class="num">${block}</td><td class="num">${usable}</td><td>${list}</td></tr>`,
+    );
+  }
+  return `<div class="table-wrap" tabindex="0"><table class="data">
+<thead><tr><th scope="col">Prefix</th><th scope="col">Last mask octet</th><th scope="col" class="num">Subnets in a /24</th><th scope="col" class="num">Block size</th><th scope="col" class="num">Usable hosts</th><th scope="col">Networks start at .x</th></tr></thead>
+<tbody>
+${rows.join('\n')}
+</tbody>
+</table></div>`;
+}
+
+function maskOctetHtml() {
+  const rows = [];
+  for (let bits = 0; bits <= 8; bits++) {
+    const v = (0xff00 >> bits) & 0xff;
+    rows.push(
+      `<tr><td>${bits}</td><td>${v.toString(2).padStart(8, '0')}</td><td class="num">${v}</td><td class="num">${256 - v}</td><td class="num">${255 - v}</td></tr>`,
+    );
+  }
+  return `<div class="table-wrap" tabindex="0"><table class="data">
+<thead><tr><th scope="col">Ones</th><th scope="col">Binary</th><th scope="col" class="num">Mask octet</th><th scope="col" class="num">Block size</th><th scope="col" class="num">Wildcard octet</th></tr></thead>
+<tbody>
+${rows.join('\n')}
 </tbody>
 </table></div>`;
 }
@@ -188,6 +225,8 @@ const PRERENDER = {
   'v6-eui': () => renderEui(V6.mac, V6.eui),
   'v6-split': () => renderSplit(V6.split, V6.newPrefix),
   'prefix-table-v4': prefixTableHtml,
+  'slash24-table': slash24Html,
+  'mask-octet-table': maskOctetHtml,
   'prefix-table-v6': ipv6PrefixTableHtml,
 };
 
@@ -217,7 +256,9 @@ function build(file) {
 function sitemap(files) {
   const urls = files
     .filter((f) => !f.endsWith('404.html'))
-    .map((f) => `  <url><loc>${ORIGIN}${urlPath(f)}</loc></url>`)
+    .map(urlPath)
+    .sort((a, b) => (a === '/' ? -1 : b === '/' ? 1 : a.localeCompare(b)))
+    .map((u) => `  <url><loc>${ORIGIN}${u}</loc></url>`)
     .join('\n');
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`;
 }

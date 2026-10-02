@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Subnetting Tutorial: From Binary to VLSM – SubnetCalc</title>
+<meta name="description" content="Subnetting tutorial for CCNA students: binary, netmasks, network and broadcast addresses, the block-size method, equal subnets and VLSM, with worked examples.">
+<link rel="canonical" href="https://subnetcalc.dev/learn/subnetting/">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="SubnetCalc">
+<meta property="og:title" content="Subnetting, Step by Step: From Binary to VLSM">
+<meta property="og:description" content="Binary, netmasks, block sizes, equal subnets and VLSM, with worked examples you can open in the calculator.">
+<meta property="og:url" content="https://subnetcalc.dev/learn/subnetting/">
+<meta property="og:image" content="https://subnetcalc.dev/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<!-- @head -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="/assets/fonts/ibm-plex-mono-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/ibm-plex-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/css/site.css">
+<meta name="theme-color" content="#f8f9fb" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#14171c" media="(prefers-color-scheme: dark)">
+<script>try{var t=localStorage.getItem('theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
+<script type="module" src="/assets/js/common.js"></script>
+<!-- /@head -->
+<script type="application/ld+json">
+{ "@context": "https://schema.org", "@graph": [
+  { "@type": "TechArticle", "headline": "Subnetting, Step by Step: From Binary to VLSM", "description": "Subnetting tutorial for CCNA students: binary, netmasks, network and broadcast addresses, the block-size method, equal subnets and VLSM, with worked examples.", "url": "https://subnetcalc.dev/learn/subnetting/", "inLanguage": "en", "author": { "@type": "Organization", "name": "SubnetCalc" }, "publisher": { "@type": "Organization", "name": "SubnetCalc" } },
+  { "@type": "BreadcrumbList", "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "SubnetCalc", "item": "https://subnetcalc.dev/" },
+    { "@type": "ListItem", "position": 2, "name": "Learn", "item": "https://subnetcalc.dev/learn/" },
+    { "@type": "ListItem", "position": 3, "name": "Subnetting, step by step", "item": "https://subnetcalc.dev/learn/subnetting/" } ] }
+] }
+</script>
+</head>
+<body>
+<!-- @header -->
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="wrap bar">
+    <a class="brand" href="/"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>SubnetCalc</a>
+    <nav class="site-nav" aria-label="Main">
+      <ul>
+      <li><a href="/">Subnet</a></li>
+      <li><a href="/vlsm/">VLSM</a></li>
+      <li><a href="/cidr/">CIDR</a></li>
+      <li><a href="/ipv6/">IPv6</a></li>
+      <li><a href="/learn/" aria-current="page">Learn</a></li>
+      </ul>
+    </nav>
+    <button type="button" class="btn btn-ghost icon-btn theme-toggle" data-theme-toggle aria-label="Switch theme"></button>
+  </div>
+</header>
+<!-- /@header -->
+<main id="main" class="wrap">
+  <div class="page-head">
+    <p class="breadcrumb"><a href="/learn/">Learn</a> / Subnetting</p>
+    <h1>Subnetting, step by step</h1>
+    <p class="lede">By the end of this page you will be able to find the network, broadcast address and host range of any IPv4 subnet by hand, split a network into equal subnets, and plan a VLSM design. Every worked example opens in the calculator so you can check your answer.</p>
+  </div>
+  <div class="article-layout">
+    <nav class="toc" aria-label="On this page">
+      <strong>On this page</strong>
+      <ol>
+        <li><a href="#binary">Binary and the 32-bit address</a></li>
+        <li><a href="#mask">Netmask and prefix length</a></li>
+        <li><a href="#network-broadcast">Network, broadcast and host range</a></li>
+        <li><a href="#block-size">The block-size shortcut</a></li>
+        <li><a href="#splitting">Splitting a network into equal subnets</a></li>
+        <li><a href="#vlsm">VLSM: subnets of different sizes</a></li>
+        <li><a href="#private">Private and special ranges</a></li>
+        <li><a href="#practice">Practice questions</a></li>
+      </ol>
+    </nav>
+    <article class="prose">
+
+      <h2 id="binary"><span class="sec-num">01</span>Binary and the 32-bit address</h2>
+      <p>An IPv4 address is a 32-bit number. Routers and hosts work with those 32 bits. The dotted form <code>192.168.1.37</code> exists for people. Subnetting is the skill of moving between the two forms and reading meaning from the bits, so it starts with binary.</p>
+
+      <h3>Bits and octets</h3>
+      <p>A bit is a 0 or a 1. The 32 bits of an address are split into four groups of eight, called octets. Each octet is written as a decimal number and the four are joined with dots. Eight bits give 2<sup>8</sup> = 256 combinations, so an octet runs from 0 to 255. Thirty-two bits give 2<sup>32</sup> = 4,294,967,296 possible addresses.</p>
+
+      <h3>Place values</h3>
+      <p>Inside an octet, each bit position has a fixed value. From left to right:</p>
+<pre>128  64  32  16   8   4   2   1</pre>
+      <p>Each value is twice the one to its right. The value of an octet is the sum of the positions that hold a 1. <code>11000000</code> is 128 + 64 = 192. <code>11111111</code> is 255 and <code>00000000</code> is 0.</p>
+
+      <h3>Decimal to binary</h3>
+      <p>Work from left to right. At each position, ask whether the place value fits into what is left. If it fits, write 1 and subtract it. If not, write 0. Here is the last octet of 192.168.1.37:</p>
+<pre>left  place  fits?  bit
+ 37    128    no     0
+ 37     64    no     0
+ 37     32    yes    1    37 − 32 = 5
+  5     16    no     0
+  5      8    no     0
+  5      4    yes    1     5 − 4 = 1
+  1      2    no     0
+  1      1    yes    1     1 − 1 = 0</pre>
+      <p>Reading the bit column from top to bottom gives <code>00100101</code>. The other octets follow the same way: 192 = 128 + 64, 168 = 128 + 32 + 8, and 1 = 1. The whole address:</p>
+<pre>     192       168         1        37
+11000000  10101000  00000001  00100101</pre>
+
+      <h3>Binary to decimal</h3>
+      <p>Reverse the process. Write the place values over the bits and add the values that sit over a 1:</p>
+<pre>128  64  32  16   8   4   2   1
+  1   0   1   0   1   0   0   0    128 + 32 + 8 = 168</pre>
+      <p>Learn the values of octets that are a run of 1s from the left: 128, 192, 224, 240, 248, 252, 254 and 255. They are the only values a netmask octet can take, and the next section depends on them.</p>
+      <p>The calculator shows any address bit by bit. Select a bit to see its place value: <a class="try" href="/?q=192.168.1.37/24">192.168.1.37/24</a>.</p>
+
+      <h2 id="mask"><span class="sec-num">02</span>Netmask and prefix length</h2>
+      <p>An address alone does not say which network it belongs to. A second 32-bit value, the netmask, does. Each 1 in the mask marks a network bit of the address. Each 0 marks a host bit. The 1s always come first, in one unbroken run, and the 0s fill the rest.</p>
+
+      <h3>Prefix length</h3>
+      <p>Because the 1s are contiguous, counting them is enough to describe the mask. That count is the prefix length, written after a slash. <code>/24</code> means 24 ones followed by 8 zeros:</p>
+<pre>/20   <span class="net">11111111.11111111.1111</span><span class="host">0000.00000000</span>   255.255.240.0
+/24   <span class="net">11111111.11111111.11111111</span>.<span class="host">00000000</span>   255.255.255.0
+/26   <span class="net">11111111.11111111.11111111.11</span><span class="host">000000</span>   255.255.255.192</pre>
+      <p>This notation is CIDR, Classless Inter-Domain Routing, described in <a href="https://www.rfc-editor.org/rfc/rfc4632">RFC 4632</a>. It replaced the old class system, in which the first bits of an address fixed its mask: /8 for class A, /16 for class B, /24 for class C. Today any prefix from /0 to /32 is valid, and the class of an address tells you nothing about its mask.</p>
+
+      <h3>Converting between mask and prefix</h3>
+      <p>A mask octet has its 1s on the left, so it can take only nine values:</p>
+      <div class="table-wrap" tabindex="0"><table class="data">
+        <thead><tr><th scope="col" class="num">1 bits</th><th scope="col">Binary</th><th scope="col" class="num">Octet value</th></tr></thead>
+        <tbody>
+          <tr><td class="num">0</td><td><code>00000000</code></td><td class="num">0</td></tr>
+          <tr><td class="num">1</td><td><code>10000000</code></td><td class="num">128</td></tr>
+          <tr><td class="num">2</td><td><code>11000000</code></td><td class="num">192</td></tr>
+          <tr><td class="num">3</td><td><code>11100000</code></td><td class="num">224</td></tr>
+          <tr><td class="num">4</td><td><code>11110000</code></td><td class="num">240</td></tr>
+          <tr><td class="num">5</td><td><code>11111000</code></td><td class="num">248</td></tr>
+          <tr><td class="num">6</td><td><code>11111100</code></td><td class="num">252</td></tr>
+          <tr><td class="num">7</td><td><code>11111110</code></td><td class="num">254</td></tr>
+          <tr><td class="num">8</td><td><code>11111111</code></td><td class="num">255</td></tr>
+        </tbody>
+      </table></div>
+      <p>Mask to prefix: count 8 for each 255, then add the 1 bits of the next octet from the table. <code>255.255.240.0</code> is 8 + 8 + 4 = /20. Prefix to mask: write 255 for each full group of 8 bits, then look up the remainder. /26 is 24 + 2, so the mask is three 255s followed by 192: <code>255.255.255.192</code>.</p>
+
+      <h3>The AND operation</h3>
+      <p>A host or router finds the network of an address with a bitwise AND of the address and the mask. AND returns 1 only when both input bits are 1. Where the mask has a 1, the address bit passes through. Where the mask has a 0, the result is 0. The network bits survive and the host bits are cleared:</p>
+<pre>Address  <span class="net">11000000.10101000.00000001.00</span><span class="host">100101</span>   192.168.1.37
+Mask     <span class="net">11111111.11111111.11111111.11</span><span class="host">000000</span>   255.255.255.192
+AND      <span class="net">11000000.10101000.00000001.00</span><span class="host">000000</span>   192.168.1.0</pre>
+      <p>In decimal, a 255 octet copies the address octet unchanged and a 0 octet gives 0. Only an octet with another mask value needs binary. Here that is the fourth: 37 AND 192, or <code>00100101</code> AND <code>11000000</code>, which is <code>00000000</code>. The network is 192.168.1.0. Check it in the calculator: <a class="try" href="/?q=192.168.1.37%20255.255.255.192">192.168.1.37 255.255.255.192</a>.</p>
+
+      <h3>The wildcard mask</h3>
+      <p>A wildcard mask is the netmask with every bit inverted. Per octet, it is 255 minus the mask octet. The wildcard for 255.255.255.192 is 0.0.0.63.</p>
+      <p>Cisco IOS uses wildcards in access control lists (ACLs) and in OSPF <code>network</code> statements. A 0 bit means "this bit must match" and a 1 bit means "ignore this bit". To match every address in 192.168.1.0/26:</p>
+<pre>access-list 10 permit 192.168.1.0 0.0.0.63
+
+router ospf 1
+ network 192.168.1.0 0.0.0.63 area 0</pre>
+      <p>The calculator accepts a wildcard as input and works out the prefix. <a class="try" href="/?q=192.168.1.0%200.0.0.63">192.168.1.0 0.0.0.63</a> gives 192.168.1.0/26.</p>
+
+      <h2 id="network-broadcast"><span class="sec-num">03</span>Network, broadcast and host range</h2>
+      <p>Once you know which bits are host bits, three facts about the subnet follow.</p>
+      <ul>
+        <li><strong>Network address:</strong> every host bit set to 0. It names the subnet and appears in routing tables. It is not assigned to a device.</li>
+        <li><strong>Broadcast address:</strong> every host bit set to 1. A packet sent to it reaches every host on the subnet. It is not assigned to a device either.</li>
+        <li><strong>Host range:</strong> everything in between. The first usable host is the network address plus one. The last usable host is the broadcast address minus one.</li>
+      </ul>
+      <p>For 192.168.1.37/26 the last six bits are host bits:</p>
+<pre>Network     <span class="net">11000000.10101000.00000001.00</span><span class="host">000000</span>   192.168.1.0
+First host  <span class="net">11000000.10101000.00000001.00</span><span class="host">000001</span>   192.168.1.1
+Last host   <span class="net">11000000.10101000.00000001.00</span><span class="host">111110</span>   192.168.1.62
+Broadcast   <span class="net">11000000.10101000.00000001.00</span><span class="host">111111</span>   192.168.1.63</pre>
+      <p>The network bits are the same on every line. Only the host bits change. The address 192.168.1.37 itself is one of the hosts in this range.</p>
+
+      <h3>Counting hosts</h3>
+      <p>With <var>h</var> host bits a subnet has 2<sup><var>h</var></sup> addresses. Two of them are the network and broadcast addresses, so the number of usable hosts is 2<sup><var>h</var></sup> − 2. A /26 has 32 − 26 = 6 host bits, which gives 2<sup>6</sup> = 64 addresses and 62 usable hosts. Open the example: <a class="try" href="/?q=192.168.1.37/26">192.168.1.37/26</a>.</p>
+      <p>Each bit added to the prefix halves the size of the subnet:</p>
+      <div class="table-wrap" tabindex="0"><table class="data">
+        <thead><tr><th scope="col">Prefix</th><th scope="col">Netmask</th><th scope="col" class="num">Host bits</th><th scope="col" class="num">Addresses</th><th scope="col" class="num">Usable hosts</th></tr></thead>
+        <tbody>
+          <tr><td>/24</td><td><code>255.255.255.0</code></td><td class="num">8</td><td class="num">256</td><td class="num">254</td></tr>
+          <tr><td>/25</td><td><code>255.255.255.128</code></td><td class="num">7</td><td class="num">128</td><td class="num">126</td></tr>
+          <tr><td>/26</td><td><code>255.255.255.192</code></td><td class="num">6</td><td class="num">64</td><td class="num">62</td></tr>
+          <tr><td>/27</td><td><code>255.255.255.224</code></td><td class="num">5</td><td class="num">32</td><td class="num">30</td></tr>
+          <tr><td>/28</td><td><code>255.255.255.240</code></td><td class="num">4</td><td class="num">16</td><td class="num">14</td></tr>
+          <tr><td>/29</td><td><code>255.255.255.248</code></td><td class="num">3</td><td class="num">8</td><td class="num">6</td></tr>
+          <tr><td>/30</td><td><code>255.255.255.252</code></td><td class="num">2</td><td class="num">4</td><td class="num">2</td></tr>
+          <tr><td>/31</td><td><code>255.255.255.254</code></td><td class="num">1</td><td class="num">2</td><td class="num">2</td></tr>
+          <tr><td>/32</td><td><code>255.255.255.255</code></td><td class="num">0</td><td class="num">1</td><td class="num">1</td></tr>
+        </tbody>
+      </table></div>
+      <p>The <a href="/learn/cidr-cheat-sheet/">CIDR cheat sheet</a> lists every prefix from /0 to /32.</p>
+
+      <h3>The /31 and /32 exceptions</h3>
+      <p>The formula breaks down at the small end. A /31 has one host bit and two addresses, and 2<sup>1</sup> − 2 would leave no hosts at all. <a href="https://www.rfc-editor.org/rfc/rfc3021">RFC 3021</a> allows a /31 on point-to-point links. Both addresses are assigned, one to each end, and the subnet has no network or broadcast address. A link with only two devices has no need for a broadcast. In <a class="try" href="/?q=10.0.0.0/31">10.0.0.0/31</a> the two hosts are 10.0.0.0 and 10.0.0.1.</p>
+      <p>A /32 has no host bits. It describes a single address. You see it on loopback interfaces, in host routes and in firewall rules that match one machine: <a class="try" href="/?q=10.0.0.1/32">10.0.0.1/32</a>.</p>
+
+      <h2 id="block-size"><span class="sec-num">04</span>The block-size shortcut</h2>
+      <p>Binary always works, but writing out 32 bits for every question is slow. The block-size method reaches the same answer with decimal arithmetic. It is fast enough for exam conditions and for checking a router config by eye.</p>
+
+      <h3>The method</h3>
+      <ol>
+        <li>Write the mask in dotted decimal.</li>
+        <li>Find the interesting octet: the first octet whose mask value is less than 255. The boundary between network and host bits lies in this octet.</li>
+        <li>Block size = 256 − the mask value in that octet. Subnets start at multiples of the block size in that octet.</li>
+        <li>Find the largest multiple of the block size that is not greater than the address's value in that octet. That is the network value.</li>
+        <li>Network address: octets to the left are copied from the address, the interesting octet takes the network value, and octets to the right are 0.</li>
+        <li>Broadcast address: one less than the next network. The interesting octet is the network value + block size − 1, and octets to the right are 255.</li>
+      </ol>
+      <p>This works because 256 minus a mask octet is always a power of two: 2 raised to the number of 0 bits in that octet. AND with the mask clears those low bits, which rounds the octet down to a multiple of that power of two.</p>
+
+      <h3>Worked example: 172.16.40.9/20</h3>
+      <ol>
+        <li>/20 is 8 + 8 + 4, so the mask is <code>255.255.240.0</code>.</li>
+        <li>The first octet below 255 is the third, with value 240.</li>
+        <li>Block size = 256 − 240 = 16. Subnets start at third-octet values 0, 16, 32, 48, 64 and so on.</li>
+        <li>The address has 40 in the third octet. The largest multiple of 16 that is not greater than 40 is 32.</li>
+        <li>Network: <code>172.16.32.0</code>.</li>
+        <li>The next network is 172.16.48.0, so the broadcast is <code>172.16.47.255</code>.</li>
+      </ol>
+      <p>The host range is 172.16.32.1 to 172.16.47.254. The subnet covers sixteen values of the third octet, 32 to 47, each with a full 0 to 255 in the fourth. There are 32 − 20 = 12 host bits, so 2<sup>12</sup> − 2 = 4,094 usable hosts. The binary of the third octet confirms the network value:</p>
+<pre>Address   40   <span class="net">0010</span><span class="host">1000</span>
+Mask     240   <span class="net">1111</span><span class="host">0000</span>
+AND       32   <span class="net">0010</span><span class="host">0000</span></pre>
+      <p>Open the example: <a class="try" href="/?q=172.16.40.9/20">172.16.40.9/20</a>.</p>
+
+      <h3>Worked example: 10.20.30.200/27</h3>
+      <ol>
+        <li>/27 is 24 + 3, so the mask is <code>255.255.255.224</code>.</li>
+        <li>The interesting octet is the fourth, with value 224.</li>
+        <li>Block size = 256 − 224 = 32. Subnets start at 0, 32, 64, 96, 128, 160, 192 and 224.</li>
+        <li>The address has 200 in the fourth octet, which lies between 192 and 223. The network value is 192.</li>
+        <li>Network: <code>10.20.30.192</code>.</li>
+        <li>Broadcast: 192 + 32 − 1 = 223, so <code>10.20.30.223</code>.</li>
+      </ol>
+      <p>Hosts run from 10.20.30.193 to 10.20.30.222, which is 2<sup>5</sup> − 2 = 30 usable addresses. Open it: <a class="try" href="/?q=10.20.30.200/27">10.20.30.200/27</a>.</p>
+      <p>When the prefix is a multiple of 8, the boundary falls between two octets and the interesting octet has mask value 0. The block size is then 256, the only multiple is 0, and the network keeps the leading octets and zeros the rest.</p>
+
+      <h2 id="splitting"><span class="sec-num">05</span>Splitting a network into equal subnets</h2>
+      <p>Subnetting in its original sense means dividing one network into smaller ones. You move the boundary to the right: some bits that were host bits become network bits. These are the borrowed bits, also called subnet bits. <a href="https://www.rfc-editor.org/rfc/rfc950">RFC 950</a> defined the idea in 1985.</p>
+
+      <h3>Borrowing bits</h3>
+      <p>Each borrowed bit doubles the number of subnets and halves the size of each one. Borrowing <var>n</var> bits gives 2<sup><var>n</var></sup> subnets. The new prefix is the old prefix plus <var>n</var>. Each subnet has 2<sup><var>h</var></sup> − 2 usable hosts, where <var>h</var> is the number of host bits left.</p>
+      <p>Choose <var>n</var> from the requirement you are given:</p>
+      <ul>
+        <li><strong>A number of subnets.</strong> Take the smallest <var>n</var> with 2<sup><var>n</var></sup> at least that number. Six subnets need <var>n</var> = 3, because 2<sup>2</sup> = 4 is too few and 2<sup>3</sup> = 8 is enough.</li>
+        <li><strong>A number of hosts per subnet.</strong> Take the smallest <var>h</var> with 2<sup><var>h</var></sup> − 2 at least that number. Twenty-five hosts need <var>h</var> = 5, because 2<sup>4</sup> − 2 = 14 is too few and 2<sup>5</sup> − 2 = 30 is enough. The prefix is then 32 − <var>h</var>, here /27.</li>
+      </ul>
+      <p>If both requirements are given, check that one choice satisfies both. A /24 cannot hold 10 subnets of 25 hosts: 10 subnets need a /28, which leaves only 14 hosts each.</p>
+
+      <h3>Worked example: 192.168.10.0/24 into four /26</h3>
+      <p>Four subnets need <var>n</var> = 2, because 2<sup>2</sup> = 4. The new prefix is 24 + 2 = /26 and the mask is <code>255.255.255.192</code>. Six host bits remain, so each subnet has 64 addresses and 62 usable hosts. The two borrowed bits are the top two bits of the fourth octet, and their four combinations give the four subnets:</p>
+<pre>Parent     192.168.10.00000000   /24
+Subnet 0   192.168.10.<span class="net">00</span><span class="host">000000</span>   .0
+Subnet 1   192.168.10.<span class="net">01</span><span class="host">000000</span>   .64
+Subnet 2   192.168.10.<span class="net">10</span><span class="host">000000</span>   .128
+Subnet 3   192.168.10.<span class="net">11</span><span class="host">000000</span>   .192</pre>
+      <p>The block-size method gives the same starts: 256 − 192 = 64, so the subnets begin at 0, 64, 128 and 192.</p>
+      <div class="table-wrap" tabindex="0"><table class="data">
+        <thead><tr><th scope="col">Subnet</th><th scope="col">First host</th><th scope="col">Last host</th><th scope="col">Broadcast</th></tr></thead>
+        <tbody>
+          <tr><td><a class="try" href="/?q=192.168.10.0/26">192.168.10.0/26</a></td><td><code>192.168.10.1</code></td><td><code>192.168.10.62</code></td><td><code>192.168.10.63</code></td></tr>
+          <tr><td><a class="try" href="/?q=192.168.10.64/26">192.168.10.64/26</a></td><td><code>192.168.10.65</code></td><td><code>192.168.10.126</code></td><td><code>192.168.10.127</code></td></tr>
+          <tr><td><a class="try" href="/?q=192.168.10.128/26">192.168.10.128/26</a></td><td><code>192.168.10.129</code></td><td><code>192.168.10.190</code></td><td><code>192.168.10.191</code></td></tr>
+          <tr><td><a class="try" href="/?q=192.168.10.192/26">192.168.10.192/26</a></td><td><code>192.168.10.193</code></td><td><code>192.168.10.254</code></td><td><code>192.168.10.255</code></td></tr>
+        </tbody>
+      </table></div>
+      <p>Each broadcast address is one less than the next network address. The last subnet ends at 192.168.10.255, the broadcast address of the original /24, so nothing is left over.</p>
+
+      <h3>Subnet zero and the all-ones subnet</h3>
+      <p>RFC 950 said not to use the first subnet (borrowed bits all 0) or the last (borrowed bits all 1), because they could be confused with the parent network and its broadcast address. Older textbooks therefore count 2<sup><var>n</var></sup> − 2 subnets. That rule is obsolete. Classless routing protocols carry the prefix length with every route, so there is no ambiguity, and Cisco IOS has allowed subnet zero by default since release 12.0. Count 2<sup><var>n</var></sup> subnets unless a question says otherwise.</p>
+
+      <h2 id="vlsm"><span class="sec-num">06</span>VLSM: subnets of different sizes</h2>
+      <p>Equal subnets waste space when needs differ. A sales floor with 120 hosts and a router link with 2 would get blocks of the same size. Variable Length Subnet Masking (VLSM) gives each subnet the prefix that fits its own host count. The parent is still divided into aligned blocks whose sizes are powers of two. They no longer have to be the same size.</p>
+
+      <h3>Step 1: List the requirements</h3>
+      <p>The example: you have <code>192.168.1.0/24</code> and need four subnets. Sales needs 120 hosts, Eng 50, Mgmt 10, and a point-to-point router link (P2P) needs 2. Count every interface that needs an address, including the router's own gateway address on each LAN.</p>
+
+      <h3>Step 2: Turn host counts into block sizes</h3>
+      <p>For each requirement, find the smallest <var>h</var> with 2<sup><var>h</var></sup> − 2 at least the host count. The prefix is 32 − <var>h</var>.</p>
+      <div class="table-wrap" tabindex="0"><table class="data">
+        <thead><tr><th scope="col">Name</th><th scope="col" class="num">Hosts needed</th><th scope="col" class="num">Host bits</th><th scope="col" class="num">Block size</th><th scope="col" class="num">Usable</th><th scope="col">Prefix</th></tr></thead>
+        <tbody>
+          <tr><td>Sales</td><td class="num">120</td><td class="num">7</td><td class="num">128</td><td class="num">126</td><td>/25</td></tr>
+          <tr><td>Eng</td><td class="num">50</td><td class="num">6</td><td class="num">64</td><td class="num">62</td><td>/26</td></tr>
+          <tr><td>Mgmt</td><td class="num">10</td><td class="num">4</td><td class="num">16</td><td class="num">14</td><td>/28</td></tr>
+          <tr><td>P2P</td><td class="num">2</td><td class="num">2</td><td class="num">4</td><td class="num">2</td><td>/30</td></tr>
+        </tbody>
+      </table></div>
+      <p>The blocks add up to 128 + 64 + 16 + 4 = 212 addresses, which fits in the 256 of a /24. If the total were larger than the parent, no arrangement would fit and you would need a larger parent block.</p>
+
+      <h3>Step 3: Sort largest first</h3>
+      <p>Every block must start on a multiple of its own size. A /26 can start at .0, .64, .128 or .192, but not at .16. If you place blocks from largest to smallest and pack each one directly after the previous one, every start address is aligned without extra work. Each block placed earlier is the same size or larger, so its size is a multiple of the current size, and so is their sum. No gaps appear, and the free space ends up in one run at the top of the parent.</p>
+      <p>In any other order you have to skip ahead to the next aligned address, which leaves holes between subnets. Ignoring alignment is worse. If Mgmt took 192.168.1.0/28 and Eng were written down as 192.168.1.16/26, the second entry would not be a subnet at all. The calculator shows that <a class="try" href="/?q=192.168.1.16/26">192.168.1.16/26</a> is a host inside 192.168.1.0/26, which overlaps Mgmt.</p>
+
+      <h3>Step 4: Place the blocks</h3>
+      <p>Start at the parent's network address. Sales takes 192.168.1.0 to .127. Eng starts at the next address, .128, and ends at .191. Mgmt takes .192 to .207, and P2P takes .208 to .211.</p>
+      <div class="table-wrap" tabindex="0"><table class="data">
+        <thead><tr><th scope="col">Name</th><th scope="col">Subnet</th><th scope="col">Host range</th><th scope="col">Broadcast</th><th scope="col" class="num">Usable</th><th scope="col" class="num">Spare</th></tr></thead>
+        <tbody>
+          <tr><td>Sales</td><td><code>192.168.1.0/25</code></td><td><code>.1</code> – <code>.126</code></td><td><code>192.168.1.127</code></td><td class="num">126</td><td class="num">6</td></tr>
+          <tr><td>Eng</td><td><code>192.168.1.128/26</code></td><td><code>.129</code> – <code>.190</code></td><td><code>192.168.1.191</code></td><td class="num">62</td><td class="num">12</td></tr>
+          <tr><td>Mgmt</td><td><code>192.168.1.192/28</code></td><td><code>.193</code> – <code>.206</code></td><td><code>192.168.1.207</code></td><td class="num">14</td><td class="num">4</td></tr>
+          <tr><td>P2P</td><td><code>192.168.1.208/30</code></td><td><code>.209</code> – <code>.210</code></td><td><code>192.168.1.211</code></td><td class="num">2</td><td class="num">0</td></tr>
+        </tbody>
+      </table></div>
+      <p>Spare is the number of usable addresses beyond what was requested. It leaves room for growth in each subnet.</p>
+
+      <h3>Step 5: Record the free space</h3>
+      <p>The plan uses 212 addresses, 192.168.1.0 to 192.168.1.211. The remaining 44 addresses, 192.168.1.212 to 192.168.1.255, do not form one valid block, because 44 is not a power of two. Written as aligned CIDR blocks they are <code>192.168.1.212/30</code>, <code>192.168.1.216/29</code> and <code>192.168.1.224/27</code>. Keep this list with the plan. A later request for up to 30 hosts fits in the /27.</p>
+      <p>Open the whole design in the VLSM planner: <a class="try" href="/vlsm/?p=192.168.1.0/24&amp;r=Sales:120,Eng:50,Mgmt:10,P2P:2">192.168.1.0/24 Sales:120,Eng:50,Mgmt:10,P2P:2</a>.</p>
+
+      <h3>The /31 option for router links</h3>
+      <p>With RFC 3021, the P2P link can use a /31 instead of a /30. It gets <code>192.168.1.208/31</code>, with both .208 and .209 assigned to the two routers. The plan then uses 210 addresses and leaves 46 free: <code>192.168.1.210/31</code>, <code>192.168.1.212/30</code>, <code>192.168.1.216/29</code> and <code>192.168.1.224/27</code>. Use /31 only on links with exactly two devices, and check that both ends support it. Open this version: <a class="try" href="/vlsm/?p=192.168.1.0/24&amp;r=Sales:120,Eng:50,Mgmt:10,P2P:2&amp;s31=1">192.168.1.0/24 with /31 links</a>.</p>
+
+      <h2 id="private"><span class="sec-num">07</span>Private and special ranges</h2>
+      <p>Not every address is meant for the public Internet. Several blocks are reserved for particular uses, and you will meet them in almost every network.</p>
+
+      <h3>RFC 1918 private ranges</h3>
+      <p><a href="https://www.rfc-editor.org/rfc/rfc1918">RFC 1918</a> sets aside three blocks for private networks. Any organization can use them internally without asking a registry. They are not routed on the public Internet, so traffic from them to the Internet passes through network address translation (NAT).</p>
+      <div class="table-wrap" tabindex="0"><table class="data">
+        <thead><tr><th scope="col">Block</th><th scope="col">Range</th><th scope="col" class="num">Addresses</th></tr></thead>
+        <tbody>
+          <tr><td><a class="try" href="/?q=10.0.0.0/8">10.0.0.0/8</a></td><td><code>10.0.0.0</code> – <code>10.255.255.255</code></td><td class="num">16,777,216</td></tr>
+          <tr><td><a class="try" href="/?q=172.16.0.0/12">172.16.0.0/12</a></td><td><code>172.16.0.0</code> – <code>172.31.255.255</code></td><td class="num">1,048,576</td></tr>
+          <tr><td><a class="try" href="/?q=192.168.0.0/16">192.168.0.0/16</a></td><td><code>192.168.0.0</code> – <code>192.168.255.255</code></td><td class="num">65,536</td></tr>
+        </tbody>
+      </table></div>
+      <p>The middle block is the one people get wrong. A /12 mask is <code>255.240.0.0</code>, so the block size in the second octet is 256 − 240 = 16, and the range runs from 172.16 to 172.31. An address such as <a class="try" href="/?q=172.32.0.1">172.32.0.1</a> is outside it and is not private.</p>
+
+      <h3>Other special blocks</h3>
+      <div class="table-wrap" tabindex="0"><table class="data">
+        <thead><tr><th scope="col">Block</th><th scope="col">Name</th><th scope="col">Use</th><th scope="col">Defined in</th></tr></thead>
+        <tbody>
+          <tr><td><a class="try" href="/?q=100.64.0.0/10">100.64.0.0/10</a></td><td>Shared address space</td><td>Between an ISP's carrier-grade NAT and customer equipment. Not a substitute for RFC 1918 space.</td><td><a href="https://www.rfc-editor.org/rfc/rfc6598">RFC 6598</a></td></tr>
+          <tr><td><a class="try" href="/?q=127.0.0.0/8">127.0.0.0/8</a></td><td>Loopback</td><td>Traffic to these addresses stays inside the host. <code>127.0.0.1</code> is the usual one.</td><td><a href="https://www.rfc-editor.org/rfc/rfc1122">RFC 1122</a></td></tr>
+          <tr><td><a class="try" href="/?q=169.254.0.0/16">169.254.0.0/16</a></td><td>Link-local</td><td>A host that gets no address from DHCP may assign itself one from this block. Windows calls this APIPA. Not routed.</td><td><a href="https://www.rfc-editor.org/rfc/rfc3927">RFC 3927</a></td></tr>
+          <tr><td><a class="try" href="/?q=192.0.2.0/24">192.0.2.0/24</a></td><td>TEST-NET-1</td><td>Documentation and examples</td><td><a href="https://www.rfc-editor.org/rfc/rfc5737">RFC 5737</a></td></tr>
+          <tr><td><a class="try" href="/?q=198.51.100.0/24">198.51.100.0/24</a></td><td>TEST-NET-2</td><td>Documentation and examples</td><td><a href="https://www.rfc-editor.org/rfc/rfc5737">RFC 5737</a></td></tr>
+          <tr><td><a class="try" href="/?q=203.0.113.0/24">203.0.113.0/24</a></td><td>TEST-NET-3</td><td>Documentation and examples</td><td><a href="https://www.rfc-editor.org/rfc/rfc5737">RFC 5737</a></td></tr>
+        </tbody>
+      </table></div>
+      <p>The three documentation blocks exist for books, manuals and network diagrams. They are never assigned to real networks, so an example that uses them cannot clash with anyone's production addresses. Use them in your own documentation and lab write-ups. The calculator names the special block an address belongs to whenever you enter one.</p>
+
+      <h2 id="practice"><span class="sec-num">08</span>Practice questions</h2>
+      <p>Work each question on paper first, using binary or the block-size method. Then open the answer and check it in the calculator.</p>
+      <div class="faq">
+        <details>
+          <summary>What are the network address, broadcast address and host range of 10.1.5.130/25?</summary>
+          <div class="answer">
+            <p>The mask is <code>255.255.255.128</code>. The interesting octet is the fourth, and the block size is 256 − 128 = 128, so subnets start at 0 and 128. 130 falls in the second block.</p>
+            <p>Network <code>10.1.5.128</code>, broadcast <code>10.1.5.255</code>, hosts <code>10.1.5.129</code> to <code>10.1.5.254</code>. That is 2<sup>7</sup> − 2 = 126 usable hosts. <a class="try" href="/?q=10.1.5.130/25">10.1.5.130/25</a></p>
+          </div>
+        </details>
+        <details>
+          <summary>Which subnet does 172.20.99.14/19 belong to, and how many hosts does it hold?</summary>
+          <div class="answer">
+            <p>/19 is 8 + 8 + 3, so the mask is <code>255.255.224.0</code>. The interesting octet is the third, with block size 256 − 224 = 32. The multiples of 32 are 0, 32, 64, 96, 128 and so on, and 99 lies between 96 and 127.</p>
+            <p>The subnet is <code>172.20.96.0/19</code>, with broadcast <code>172.20.127.255</code>. It has 13 host bits, so 2<sup>13</sup> − 2 = 8,190 usable hosts. <a class="try" href="/?q=172.20.99.14/19">172.20.99.14/19</a></p>
+          </div>
+        </details>
+        <details>
+          <summary>A PC has address 192.168.5.77 and mask 255.255.255.248. What is the prefix length, the network and the usable range?</summary>
+          <div class="answer">
+            <p>248 is <code>11111000</code>, five 1 bits, so the prefix is 24 + 5 = /29. The block size is 256 − 248 = 8. The multiple of 8 at or below 77 is 72.</p>
+            <p>Network <code>192.168.5.72</code>, broadcast <code>192.168.5.79</code>, usable hosts <code>192.168.5.73</code> to <code>192.168.5.78</code>. That is 6 hosts. <a class="try" href="/?q=192.168.5.77%20255.255.255.248">192.168.5.77 255.255.255.248</a></p>
+          </div>
+        </details>
+        <details>
+          <summary>You must split 10.8.0.0/16 into at least 5 equal subnets, each as large as possible. What is the new prefix, and what is the third subnet?</summary>
+          <div class="answer">
+            <p>Five subnets need 3 borrowed bits, because 2<sup>2</sup> = 4 is too few and 2<sup>3</sup> = 8 is enough. The new prefix is 16 + 3 = /19, with mask <code>255.255.224.0</code> and a block size of 32 in the third octet. The subnets start at 10.8.0.0, 10.8.32.0, 10.8.64.0 and so on up to 10.8.224.0.</p>
+            <p>The third subnet is <code>10.8.64.0/19</code>: hosts <code>10.8.64.1</code> to <code>10.8.95.254</code>, broadcast <code>10.8.95.255</code>, 8,190 usable hosts. <a class="try" href="/?q=10.8.64.0/19">10.8.64.0/19</a></p>
+          </div>
+        </details>
+        <details>
+          <summary>Write a standard ACL entry that permits every address in 172.16.32.0/20.</summary>
+          <div class="answer">
+            <p>The /20 mask is <code>255.255.240.0</code>. Subtract each octet from 255 to get the wildcard: <code>0.0.15.255</code>.</p>
+            <p><code>access-list 10 permit 172.16.32.0 0.0.15.255</code> matches 172.16.32.0 through 172.16.47.255. <a class="try" href="/?q=172.16.32.0%200.0.15.255">172.16.32.0 0.0.15.255</a></p>
+          </div>
+        </details>
+        <details>
+          <summary>Plan 10.10.0.0/24 with VLSM for Lab (60 hosts), Office (28), Voice (12) and a WAN link (2).</summary>
+          <div class="answer">
+            <p>Block sizes: 60 hosts need a /26 (62 usable), 28 need a /27 (30), 12 need a /28 (14) and 2 need a /30 (2). Placed largest first:</p>
+            <p>Lab <code>10.10.0.0/26</code>, Office <code>10.10.0.64/27</code>, Voice <code>10.10.0.96/28</code>, WAN <code>10.10.0.112/30</code>. The plan uses 116 addresses. The other 140 are free as <code>10.10.0.116/30</code>, <code>10.10.0.120/29</code> and <code>10.10.0.128/25</code>. <a class="try" href="/vlsm/?p=10.10.0.0/24&amp;r=Lab:60,Office:28,Voice:12,WAN:2">10.10.0.0/24 Lab:60,Office:28,Voice:12,WAN:2</a></p>
+          </div>
+        </details>
+      </div>
+    </article>
+  </div>
+</main>
+<!-- @footer -->
+<footer class="site-footer">
+  <div class="wrap footer-grid">
+    <div>
+      <h2>SubnetCalc</h2>
+      <p class="footer-note">Every calculation runs in your browser. Nothing you type is sent anywhere.</p>
+    </div>
+    <div>
+      <h2>Tools</h2>
+      <ul>
+        <li><a href="/">Subnet calculator</a></li>
+        <li><a href="/vlsm/">VLSM planner</a></li>
+        <li><a href="/cidr/">CIDR aggregation &amp; overlaps</a></li>
+        <li><a href="/ipv6/">IPv6 tools</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Learn</h2>
+      <ul>
+        <li><a href="/learn/subnetting/">Subnetting, step by step</a></li>
+        <li><a href="/learn/cidr-cheat-sheet/">CIDR cheat sheet</a></li>
+        <li><a href="/learn/ipv6-subnetting/">IPv6 subnetting</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Engine</h2>
+      <ul>
+        <li><a href="/lib/subnet.js">lib/subnet.js</a> · MIT</li>
+        <li><a href="/lib/data/special-purpose.json">IANA special-purpose data</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+<!-- /@footer -->
+</body>
+</html>

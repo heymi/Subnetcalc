@@ -14,6 +14,9 @@
   ],
   "scripts": {
     "test": "node --test",
+    "build": "node scripts/build.mjs",
+    "check-site": "node scripts/check-site.mjs",
+    "check": "node --test && node scripts/check-site.mjs",
     "crosscheck": "python3.13 test/vectors/crosscheck.py"
   },
   "engines": {

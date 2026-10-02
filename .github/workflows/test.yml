@@ -13,6 +13,7 @@ jobs:
         with:
           node-version: 22
       - run: npm test
+      - run: node scripts/check-site.mjs
 
   crosscheck:
     # Re-verify every test vector against independent tools.

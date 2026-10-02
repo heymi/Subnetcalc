@@ -52,6 +52,27 @@ netmask, and the result has `maskAmbiguous: true`. Pass `{ maskAs: 'wildcard' }`
 
 `subnetcalc/export` formats results as text, JSON (BigInt values become strings) and CSV.
 
+## Website
+
+The site is static HTML, CSS and vanilla JS in this repository (`index.html`, `vlsm/`, `cidr/`, `ipv6/`,
+`learn/`, `assets/`). There is no build step at deploy time. `scripts/build.mjs` keeps the shared header,
+footer and pre-rendered results inside the committed HTML in sync. Run it after you edit a partial or a renderer.
+
+```sh
+python3 -m http.server 8080          # serve the repo root locally
+node scripts/build.mjs               # refresh partials, pre-rendered blocks and sitemap.xml
+node scripts/check-site.mjs          # SEO tags, links, anchors, JSON-LD, FAQ schema, wording rules
+```
+
+Cloudflare Pages setup:
+
+- **Build command:** `npm test && node scripts/check-site.mjs`. A red test or site check stops the deploy.
+- **Output directory:** `/`
+- `_headers` sets caching and security headers. `_redirects` returns 404 for `/test/`, `/scripts/` and `/.github/`.
+
+Analytics: GA4 and Clarity load only on `subnetcalc.dev`, and only once the page is idle. They stay off until
+the IDs in `assets/js/common.js` are filled in.
+
 ## Tests
 
 ```sh

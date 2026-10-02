@@ -69,6 +69,11 @@ document.addEventListener('click', (e) => {
   setTimeout(() => b.classList.remove('is-done'), 1200);
 });
 
+// ── Print buttons
+document.addEventListener('click', (e) => {
+  if (e.target.closest('[data-print]')) window.print();
+});
+
 // ── Analytics
 function loadScript(src) {
   const s = document.createElement('script');

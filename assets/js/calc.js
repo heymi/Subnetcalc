@@ -13,7 +13,7 @@ const meta = $('#result-meta');
 const bits = $('#bits');
 const steps = $('#steps');
 const detail = $('#bit-detail');
-const resultSections = [$('#result'), $('#binary')];
+const resultSections = [$('#result'), $('#worked'), $('#binary')];
 
 const BASE_TITLE = document.title;
 const DETAIL_HINT = detail.textContent;
