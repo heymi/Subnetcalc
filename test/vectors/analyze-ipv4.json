@@ -1,0 +1,1001 @@
+[
+  {
+    "input": "192.168.1.0/24",
+    "note": "spec example; RFC 1918",
+    "expect": {
+      "version": 4,
+      "address": "192.168.1.0",
+      "prefix": 24,
+      "prefixImplied": false,
+      "interpretedAs": null,
+      "maskAmbiguous": false,
+      "hostBitsSet": false,
+      "network": "192.168.1.0",
+      "cidr": "192.168.1.0/24",
+      "broadcast": "192.168.1.255",
+      "netmask": "255.255.255.0",
+      "wildcard": "0.0.0.255",
+      "firstHost": "192.168.1.1",
+      "lastHost": "192.168.1.254",
+      "totalAddresses": "256",
+      "usableHosts": "254",
+      "special": {
+        "block": "192.168.0.0/16",
+        "name": "Private-Use",
+        "rfc": "RFC 1918",
+        "globallyReachable": false
+      },
+      "ipClass": "C",
+      "classfulPrefix": 24
+    }
+  },
+  {
+    "input": "192.168.1.0 255.255.255.0",
+    "note": "spec example: address + dotted netmask",
+    "expect": {
+      "version": 4,
+      "address": "192.168.1.0",
+      "prefix": 24,
+      "prefixImplied": false,
+      "interpretedAs": "mask",
+      "maskAmbiguous": false,
+      "hostBitsSet": false,
+      "network": "192.168.1.0",
+      "cidr": "192.168.1.0/24",
+      "broadcast": "192.168.1.255",
+      "netmask": "255.255.255.0",
+      "wildcard": "0.0.0.255",
+      "firstHost": "192.168.1.1",
+      "lastHost": "192.168.1.254",
+      "totalAddresses": "256",
+      "usableHosts": "254",
+      "special": {
+        "block": "192.168.0.0/16",
+        "name": "Private-Use",
+        "rfc": "RFC 1918",
+        "globallyReachable": false
+      },
+      "ipClass": "C",
+      "classfulPrefix": 24
+    }
+  },
+  {
+    "input": "192.168.1.37/26",
+    "note": "spec example: host bits set",
+    "expect": {
+      "version": 4,
+      "address": "192.168.1.37",
+      "prefix": 26,
+      "prefixImplied": false,
+      "interpretedAs": null,
+      "maskAmbiguous": false,
+      "hostBitsSet": true,
+      "network": "192.168.1.0",
+      "cidr": "192.168.1.0/26",
+      "broadcast": "192.168.1.63",
+      "netmask": "255.255.255.192",
+      "wildcard": "0.0.0.63",
+      "firstHost": "192.168.1.1",
+      "lastHost": "192.168.1.62",
+      "totalAddresses": "64",
+      "usableHosts": "62",
+      "special": {
+        "block": "192.168.0.0/16",
+        "name": "Private-Use",
+        "rfc": "RFC 1918",
+        "globallyReachable": false
+      },
+      "ipClass": "C",
+      "classfulPrefix": 24
+    }
+  },
+  {
+    "input": "10.0.0.0/8",
+    "note": "RFC 1918 block",
+    "expect": {
+      "version": 4,
+      "address": "10.0.0.0",
+      "prefix": 8,
+      "prefixImplied": false,
+      "interpretedAs": null,
+      "maskAmbiguous": false,
+      "hostBitsSet": false,
+      "network": "10.0.0.0",
+      "cidr": "10.0.0.0/8",
+      "broadcast": "10.255.255.255",
+      "netmask": "255.0.0.0",
+      "wildcard": "0.255.255.255",
+      "firstHost": "10.0.0.1",
+      "lastHost": "10.255.255.254",
+      "totalAddresses": "16777216",
+      "usableHosts": "16777214",
+      "special": {
+        "block": "10.0.0.0/8",
+        "name": "Private-Use",
+        "rfc": "RFC 1918",
+        "globallyReachable": false
+      },
+      "ipClass": "A",
+      "classfulPrefix": 8
+    }
+  },
+  {
+    "input": "172.16.5.4/12",
+    "note": "RFC 1918 block, host bits set",
+    "expect": {
+      "version": 4,
+      "address": "172.16.5.4",
+      "prefix": 12,
+      "prefixImplied": false,
+      "interpretedAs": null,
+      "maskAmbiguous": false,
+      "hostBitsSet": true,
+      "network": "172.16.0.0",
+      "cidr": "172.16.0.0/12",
+      "broadcast": "172.31.255.255",
+      "netmask": "255.240.0.0",
+      "wildcard": "0.15.255.255",
+      "firstHost": "172.16.0.1",
+      "lastHost": "172.31.255.254",
+      "totalAddresses": "1048576",
+      "usableHosts": "1048574",
+      "special": {
+        "block": "172.16.0.0/12",
+        "name": "Private-Use",
+        "rfc": "RFC 1918",
+        "globallyReachable": false
+      },
+      "ipClass": "B",
+      "classfulPrefix": 16
+    }
+  },
+  {
+    "input": "172.31.255.255/20",
+    "note": "RFC 1918, last address of block",
+    "expect": {
+      "version": 4,
+      "address": "172.31.255.255",
+      "prefix": 20,
+      "prefixImplied": false,
+      "interpretedAs": null,
+      "maskAmbiguous": false,
+      "hostBitsSet": true,
+      "network": "172.31.240.0",
+      "cidr": "172.31.240.0/20",
+      "broadcast": "172.31.255.255",
+      "netmask": "255.255.240.0",
+      "wildcard": "0.0.15.255",
+      "firstHost": "172.31.240.1",
+      "lastHost": "172.31.255.254",
+      "totalAddresses": "4096",
+      "usableHosts": "4094",
+      "special": {
+        "block": "172.16.0.0/12",
+        "name": "Private-Use",
+        "rfc": "RFC 1918",
+        "globallyReachable": false
+      },
+      "ipClass": "B",
+      "classfulPrefix": 16
+    }
+  },
+  {
+    "input": "100.64.0.1/10",
+    "note": "RFC 6598 shared address space",
+    "expect": {
+      "version": 4,
+      "address": "100.64.0.1",
+      "prefix": 10,
+      "prefixImplied": false,
+      "interpretedAs": null,
+      "maskAmbiguous": false,
+      "hostBitsSet": true,
+      "network": "100.64.0.0",
+      "cidr": "100.64.0.0/10",
+      "broadcast": "100.127.255.255",
+      "netmask": "255.192.0.0",
+      "wildcard": "0.63.255.255",
+      "firstHost": "100.64.0.1",
+      "lastHost": "100.127.255.254",
+      "totalAddresses": "4194304",
+      "usableHosts": "4194302",
+      "special": {
+        "block": "100.64.0.0/10",
+        "name": "Shared Address Space",
+        "rfc": "RFC 6598",
+        "globallyReachable": false
+      },
+      "ipClass": "A",
+      "classfulPrefix": 8
+    }
+  },
+  {
+    "input": "0.0.0.0/0",
+    "note": "/0 edge",
+    "expect": {
+      "version": 4,
+      "address": "0.0.0.0",
+      "prefix": 0,
+      "prefixImplied": false,
+      "interpretedAs": null,
+      "maskAmbiguous": false,
+      "hostBitsSet": false,
+      "network": "0.0.0.0",
+      "cidr": "0.0.0.0/0",
+      "broadcast": "255.255.255.255",
+      "netmask": "0.0.0.0",
+      "wildcard": "255.255.255.255",
+      "firstHost": "0.0.0.1",
+      "lastHost": "255.255.255.254",
+      "totalAddresses": "4294967296",
+      "usableHosts": "4294967294",
+      "special": null,
+      "ipClass": "A",
+      "classfulPrefix": 8
+    }
+  },
+  {
+    "input": "10.0.0.0/31",
+    "note": "RFC 3021 point-to-point /31",
+    "expect": {
+      "version": 4,
+      "address": "10.0.0.0",
+      "prefix": 31,
+      "prefixImplied": false,
+      "interpretedAs": null,
+      "maskAmbiguous": false,
+      "hostBitsSet": false,
+      "network": "10.0.0.0",
+      "cidr": "10.0.0.0/31",
+      "broadcast": null,
+      "netmask": "255.255.255.254",
+      "wildcard": "0.0.0.1",
+      "firstHost": "10.0.0.0",
+      "lastHost": "10.0.0.1",
+      "totalAddresses": "2",
+      "usableHosts": "2",
+      "special": {
+        "block": "10.0.0.0/8",
+        "name": "Private-Use",
+        "rfc": "RFC 1918",
+        "globallyReachable": false
+      },
+      "ipClass": "A",
+      "classfulPrefix": 8
+    }
+  },
+  {
+    "input": "10.0.0.1/31",
+    "note": "RFC 3021 /31, second address",
+    "expect": {
+      "version": 4,
+      "address": "10.0.0.1",
+      "prefix": 31,
+      "prefixImplied": false,
+      "interpretedAs": null,
+      "maskAmbiguous": false,
+      "hostBitsSet": true,
+      "network": "10.0.0.0",
+      "cidr": "10.0.0.0/31",
+      "broadcast": null,
+      "netmask": "255.255.255.254",
+      "wildcard": "0.0.0.1",
+      "firstHost": "10.0.0.0",
+      "lastHost": "10.0.0.1",
+      "totalAddresses": "2",
+      "usableHosts": "2",
+      "special": {
+        "block": "10.0.0.0/8",
+        "name": "Private-Use",
+        "rfc": "RFC 1918",
+        "globallyReachable": false
+      },
+      "ipClass": "A",
+      "classfulPrefix": 8
+    }
+  },
+  {
+    "input": "192.0.2.1/32",
+    "note": "/32 edge; RFC 5737 TEST-NET-1",
+    "expect": {
+      "version": 4,
+      "address": "192.0.2.1",
+      "prefix": 32,
+      "prefixImplied": false,
+      "interpretedAs": null,
+      "maskAmbiguous": false,
+      "hostBitsSet": false,
+      "network": "192.0.2.1",
+      "cidr": "192.0.2.1/32",
+      "broadcast": null,
+      "netmask": "255.255.255.255",
+      "wildcard": "0.0.0.0",
+      "firstHost": "192.0.2.1",
+      "lastHost": "192.0.2.1",
+      "totalAddresses": "1",
+      "usableHosts": "1",
+      "special": {
+        "block": "192.0.2.0/24",
+        "name": "Documentation (TEST-NET-1)",
+        "rfc": "RFC 5737",
+        "globallyReachable": false
+      },
+      "ipClass": "C",
+      "classfulPrefix": 24
+    }
+  },
+  {
+    "input": "192.0.2.1",
+    "note": "bare address implies /32",
+    "expect": {
+      "version": 4,
+      "address": "192.0.2.1",
+      "prefix": 32,
+      "prefixImplied": true,
+      "interpretedAs": null,
+      "maskAmbiguous": false,
+      "hostBitsSet": false,
+      "network": "192.0.2.1",
+      "cidr": "192.0.2.1/32",
+      "broadcast": null,
+      "netmask": "255.255.255.255",
+      "wildcard": "0.0.0.0",
+      "firstHost": "192.0.2.1",
+      "lastHost": "192.0.2.1",
+      "totalAddresses": "1",
+      "usableHosts": "1",
+      "special": {
+        "block": "192.0.2.0/24",
+        "name": "Documentation (TEST-NET-1)",
+        "rfc": "RFC 5737",
+        "globallyReachable": false
+      },
+      "ipClass": "C",
+      "classfulPrefix": 24
+    }
+  },
+  {
+    "input": "198.51.100.0/23",
+    "note": "spans beyond TEST-NET-2: no containing special block",
+    "expect": {
+      "version": 4,
+      "address": "198.51.100.0",
+      "prefix": 23,
+      "prefixImplied": false,
+      "interpretedAs": null,
+      "maskAmbiguous": false,
+      "hostBitsSet": false,
+      "network": "198.51.100.0",
+      "cidr": "198.51.100.0/23",
+      "broadcast": "198.51.101.255",
+      "netmask": "255.255.254.0",
+      "wildcard": "0.0.1.255",
+      "firstHost": "198.51.100.1",
+      "lastHost": "198.51.101.254",
+      "totalAddresses": "512",
+      "usableHosts": "510",
+      "special": null,
+      "ipClass": "C",
+      "classfulPrefix": 24
+    }
+  },
+  {
+    "input": "203.0.113.200/29",
+    "note": "RFC 5737 TEST-NET-3",
+    "expect": {
+      "version": 4,
+      "address": "203.0.113.200",
+      "prefix": 29,
+      "prefixImplied": false,
+      "interpretedAs": null,
+      "maskAmbiguous": false,
+      "hostBitsSet": false,
+      "network": "203.0.113.200",
+      "cidr": "203.0.113.200/29",
+      "broadcast": "203.0.113.207",
+      "netmask": "255.255.255.248",
+      "wildcard": "0.0.0.7",
+      "firstHost": "203.0.113.201",
+      "lastHost": "203.0.113.206",
+      "totalAddresses": "8",
+      "usableHosts": "6",
+      "special": {
+        "block": "203.0.113.0/24",
+        "name": "Documentation (TEST-NET-3)",
+        "rfc": "RFC 5737",
+        "globallyReachable": false
+      },
+      "ipClass": "C",
+      "classfulPrefix": 24
+    }
+  },
+  {
+    "input": "169.254.10.20/16",
+    "note": "RFC 3927 link local",
+    "expect": {
+      "version": 4,
+      "address": "169.254.10.20",
+      "prefix": 16,
+      "prefixImplied": false,
+      "interpretedAs": null,
+      "maskAmbiguous": false,
+      "hostBitsSet": true,
+      "network": "169.254.0.0",
+      "cidr": "169.254.0.0/16",
+      "broadcast": "169.254.255.255",
+      "netmask": "255.255.0.0",
+      "wildcard": "0.0.255.255",
+      "firstHost": "169.254.0.1",
+      "lastHost": "169.254.255.254",
+      "totalAddresses": "65536",
+      "usableHosts": "65534",
+      "special": {
+        "block": "169.254.0.0/16",
+        "name": "Link Local",
+        "rfc": "RFC 3927",
+        "globallyReachable": false
+      },
+      "ipClass": "B",
+      "classfulPrefix": 16
+    }
+  },
+  {
+    "input": "127.0.0.1/8",
+    "note": "loopback",
+    "expect": {
+      "version": 4,
+      "address": "127.0.0.1",
+      "prefix": 8,
+      "prefixImplied": false,
+      "interpretedAs": null,
+      "maskAmbiguous": false,
+      "hostBitsSet": true,
+      "network": "127.0.0.0",
+      "cidr": "127.0.0.0/8",
+      "broadcast": "127.255.255.255",
+      "netmask": "255.0.0.0",
+      "wildcard": "0.255.255.255",
+      "firstHost": "127.0.0.1",
+      "lastHost": "127.255.255.254",
+      "totalAddresses": "16777216",
+      "usableHosts": "16777214",
+      "special": {
+        "block": "127.0.0.0/8",
+        "name": "Loopback",
+        "rfc": "RFC 1122",
+        "globallyReachable": false
+      },
+      "ipClass": "A",
+      "classfulPrefix": 8
+    }
+  },
+  {
+    "input": "224.0.0.251/32",
+    "note": "multicast, class D (RFC 5771)",
+    "expect": {
+      "version": 4,
+      "address": "224.0.0.251",
+      "prefix": 32,
+      "prefixImplied": false,
+      "interpretedAs": null,
+      "maskAmbiguous": false,
+      "hostBitsSet": false,
+      "network": "224.0.0.251",
+      "cidr": "224.0.0.251/32",
+      "broadcast": null,
+      "netmask": "255.255.255.255",
+      "wildcard": "0.0.0.0",
+      "firstHost": "224.0.0.251",
+      "lastHost": "224.0.0.251",
+      "totalAddresses": "1",
+      "usableHosts": "1",
+      "special": {
+        "block": "224.0.0.0/4",
+        "name": "Multicast",
+        "rfc": "RFC 5771",
+        "globallyReachable": null
+      },
+      "ipClass": "D",
+      "classfulPrefix": null
+    }
+  },
+  {
+    "input": "240.0.0.1/4",
+    "note": "class E reserved (RFC 1112)",
+    "expect": {
+      "version": 4,
+      "address": "240.0.0.1",
+      "prefix": 4,
+      "prefixImplied": false,
+      "interpretedAs": null,
+      "maskAmbiguous": false,
+      "hostBitsSet": true,
+      "network": "240.0.0.0",
+      "cidr": "240.0.0.0/4",
+      "broadcast": "255.255.255.255",
+      "netmask": "240.0.0.0",
+      "wildcard": "15.255.255.255",
+      "firstHost": "240.0.0.1",
+      "lastHost": "255.255.255.254",
+      "totalAddresses": "268435456",
+      "usableHosts": "268435454",
+      "special": {
+        "block": "240.0.0.0/4",
+        "name": "Reserved",
+        "rfc": "RFC 1112",
+        "globallyReachable": false
+      },
+      "ipClass": "E",
+      "classfulPrefix": null
+    }
+  },
+  {
+    "input": "255.255.255.255/32",
+    "note": "limited broadcast (RFC 919)",
+    "expect": {
+      "version": 4,
+      "address": "255.255.255.255",
+      "prefix": 32,
+      "prefixImplied": false,
+      "interpretedAs": null,
+      "maskAmbiguous": false,
+      "hostBitsSet": false,
+      "network": "255.255.255.255",
+      "cidr": "255.255.255.255/32",
+      "broadcast": null,
+      "netmask": "255.255.255.255",
+      "wildcard": "0.0.0.0",
+      "firstHost": "255.255.255.255",
+      "lastHost": "255.255.255.255",
+      "totalAddresses": "1",
+      "usableHosts": "1",
+      "special": {
+        "block": "255.255.255.255/32",
+        "name": "Limited Broadcast",
+        "rfc": "RFC 8190, RFC 919",
+        "globallyReachable": false
+      },
+      "ipClass": "E",
+      "classfulPrefix": null
+    }
+  },
+  {
+    "input": "128.0.0.1/16",
+    "note": "class B boundary, public",
+    "expect": {
+      "version": 4,
+      "address": "128.0.0.1",
+      "prefix": 16,
+      "prefixImplied": false,
+      "interpretedAs": null,
+      "maskAmbiguous": false,
+      "hostBitsSet": true,
+      "network": "128.0.0.0",
+      "cidr": "128.0.0.0/16",
+      "broadcast": "128.0.255.255",
+      "netmask": "255.255.0.0",
+      "wildcard": "0.0.255.255",
+      "firstHost": "128.0.0.1",
+      "lastHost": "128.0.255.254",
+      "totalAddresses": "65536",
+      "usableHosts": "65534",
+      "special": null,
+      "ipClass": "B",
+      "classfulPrefix": 16
+    }
+  },
+  {
+    "input": "223.255.255.0/24",
+    "note": "class C upper boundary, public",
+    "expect": {
+      "version": 4,
+      "address": "223.255.255.0",
+      "prefix": 24,
+      "prefixImplied": false,
+      "interpretedAs": null,
+      "maskAmbiguous": false,
+      "hostBitsSet": false,
+      "network": "223.255.255.0",
+      "cidr": "223.255.255.0/24",
+      "broadcast": "223.255.255.255",
+      "netmask": "255.255.255.0",
+      "wildcard": "0.0.0.255",
+      "firstHost": "223.255.255.1",
+      "lastHost": "223.255.255.254",
+      "totalAddresses": "256",
+      "usableHosts": "254",
+      "special": null,
+      "ipClass": "C",
+      "classfulPrefix": 24
+    }
+  },
+  {
+    "input": "192.0.0.9/32",
+    "note": "RFC 7723: globally reachable exception inside 192.0.0.0/24",
+    "expect": {
+      "version": 4,
+      "address": "192.0.0.9",
+      "prefix": 32,
+      "prefixImplied": false,
+      "interpretedAs": null,
+      "maskAmbiguous": false,
+      "hostBitsSet": false,
+      "network": "192.0.0.9",
+      "cidr": "192.0.0.9/32",
+      "broadcast": null,
+      "netmask": "255.255.255.255",
+      "wildcard": "0.0.0.0",
+      "firstHost": "192.0.0.9",
+      "lastHost": "192.0.0.9",
+      "totalAddresses": "1",
+      "usableHosts": "1",
+      "special": {
+        "block": "192.0.0.9/32",
+        "name": "Port Control Protocol Anycast",
+        "rfc": "RFC 7723",
+        "globallyReachable": true
+      },
+      "ipClass": "C",
+      "classfulPrefix": 24
+    }
+  },
+  {
+    "input": "192.0.0.0/24",
+    "note": "IETF protocol assignments (RFC 6890)",
+    "expect": {
+      "version": 4,
+      "address": "192.0.0.0",
+      "prefix": 24,
+      "prefixImplied": false,
+      "interpretedAs": null,
+      "maskAmbiguous": false,
+      "hostBitsSet": false,
+      "network": "192.0.0.0",
+      "cidr": "192.0.0.0/24",
+      "broadcast": "192.0.0.255",
+      "netmask": "255.255.255.0",
+      "wildcard": "0.0.0.255",
+      "firstHost": "192.0.0.1",
+      "lastHost": "192.0.0.254",
+      "totalAddresses": "256",
+      "usableHosts": "254",
+      "special": {
+        "block": "192.0.0.0/24",
+        "name": "IETF Protocol Assignments",
+        "rfc": "RFC 6890",
+        "globallyReachable": false
+      },
+      "ipClass": "C",
+      "classfulPrefix": 24
+    }
+  },
+  {
+    "input": "192.168.100.14/30",
+    "note": "classic /30 link",
+    "expect": {
+      "version": 4,
+      "address": "192.168.100.14",
+      "prefix": 30,
+      "prefixImplied": false,
+      "interpretedAs": null,
+      "maskAmbiguous": false,
+      "hostBitsSet": true,
+      "network": "192.168.100.12",
+      "cidr": "192.168.100.12/30",
+      "broadcast": "192.168.100.15",
+      "netmask": "255.255.255.252",
+      "wildcard": "0.0.0.3",
+      "firstHost": "192.168.100.13",
+      "lastHost": "192.168.100.14",
+      "totalAddresses": "4",
+      "usableHosts": "2",
+      "special": {
+        "block": "192.168.0.0/16",
+        "name": "Private-Use",
+        "rfc": "RFC 1918",
+        "globallyReachable": false
+      },
+      "ipClass": "C",
+      "classfulPrefix": 24
+    }
+  },
+  {
+    "input": "10.10.10.10/28",
+    "note": "/28",
+    "expect": {
+      "version": 4,
+      "address": "10.10.10.10",
+      "prefix": 28,
+      "prefixImplied": false,
+      "interpretedAs": null,
+      "maskAmbiguous": false,
+      "hostBitsSet": true,
+      "network": "10.10.10.0",
+      "cidr": "10.10.10.0/28",
+      "broadcast": "10.10.10.15",
+      "netmask": "255.255.255.240",
+      "wildcard": "0.0.0.15",
+      "firstHost": "10.10.10.1",
+      "lastHost": "10.10.10.14",
+      "totalAddresses": "16",
+      "usableHosts": "14",
+      "special": {
+        "block": "10.0.0.0/8",
+        "name": "Private-Use",
+        "rfc": "RFC 1918",
+        "globallyReachable": false
+      },
+      "ipClass": "A",
+      "classfulPrefix": 8
+    }
+  },
+  {
+    "input": "10.1.2.3/255.255.255.0",
+    "note": "dotted netmask after slash",
+    "expect": {
+      "version": 4,
+      "address": "10.1.2.3",
+      "prefix": 24,
+      "prefixImplied": false,
+      "interpretedAs": "mask",
+      "maskAmbiguous": false,
+      "hostBitsSet": true,
+      "network": "10.1.2.0",
+      "cidr": "10.1.2.0/24",
+      "broadcast": "10.1.2.255",
+      "netmask": "255.255.255.0",
+      "wildcard": "0.0.0.255",
+      "firstHost": "10.1.2.1",
+      "lastHost": "10.1.2.254",
+      "totalAddresses": "256",
+      "usableHosts": "254",
+      "special": {
+        "block": "10.0.0.0/8",
+        "name": "Private-Use",
+        "rfc": "RFC 1918",
+        "globallyReachable": false
+      },
+      "ipClass": "A",
+      "classfulPrefix": 8
+    }
+  },
+  {
+    "input": "  10.0.0.0/8  ",
+    "note": "surrounding whitespace",
+    "expect": {
+      "version": 4,
+      "address": "10.0.0.0",
+      "prefix": 8,
+      "prefixImplied": false,
+      "interpretedAs": null,
+      "maskAmbiguous": false,
+      "hostBitsSet": false,
+      "network": "10.0.0.0",
+      "cidr": "10.0.0.0/8",
+      "broadcast": "10.255.255.255",
+      "netmask": "255.0.0.0",
+      "wildcard": "0.255.255.255",
+      "firstHost": "10.0.0.1",
+      "lastHost": "10.255.255.254",
+      "totalAddresses": "16777216",
+      "usableHosts": "16777214",
+      "special": {
+        "block": "10.0.0.0/8",
+        "name": "Private-Use",
+        "rfc": "RFC 1918",
+        "globallyReachable": false
+      },
+      "ipClass": "A",
+      "classfulPrefix": 8
+    }
+  },
+  {
+    "input": "10.1.2.3 0.0.255.255",
+    "note": "wildcard (ACL style) auto-detected",
+    "expect": {
+      "version": 4,
+      "address": "10.1.2.3",
+      "prefix": 16,
+      "prefixImplied": false,
+      "interpretedAs": "wildcard",
+      "maskAmbiguous": false,
+      "hostBitsSet": true,
+      "network": "10.1.0.0",
+      "cidr": "10.1.0.0/16",
+      "broadcast": "10.1.255.255",
+      "netmask": "255.255.0.0",
+      "wildcard": "0.0.255.255",
+      "firstHost": "10.1.0.1",
+      "lastHost": "10.1.255.254",
+      "totalAddresses": "65536",
+      "usableHosts": "65534",
+      "special": {
+        "block": "10.0.0.0/8",
+        "name": "Private-Use",
+        "rfc": "RFC 1918",
+        "globallyReachable": false
+      },
+      "ipClass": "A",
+      "classfulPrefix": 8
+    }
+  },
+  {
+    "input": "10.1.2.3 0.0.0.255",
+    "note": "wildcard (ACL style) auto-detected",
+    "expect": {
+      "version": 4,
+      "address": "10.1.2.3",
+      "prefix": 24,
+      "prefixImplied": false,
+      "interpretedAs": "wildcard",
+      "maskAmbiguous": false,
+      "hostBitsSet": true,
+      "network": "10.1.2.0",
+      "cidr": "10.1.2.0/24",
+      "broadcast": "10.1.2.255",
+      "netmask": "255.255.255.0",
+      "wildcard": "0.0.0.255",
+      "firstHost": "10.1.2.1",
+      "lastHost": "10.1.2.254",
+      "totalAddresses": "256",
+      "usableHosts": "254",
+      "special": {
+        "block": "10.0.0.0/8",
+        "name": "Private-Use",
+        "rfc": "RFC 1918",
+        "globallyReachable": false
+      },
+      "ipClass": "A",
+      "classfulPrefix": 8
+    }
+  },
+  {
+    "input": "10.1.2.3 0.0.0.0",
+    "note": "ambiguous: read as /0 netmask",
+    "expect": {
+      "version": 4,
+      "address": "10.1.2.3",
+      "prefix": 0,
+      "prefixImplied": false,
+      "interpretedAs": "mask",
+      "maskAmbiguous": true,
+      "hostBitsSet": true,
+      "network": "0.0.0.0",
+      "cidr": "0.0.0.0/0",
+      "broadcast": "255.255.255.255",
+      "netmask": "0.0.0.0",
+      "wildcard": "255.255.255.255",
+      "firstHost": "0.0.0.1",
+      "lastHost": "255.255.255.254",
+      "totalAddresses": "4294967296",
+      "usableHosts": "4294967294",
+      "special": null,
+      "ipClass": "A",
+      "classfulPrefix": 8
+    }
+  },
+  {
+    "input": "10.1.2.3 255.255.255.255",
+    "note": "ambiguous: read as /32 netmask",
+    "expect": {
+      "version": 4,
+      "address": "10.1.2.3",
+      "prefix": 32,
+      "prefixImplied": false,
+      "interpretedAs": "mask",
+      "maskAmbiguous": true,
+      "hostBitsSet": false,
+      "network": "10.1.2.3",
+      "cidr": "10.1.2.3/32",
+      "broadcast": null,
+      "netmask": "255.255.255.255",
+      "wildcard": "0.0.0.0",
+      "firstHost": "10.1.2.3",
+      "lastHost": "10.1.2.3",
+      "totalAddresses": "1",
+      "usableHosts": "1",
+      "special": {
+        "block": "10.0.0.0/8",
+        "name": "Private-Use",
+        "rfc": "RFC 1918",
+        "globallyReachable": false
+      },
+      "ipClass": "A",
+      "classfulPrefix": 8
+    }
+  },
+  {
+    "input": "10.1.2.3 0.0.0.0",
+    "options": {
+      "maskAs": "wildcard"
+    },
+    "note": "ambiguous, forced wildcard: /32",
+    "expect": {
+      "version": 4,
+      "address": "10.1.2.3",
+      "prefix": 32,
+      "prefixImplied": false,
+      "interpretedAs": "wildcard",
+      "maskAmbiguous": true,
+      "hostBitsSet": false,
+      "network": "10.1.2.3",
+      "cidr": "10.1.2.3/32",
+      "broadcast": null,
+      "netmask": "255.255.255.255",
+      "wildcard": "0.0.0.0",
+      "firstHost": "10.1.2.3",
+      "lastHost": "10.1.2.3",
+      "totalAddresses": "1",
+      "usableHosts": "1",
+      "special": {
+        "block": "10.0.0.0/8",
+        "name": "Private-Use",
+        "rfc": "RFC 1918",
+        "globallyReachable": false
+      },
+      "ipClass": "A",
+      "classfulPrefix": 8
+    }
+  },
+  {
+    "input": "10.1.2.3 255.255.255.255",
+    "options": {
+      "maskAs": "wildcard"
+    },
+    "note": "ambiguous, forced wildcard: /0",
+    "expect": {
+      "version": 4,
+      "address": "10.1.2.3",
+      "prefix": 0,
+      "prefixImplied": false,
+      "interpretedAs": "wildcard",
+      "maskAmbiguous": true,
+      "hostBitsSet": true,
+      "network": "0.0.0.0",
+      "cidr": "0.0.0.0/0",
+      "broadcast": "255.255.255.255",
+      "netmask": "0.0.0.0",
+      "wildcard": "255.255.255.255",
+      "firstHost": "0.0.0.1",
+      "lastHost": "255.255.255.254",
+      "totalAddresses": "4294967296",
+      "usableHosts": "4294967294",
+      "special": null,
+      "ipClass": "A",
+      "classfulPrefix": 8
+    }
+  },
+  {
+    "input": "10.1.2.3 255.255.255.0",
+    "options": {
+      "maskAs": "wildcard"
+    },
+    "note": "maskAs ignored when not ambiguous",
+    "expect": {
+      "version": 4,
+      "address": "10.1.2.3",
+      "prefix": 24,
+      "prefixImplied": false,
+      "interpretedAs": "mask",
+      "maskAmbiguous": false,
+      "hostBitsSet": true,
+      "network": "10.1.2.0",
+      "cidr": "10.1.2.0/24",
+      "broadcast": "10.1.2.255",
+      "netmask": "255.255.255.0",
+      "wildcard": "0.0.0.255",
+      "firstHost": "10.1.2.1",
+      "lastHost": "10.1.2.254",
+      "totalAddresses": "256",
+      "usableHosts": "254",
+      "special": {
+        "block": "10.0.0.0/8",
+        "name": "Private-Use",
+        "rfc": "RFC 1918",
+        "globallyReachable": false
+      },
+      "ipClass": "A",
+      "classfulPrefix": 8
+    }
+  }
+]

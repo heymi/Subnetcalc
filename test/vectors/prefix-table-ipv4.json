@@ -1,0 +1,233 @@
+[
+  {
+    "prefix": 0,
+    "netmask": "0.0.0.0",
+    "wildcard": "255.255.255.255",
+    "totalAddresses": "4294967296",
+    "usableHosts": "4294967294"
+  },
+  {
+    "prefix": 1,
+    "netmask": "128.0.0.0",
+    "wildcard": "127.255.255.255",
+    "totalAddresses": "2147483648",
+    "usableHosts": "2147483646"
+  },
+  {
+    "prefix": 2,
+    "netmask": "192.0.0.0",
+    "wildcard": "63.255.255.255",
+    "totalAddresses": "1073741824",
+    "usableHosts": "1073741822"
+  },
+  {
+    "prefix": 3,
+    "netmask": "224.0.0.0",
+    "wildcard": "31.255.255.255",
+    "totalAddresses": "536870912",
+    "usableHosts": "536870910"
+  },
+  {
+    "prefix": 4,
+    "netmask": "240.0.0.0",
+    "wildcard": "15.255.255.255",
+    "totalAddresses": "268435456",
+    "usableHosts": "268435454"
+  },
+  {
+    "prefix": 5,
+    "netmask": "248.0.0.0",
+    "wildcard": "7.255.255.255",
+    "totalAddresses": "134217728",
+    "usableHosts": "134217726"
+  },
+  {
+    "prefix": 6,
+    "netmask": "252.0.0.0",
+    "wildcard": "3.255.255.255",
+    "totalAddresses": "67108864",
+    "usableHosts": "67108862"
+  },
+  {
+    "prefix": 7,
+    "netmask": "254.0.0.0",
+    "wildcard": "1.255.255.255",
+    "totalAddresses": "33554432",
+    "usableHosts": "33554430"
+  },
+  {
+    "prefix": 8,
+    "netmask": "255.0.0.0",
+    "wildcard": "0.255.255.255",
+    "totalAddresses": "16777216",
+    "usableHosts": "16777214"
+  },
+  {
+    "prefix": 9,
+    "netmask": "255.128.0.0",
+    "wildcard": "0.127.255.255",
+    "totalAddresses": "8388608",
+    "usableHosts": "8388606"
+  },
+  {
+    "prefix": 10,
+    "netmask": "255.192.0.0",
+    "wildcard": "0.63.255.255",
+    "totalAddresses": "4194304",
+    "usableHosts": "4194302"
+  },
+  {
+    "prefix": 11,
+    "netmask": "255.224.0.0",
+    "wildcard": "0.31.255.255",
+    "totalAddresses": "2097152",
+    "usableHosts": "2097150"
+  },
+  {
+    "prefix": 12,
+    "netmask": "255.240.0.0",
+    "wildcard": "0.15.255.255",
+    "totalAddresses": "1048576",
+    "usableHosts": "1048574"
+  },
+  {
+    "prefix": 13,
+    "netmask": "255.248.0.0",
+    "wildcard": "0.7.255.255",
+    "totalAddresses": "524288",
+    "usableHosts": "524286"
+  },
+  {
+    "prefix": 14,
+    "netmask": "255.252.0.0",
+    "wildcard": "0.3.255.255",
+    "totalAddresses": "262144",
+    "usableHosts": "262142"
+  },
+  {
+    "prefix": 15,
+    "netmask": "255.254.0.0",
+    "wildcard": "0.1.255.255",
+    "totalAddresses": "131072",
+    "usableHosts": "131070"
+  },
+  {
+    "prefix": 16,
+    "netmask": "255.255.0.0",
+    "wildcard": "0.0.255.255",
+    "totalAddresses": "65536",
+    "usableHosts": "65534"
+  },
+  {
+    "prefix": 17,
+    "netmask": "255.255.128.0",
+    "wildcard": "0.0.127.255",
+    "totalAddresses": "32768",
+    "usableHosts": "32766"
+  },
+  {
+    "prefix": 18,
+    "netmask": "255.255.192.0",
+    "wildcard": "0.0.63.255",
+    "totalAddresses": "16384",
+    "usableHosts": "16382"
+  },
+  {
+    "prefix": 19,
+    "netmask": "255.255.224.0",
+    "wildcard": "0.0.31.255",
+    "totalAddresses": "8192",
+    "usableHosts": "8190"
+  },
+  {
+    "prefix": 20,
+    "netmask": "255.255.240.0",
+    "wildcard": "0.0.15.255",
+    "totalAddresses": "4096",
+    "usableHosts": "4094"
+  },
+  {
+    "prefix": 21,
+    "netmask": "255.255.248.0",
+    "wildcard": "0.0.7.255",
+    "totalAddresses": "2048",
+    "usableHosts": "2046"
+  },
+  {
+    "prefix": 22,
+    "netmask": "255.255.252.0",
+    "wildcard": "0.0.3.255",
+    "totalAddresses": "1024",
+    "usableHosts": "1022"
+  },
+  {
+    "prefix": 23,
+    "netmask": "255.255.254.0",
+    "wildcard": "0.0.1.255",
+    "totalAddresses": "512",
+    "usableHosts": "510"
+  },
+  {
+    "prefix": 24,
+    "netmask": "255.255.255.0",
+    "wildcard": "0.0.0.255",
+    "totalAddresses": "256",
+    "usableHosts": "254"
+  },
+  {
+    "prefix": 25,
+    "netmask": "255.255.255.128",
+    "wildcard": "0.0.0.127",
+    "totalAddresses": "128",
+    "usableHosts": "126"
+  },
+  {
+    "prefix": 26,
+    "netmask": "255.255.255.192",
+    "wildcard": "0.0.0.63",
+    "totalAddresses": "64",
+    "usableHosts": "62"
+  },
+  {
+    "prefix": 27,
+    "netmask": "255.255.255.224",
+    "wildcard": "0.0.0.31",
+    "totalAddresses": "32",
+    "usableHosts": "30"
+  },
+  {
+    "prefix": 28,
+    "netmask": "255.255.255.240",
+    "wildcard": "0.0.0.15",
+    "totalAddresses": "16",
+    "usableHosts": "14"
+  },
+  {
+    "prefix": 29,
+    "netmask": "255.255.255.248",
+    "wildcard": "0.0.0.7",
+    "totalAddresses": "8",
+    "usableHosts": "6"
+  },
+  {
+    "prefix": 30,
+    "netmask": "255.255.255.252",
+    "wildcard": "0.0.0.3",
+    "totalAddresses": "4",
+    "usableHosts": "2"
+  },
+  {
+    "prefix": 31,
+    "netmask": "255.255.255.254",
+    "wildcard": "0.0.0.1",
+    "totalAddresses": "2",
+    "usableHosts": "2"
+  },
+  {
+    "prefix": 32,
+    "netmask": "255.255.255.255",
+    "wildcard": "0.0.0.0",
+    "totalAddresses": "1",
+    "usableHosts": "1"
+  }
+]

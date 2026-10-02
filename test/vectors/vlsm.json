@@ -1,0 +1,552 @@
+{
+  "requiredPrefix": [
+    {
+      "hosts": 1,
+      "expect": 30
+    },
+    {
+      "hosts": 2,
+      "expect": 30
+    },
+    {
+      "hosts": 3,
+      "expect": 29
+    },
+    {
+      "hosts": 6,
+      "expect": 29
+    },
+    {
+      "hosts": 7,
+      "expect": 28
+    },
+    {
+      "hosts": 14,
+      "expect": 28
+    },
+    {
+      "hosts": 15,
+      "expect": 27
+    },
+    {
+      "hosts": 30,
+      "expect": 27
+    },
+    {
+      "hosts": 31,
+      "expect": 26
+    },
+    {
+      "hosts": 62,
+      "expect": 26
+    },
+    {
+      "hosts": 63,
+      "expect": 25
+    },
+    {
+      "hosts": 126,
+      "expect": 25
+    },
+    {
+      "hosts": 127,
+      "expect": 24
+    },
+    {
+      "hosts": 254,
+      "expect": 24
+    },
+    {
+      "hosts": 255,
+      "expect": 23
+    },
+    {
+      "hosts": 510,
+      "expect": 23
+    },
+    {
+      "hosts": 4094,
+      "expect": 20
+    },
+    {
+      "hosts": 4294967294,
+      "expect": 0
+    },
+    {
+      "hosts": 1,
+      "allowSlash31": true,
+      "expect": 31
+    },
+    {
+      "hosts": 2,
+      "allowSlash31": true,
+      "expect": 31
+    },
+    {
+      "hosts": 3,
+      "allowSlash31": true,
+      "expect": 29
+    }
+  ],
+  "plans": [
+    {
+      "parent": "192.168.1.0/24",
+      "requests": [
+        {
+          "name": "Sales",
+          "hosts": 120
+        },
+        {
+          "name": "Eng",
+          "hosts": 50
+        },
+        {
+          "name": "Mgmt",
+          "hosts": 10
+        },
+        {
+          "name": "P2P",
+          "hosts": 2
+        }
+      ],
+      "note": "spec example",
+      "expect": {
+        "ok": true,
+        "allocations": [
+          {
+            "name": "Sales",
+            "hostsRequested": 120,
+            "cidr": "192.168.1.0/25",
+            "prefix": 25,
+            "netmask": "255.255.255.128",
+            "firstHost": "192.168.1.1",
+            "lastHost": "192.168.1.126",
+            "broadcast": "192.168.1.127",
+            "usableHosts": "126",
+            "wasted": "6"
+          },
+          {
+            "name": "Eng",
+            "hostsRequested": 50,
+            "cidr": "192.168.1.128/26",
+            "prefix": 26,
+            "netmask": "255.255.255.192",
+            "firstHost": "192.168.1.129",
+            "lastHost": "192.168.1.190",
+            "broadcast": "192.168.1.191",
+            "usableHosts": "62",
+            "wasted": "12"
+          },
+          {
+            "name": "Mgmt",
+            "hostsRequested": 10,
+            "cidr": "192.168.1.192/28",
+            "prefix": 28,
+            "netmask": "255.255.255.240",
+            "firstHost": "192.168.1.193",
+            "lastHost": "192.168.1.206",
+            "broadcast": "192.168.1.207",
+            "usableHosts": "14",
+            "wasted": "4"
+          },
+          {
+            "name": "P2P",
+            "hostsRequested": 2,
+            "cidr": "192.168.1.208/30",
+            "prefix": 30,
+            "netmask": "255.255.255.252",
+            "firstHost": "192.168.1.209",
+            "lastHost": "192.168.1.210",
+            "broadcast": "192.168.1.211",
+            "usableHosts": "2",
+            "wasted": "0"
+          }
+        ],
+        "free": [
+          "192.168.1.212/30",
+          "192.168.1.216/29",
+          "192.168.1.224/27"
+        ],
+        "usedAddresses": "212",
+        "freeAddresses": "44"
+      }
+    },
+    {
+      "parent": "192.168.1.0/24",
+      "requests": [
+        {
+          "name": "Sales",
+          "hosts": 120
+        },
+        {
+          "name": "Eng",
+          "hosts": 50
+        },
+        {
+          "name": "Mgmt",
+          "hosts": 10
+        },
+        {
+          "name": "P2P",
+          "hosts": 2
+        }
+      ],
+      "options": {
+        "allowSlash31": true
+      },
+      "note": "spec example with /31 P2P",
+      "expect": {
+        "ok": true,
+        "allocations": [
+          {
+            "name": "Sales",
+            "hostsRequested": 120,
+            "cidr": "192.168.1.0/25",
+            "prefix": 25,
+            "netmask": "255.255.255.128",
+            "firstHost": "192.168.1.1",
+            "lastHost": "192.168.1.126",
+            "broadcast": "192.168.1.127",
+            "usableHosts": "126",
+            "wasted": "6"
+          },
+          {
+            "name": "Eng",
+            "hostsRequested": 50,
+            "cidr": "192.168.1.128/26",
+            "prefix": 26,
+            "netmask": "255.255.255.192",
+            "firstHost": "192.168.1.129",
+            "lastHost": "192.168.1.190",
+            "broadcast": "192.168.1.191",
+            "usableHosts": "62",
+            "wasted": "12"
+          },
+          {
+            "name": "Mgmt",
+            "hostsRequested": 10,
+            "cidr": "192.168.1.192/28",
+            "prefix": 28,
+            "netmask": "255.255.255.240",
+            "firstHost": "192.168.1.193",
+            "lastHost": "192.168.1.206",
+            "broadcast": "192.168.1.207",
+            "usableHosts": "14",
+            "wasted": "4"
+          },
+          {
+            "name": "P2P",
+            "hostsRequested": 2,
+            "cidr": "192.168.1.208/31",
+            "prefix": 31,
+            "netmask": "255.255.255.254",
+            "firstHost": "192.168.1.208",
+            "lastHost": "192.168.1.209",
+            "broadcast": null,
+            "usableHosts": "2",
+            "wasted": "0"
+          }
+        ],
+        "free": [
+          "192.168.1.210/31",
+          "192.168.1.212/30",
+          "192.168.1.216/29",
+          "192.168.1.224/27"
+        ],
+        "usedAddresses": "210",
+        "freeAddresses": "46"
+      }
+    },
+    {
+      "parent": "10.0.0.0/24",
+      "requests": [
+        {
+          "name": "C",
+          "hosts": 2
+        },
+        {
+          "name": "A",
+          "hosts": 60
+        },
+        {
+          "name": "B",
+          "hosts": 60
+        }
+      ],
+      "note": "equal sizes keep input order",
+      "expect": {
+        "ok": true,
+        "allocations": [
+          {
+            "name": "A",
+            "hostsRequested": 60,
+            "cidr": "10.0.0.0/26",
+            "prefix": 26,
+            "netmask": "255.255.255.192",
+            "firstHost": "10.0.0.1",
+            "lastHost": "10.0.0.62",
+            "broadcast": "10.0.0.63",
+            "usableHosts": "62",
+            "wasted": "2"
+          },
+          {
+            "name": "B",
+            "hostsRequested": 60,
+            "cidr": "10.0.0.64/26",
+            "prefix": 26,
+            "netmask": "255.255.255.192",
+            "firstHost": "10.0.0.65",
+            "lastHost": "10.0.0.126",
+            "broadcast": "10.0.0.127",
+            "usableHosts": "62",
+            "wasted": "2"
+          },
+          {
+            "name": "C",
+            "hostsRequested": 2,
+            "cidr": "10.0.0.128/30",
+            "prefix": 30,
+            "netmask": "255.255.255.252",
+            "firstHost": "10.0.0.129",
+            "lastHost": "10.0.0.130",
+            "broadcast": "10.0.0.131",
+            "usableHosts": "2",
+            "wasted": "0"
+          }
+        ],
+        "free": [
+          "10.0.0.132/30",
+          "10.0.0.136/29",
+          "10.0.0.144/28",
+          "10.0.0.160/27",
+          "10.0.0.192/26"
+        ],
+        "usedAddresses": "132",
+        "freeAddresses": "124"
+      }
+    },
+    {
+      "parent": "172.16.0.0/22",
+      "requests": [
+        {
+          "name": "Lab",
+          "hosts": 500
+        },
+        {
+          "name": "Office",
+          "hosts": 200
+        },
+        {
+          "name": "WiFi",
+          "hosts": 100
+        },
+        {
+          "name": "Link1",
+          "hosts": 2
+        },
+        {
+          "name": "Link2",
+          "hosts": 2
+        }
+      ],
+      "note": "multi-octet",
+      "expect": {
+        "ok": true,
+        "allocations": [
+          {
+            "name": "Lab",
+            "hostsRequested": 500,
+            "cidr": "172.16.0.0/23",
+            "prefix": 23,
+            "netmask": "255.255.254.0",
+            "firstHost": "172.16.0.1",
+            "lastHost": "172.16.1.254",
+            "broadcast": "172.16.1.255",
+            "usableHosts": "510",
+            "wasted": "10"
+          },
+          {
+            "name": "Office",
+            "hostsRequested": 200,
+            "cidr": "172.16.2.0/24",
+            "prefix": 24,
+            "netmask": "255.255.255.0",
+            "firstHost": "172.16.2.1",
+            "lastHost": "172.16.2.254",
+            "broadcast": "172.16.2.255",
+            "usableHosts": "254",
+            "wasted": "54"
+          },
+          {
+            "name": "WiFi",
+            "hostsRequested": 100,
+            "cidr": "172.16.3.0/25",
+            "prefix": 25,
+            "netmask": "255.255.255.128",
+            "firstHost": "172.16.3.1",
+            "lastHost": "172.16.3.126",
+            "broadcast": "172.16.3.127",
+            "usableHosts": "126",
+            "wasted": "26"
+          },
+          {
+            "name": "Link1",
+            "hostsRequested": 2,
+            "cidr": "172.16.3.128/30",
+            "prefix": 30,
+            "netmask": "255.255.255.252",
+            "firstHost": "172.16.3.129",
+            "lastHost": "172.16.3.130",
+            "broadcast": "172.16.3.131",
+            "usableHosts": "2",
+            "wasted": "0"
+          },
+          {
+            "name": "Link2",
+            "hostsRequested": 2,
+            "cidr": "172.16.3.132/30",
+            "prefix": 30,
+            "netmask": "255.255.255.252",
+            "firstHost": "172.16.3.133",
+            "lastHost": "172.16.3.134",
+            "broadcast": "172.16.3.135",
+            "usableHosts": "2",
+            "wasted": "0"
+          }
+        ],
+        "free": [
+          "172.16.3.136/29",
+          "172.16.3.144/28",
+          "172.16.3.160/27",
+          "172.16.3.192/26"
+        ],
+        "usedAddresses": "904",
+        "freeAddresses": "120"
+      }
+    },
+    {
+      "parent": "192.168.1.0/26",
+      "requests": [
+        {
+          "name": "A",
+          "hosts": 50
+        },
+        {
+          "name": "B",
+          "hosts": 20
+        }
+      ],
+      "note": "second request does not fit",
+      "expect": {
+        "ok": false,
+        "error": {
+          "code": "INSUFFICIENT_SPACE",
+          "request": "B",
+          "needed": "32",
+          "available": "0"
+        }
+      }
+    },
+    {
+      "parent": "192.168.1.0/28",
+      "requests": [
+        {
+          "name": "A",
+          "hosts": 100
+        }
+      ],
+      "note": "request larger than parent",
+      "expect": {
+        "ok": false,
+        "error": {
+          "code": "INSUFFICIENT_SPACE",
+          "request": "A",
+          "needed": "128",
+          "available": "16"
+        }
+      }
+    },
+    {
+      "parent": "10.0.0.0/30",
+      "requests": [
+        {
+          "name": "Link",
+          "hosts": 2
+        }
+      ],
+      "note": "exact fit",
+      "expect": {
+        "ok": true,
+        "allocations": [
+          {
+            "name": "Link",
+            "hostsRequested": 2,
+            "cidr": "10.0.0.0/30",
+            "prefix": 30,
+            "netmask": "255.255.255.252",
+            "firstHost": "10.0.0.1",
+            "lastHost": "10.0.0.2",
+            "broadcast": "10.0.0.3",
+            "usableHosts": "2",
+            "wasted": "0"
+          }
+        ],
+        "free": [],
+        "usedAddresses": "4",
+        "freeAddresses": "0"
+      }
+    }
+  ],
+  "errors": [
+    {
+      "parent": "192.168.1.0/24",
+      "requests": [
+        {
+          "name": "Zero",
+          "hosts": 0
+        }
+      ],
+      "code": "INVALID_HOSTS"
+    },
+    {
+      "parent": "192.168.1.0/24",
+      "requests": [
+        {
+          "name": "Frac",
+          "hosts": 1.5
+        }
+      ],
+      "code": "INVALID_HOSTS"
+    },
+    {
+      "parent": "2001:db8::/48",
+      "requests": [
+        {
+          "name": "A",
+          "hosts": 10
+        }
+      ],
+      "code": "IPV4_ONLY"
+    },
+    {
+      "parent": "192.168.1.0/33",
+      "requests": [
+        {
+          "name": "A",
+          "hosts": 10
+        }
+      ],
+      "code": "INVALID_PREFIX"
+    }
+  ],
+  "requiredPrefixErrors": [
+    {
+      "hosts": 4294967295,
+      "code": "INVALID_HOSTS"
+    },
+    {
+      "hosts": 0,
+      "code": "INVALID_HOSTS"
+    }
+  ]
+}

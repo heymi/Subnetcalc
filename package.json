@@ -1,0 +1,34 @@
+{
+  "name": "subnetcalc",
+  "version": "0.1.0",
+  "description": "IPv4/IPv6 subnet math: parsing, subnet info, VLSM planning, CIDR aggregation, overlap detection, EUI-64 and ULA generation. Zero dependencies, BigInt-based, browser and Node.",
+  "type": "module",
+  "main": "lib/subnet.js",
+  "exports": {
+    ".": "./lib/subnet.js",
+    "./export": "./lib/export.js",
+    "./data/special-purpose.json": "./lib/data/special-purpose.json"
+  },
+  "files": [
+    "lib/"
+  ],
+  "scripts": {
+    "test": "node --test",
+    "crosscheck": "python3.13 test/vectors/crosscheck.py"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "keywords": [
+    "subnet",
+    "cidr",
+    "ipv4",
+    "ipv6",
+    "vlsm",
+    "netmask",
+    "wildcard",
+    "eui-64"
+  ],
+  "homepage": "https://subnetcalc.dev",
+  "license": "MIT"
+}
