@@ -25,6 +25,7 @@ import { renderResults, reverseNameV4, reverseZoneV4 } from '../assets/js/calc-r
 import { ipv6SummaryText } from '../assets/js/ipv6-render.js';
 import { planCounts, renderPlan } from '../assets/js/ipv6-plan-render.js';
 import { MAX_PLANS, parsePlanList, removePlan, sanitizePlanName, serializePlans, upsertPlan } from '../assets/js/workspace.js';
+import { pageContext } from '../assets/js/analytics.js';
 
 describe('VLSM paste parsing', () => {
   test('keeps every line in order and reports the unreadable one', () => {
@@ -229,6 +230,18 @@ describe('IPv6 hierarchical plan', () => {
     assert.match(v4.html, /needs an IPv6 prefix/);
     const lan = renderPlan('2001:db8::/48', 56, 55);
     assert.match(lan.html, /LAN prefix must be between \/56 and \/128/);
+  });
+});
+
+describe('analytics page context', () => {
+  test('strips the query string and passes an input-free title through', () => {
+    assert.deepEqual(pageContext('https://subnetcalc.dev/?q=192.168.1.37%2F26', 'Subnet Calculator for IPv4 and IPv6 – SubnetCalc'), {
+      page_location: 'https://subnetcalc.dev/',
+      page_title: 'Subnet Calculator for IPv4 and IPv6 – SubnetCalc',
+    });
+    assert.equal(pageContext('https://subnetcalc.dev/vlsm/?p=10.0.0.0%2F24&r=Sales%3A120').page_location, 'https://subnetcalc.dev/vlsm/');
+    assert.equal(pageContext('not a url', 'T').page_location, '');
+    assert.equal(pageContext('https://subnetcalc.dev/cidr/#x').page_location, 'https://subnetcalc.dev/cidr/');
   });
 });
 

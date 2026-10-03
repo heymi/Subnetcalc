@@ -1,13 +1,11 @@
 // Runs on every page: theme toggle, keyboard shortcuts, copy buttons, analytics.
 import { copyText } from './ui.js';
-import { track, toolName } from './analytics.js';
+import { track, toolName, currentPageContext } from './analytics.js';
 
 // ── Analytics: fill in the IDs to enable. Loaded only on the production host, after the page is idle.
 const GA4_ID = ''; // e.g. 'G-XXXXXXXXXX'
 const CLARITY_ID = ''; // e.g. 'abcdefghij'
 const PROD_HOST = 'subnetcalc.dev';
-// Captured before any page script can put an input into the title (the calculator does).
-const PAGE_TITLE = document.title;
 
 // ── Theme: auto (system) → light → dark → auto
 const root = document.documentElement;
@@ -95,14 +93,13 @@ function analytics() {
     };
     window.gtag('js', new Date());
     // The automatic page_view is off so it cannot carry the input query string, which
-    // this site writes into the URL as you type. The explicit event sends the path only
-    // and the input-free title. Keep GA4 enhanced measurement's "page changes based on
-    // browser history events" disabled in the property for the same reason.
-    window.gtag('config', GA4_ID, { send_page_view: false });
-    window.gtag('event', 'page_view', {
-      page_location: location.origin + location.pathname,
-      page_title: PAGE_TITLE,
-    });
+    // this site writes into the URL as you type. The config-level page fields apply to
+    // every event sent to this destination, so share/copy/download cannot leak the URL
+    // or the input-derived title either. Keep GA4 enhanced measurement's "page changes
+    // based on browser history events" disabled in the property for the same reason.
+    const context = currentPageContext();
+    window.gtag('config', GA4_ID, { send_page_view: false, ...context });
+    window.gtag('event', 'page_view', context);
     loadScript(`https://www.googletagmanager.com/gtag/js?id=${GA4_ID}`);
   }
   if (CLARITY_ID) {

@@ -184,7 +184,7 @@ test('planToAWS and planToAzure are warning-free under their own capacity rules'
     provider: 'aws',
   }).plan;
   const aws = planToAWS(aware);
-  assert.match(aws, /Planned with AWS rules: 5 addresses reserved in every subnet, minimum \/28/);
+  assert.match(aws, /Planned with AWS rules: 5 addresses reserved in every subnet, allowed subnet sizes are \/16 to \/28/);
   assert.ok(!aws.includes('WARNING'), aws);
   assert.match(aws, /^10\.0\.0\.0\/25\s+# Edge \(60 hosts\)$/m);
   const az = planToAzure(
@@ -215,6 +215,34 @@ test('planToGCP uses 4 reserved addresses and is warning-free under its own rule
   const generic = planToGCP(plan);
   assert.match(generic, /GCP reserves 4 addresses/);
   assert.match(generic, /WARNING: \/30 is smaller than the GCP minimum \/29/);
+});
+
+test('every cloud export re-checks provider bounds on a plan built under another rule', () => {
+  const big = planVlsm('10.0.0.0/8', [{ name: 'Big', hosts: 70000 }]).plan; // generic: /15
+  assert.equal(big.allocations[0].cidr, '10.0.0.0/15');
+  assert.match(planToAWS(big), /Big \(70000 hosts\) WARNING: \/15 is larger than the AWS maximum \/16/);
+  assert.match(planToCloudFormation(big), /# WARNING: Big: \/15 is larger than the AWS maximum \/16/);
+  const small = planVlsm('10.0.0.0/24', [{ name: 'P2P', hosts: 2 }]).plan; // generic: /30
+  assert.match(planToCloudFormation(small), /# WARNING: P2P: \/30 is smaller than the AWS minimum \/28/);
+  assert.match(planToBicep(small), /\/\/ WARNING: P2P: \/30 is smaller than the Azure minimum \/29/);
+  // plans built under the provider rule stay warning-free in that provider's template
+  const awsAware = planVlsm('10.0.0.0/24', [{ name: 'P2P', hosts: 2 }], {
+    reservedHosts: 5,
+    reserveHead: 4,
+    reserveTail: 1,
+    minPrefix: 28,
+    maxPrefix: 16,
+    provider: 'aws',
+  }).plan;
+  assert.ok(!planToCloudFormation(awsAware).includes('WARNING'), planToCloudFormation(awsAware));
+  const azureAware = planVlsm('10.0.0.0/24', [{ name: 'P2P', hosts: 2 }], {
+    reservedHosts: 5,
+    reserveHead: 4,
+    reserveTail: 1,
+    minPrefix: 29,
+    provider: 'azure',
+  }).plan;
+  assert.ok(!planToBicep(azureAware).includes('WARNING'), planToBicep(azureAware));
 });
 
 test('planToCloudFormation emits logical IDs, CidrBlock and Name tags', () => {

@@ -481,6 +481,17 @@ describe('capacity rules (application policy)', () => {
     assertCode(() => requiredPrefix(1, { reservedHosts: 5, reserveHead: 2, reserveTail: 2 }), 'INVALID_RESERVATION');
     assertCode(() => requiredPrefix(1, { reservedHosts: 2, reserveHead: -1, reserveTail: 3 }), 'INVALID_RESERVATION');
   });
+  test('zero reservations keep every address (no head/tail default regression)', () => {
+    assert.equal(requiredPrefix(20, { reservedHosts: 0 }), 27);
+    assert.equal(requiredPrefix(32, { reservedHosts: 0 }), 27);
+    assert.equal(requiredPrefix(1, { reservedHosts: 0 }), 32);
+    const a = planVlsm('10.0.0.0/24', [{ name: 'Flat', hosts: 20 }], { reservedHosts: 0 }).plan.allocations[0];
+    assert.equal(a.cidr, '10.0.0.0/27');
+    assert.equal(a.firstHost, '10.0.0.0');
+    assert.equal(a.lastHost, '10.0.0.31');
+    assert.equal(String(a.usableHosts), '32');
+    assert.equal(a.broadcast, '10.0.0.31');
+  });
 });
 
 describe('IPv6 tools', () => {
