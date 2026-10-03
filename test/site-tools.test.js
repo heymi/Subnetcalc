@@ -238,10 +238,24 @@ describe('analytics page context', () => {
     assert.deepEqual(pageContext('https://subnetcalc.dev/?q=192.168.1.37%2F26', 'Subnet Calculator for IPv4 and IPv6 – SubnetCalc'), {
       page_location: 'https://subnetcalc.dev/',
       page_title: 'Subnet Calculator for IPv4 and IPv6 – SubnetCalc',
+      page_referrer: '',
     });
     assert.equal(pageContext('https://subnetcalc.dev/vlsm/?p=10.0.0.0%2F24&r=Sales%3A120').page_location, 'https://subnetcalc.dev/vlsm/');
     assert.equal(pageContext('not a url', 'T').page_location, '');
     assert.equal(pageContext('https://subnetcalc.dev/cidr/#x').page_location, 'https://subnetcalc.dev/cidr/');
+  });
+
+  test('strips the query and fragment from the referrer too', () => {
+    assert.equal(
+      pageContext('https://subnetcalc.dev/vlsm/', 'IPv6', 'https://subnetcalc.dev/?q=10.77.88.99%2F24').page_referrer,
+      'https://subnetcalc.dev/',
+    );
+    assert.equal(
+      pageContext('https://subnetcalc.dev/', 'T', 'https://www.google.com/search?q=subnet+calculator#x').page_referrer,
+      'https://www.google.com/search',
+    );
+    assert.equal(pageContext('https://subnetcalc.dev/', 'T', 'not a url').page_referrer, '');
+    assert.equal(pageContext('https://subnetcalc.dev/', 'T', '').page_referrer, '');
   });
 });
 

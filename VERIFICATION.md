@@ -41,8 +41,10 @@ Round 3.1 (QA fixes, still on `site/round-3`):
   or /30 is flagged in the AWS/GCP lists, CloudFormation (/16–/28) and Bicep (/29 minimum) with
   a per-subnet WARNING comment.
 - Analytics page context is attached to every event, not only `page_view`: `track()` and the
-  GA4 config both carry `page_location` without the query string and the title captured before
-  page scripts can add an input, verified with a stubbed gtag in Chromium and WebKit.
+  GA4 config both carry `page_location` without the query string, the title captured before
+  page scripts can add an input, and `page_referrer` stripped of its query string and fragment
+  (a same-site link from the calculator would otherwise carry `?q=...`), verified with a
+  stubbed gtag in Chromium and WebKit.
 - `reservedHosts: 0` works again: the default reservation layout is 0 + 0, so a no-reservation
   plan keeps every address (`requiredPrefix(20, { reservedHosts: 0 })` is /27).
 
@@ -76,7 +78,7 @@ hierarchy with folded details, the two dedicated pages, verification and privacy
 
 ## Local checks
 
-`npm run check`: 311 tests pass; site check: 14 pages, 0 errors, 0 warnings.
+`npm run check`: 312 tests pass; site check: 14 pages, 0 errors, 0 warnings.
 
 `npm run crosscheck` was not re-run in this pass: the engine vectors and their expected values are
 unchanged, and all 232 still pass in the Node suite. The recorded cross-check used Python 3.13.15
@@ -109,7 +111,7 @@ establish production-domain performance or analytics delivery.
 
 ## Browser checks
 
-- Chromium (Playwright, headless): 90 checks pass. 14 pages load without JS errors; VLSM paste
+- Chromium (Playwright, headless): 91 checks pass. 14 pages load without JS errors; VLSM paste
   keeps three rows and flags line 2; five malformed VLSM URLs initialize cleanly; CIDR invalid
   lines disable copy and clear the clean-list claim, and fixing the list re-enables it; share
   links for the subnet calculator, VLSM, CIDR, IPv6 (including a fixed ULA), range and overlap
@@ -126,13 +128,14 @@ establish production-domain performance or analytics delivery.
   (`sandbox_extension_issue_file_to_process ... Operation not permitted`). This is a local
   environment limit, not a site result; a manual Firefox pass remains open.
 
-An acceptance QA pass ran 62 Chromium checks and 14 WebKit checks against the round-3 and 3.1
+An acceptance QA pass ran 63 Chromium checks and 15 WebKit checks against the round-3 and 3.1
 features: cloud reservation ranges (AWS `.4–.30`, GCP `.2–.29`), the AWS `/16` limit, export-side
 provider bounds (AWS/GCP lists, CloudFormation, Bicep), GCP allocation/export/share, `/32` host
 routes, all five new exports (content and file downloads), saved-plan create/load/delete with JSON
 import/export and name escaping, the IPv6 download toggle including stale input, copy-failure
-reporting, sanitized analytics page fields on every event, IPv4 reverse rows, round-2 regressions
-and a 390px layout pass. All 76 passed; the reports are at
+reporting, sanitized analytics page fields (location, title and referrer) on every event including
+same-site navigation, IPv4 reverse rows, round-2 regressions and a 390px layout pass. All 78 passed;
+the reports are at
 `../Subnetcalc-artifacts/2026-10-03-round3/qa-report.json`, `qa-webkit.json`, `qa-chromium.txt` and
 `qa-webkit.txt`.
 
