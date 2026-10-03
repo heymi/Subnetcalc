@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>AWS Three-Tier VPC Subnet Example – SubnetCalc</title>
+<meta name="description" content="A worked three-tier VPC plan for 10.0.0.0/16 across two availability zones: public, application and data subnets, packed with AWS reservations.">
+<link rel="canonical" href="https://subnetcalc.dev/examples/aws-three-tier-vpc/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="SubnetCalc">
+<meta property="og:title" content="AWS Three-Tier VPC Subnet Example">
+<meta property="og:description" content="A 10.0.0.0/16 VPC across two availability zones with public, application and data subnets, packed under AWS reservations.">
+<meta property="og:url" content="https://subnetcalc.dev/examples/aws-three-tier-vpc/">
+<meta property="og:image" content="https://subnetcalc.dev/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<!-- @head -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="/assets/fonts/ibm-plex-mono-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/ibm-plex-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/css/site.css">
+<meta name="theme-color" content="#f8f9fb" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#14171c" media="(prefers-color-scheme: dark)">
+<script>try{var t=localStorage.getItem('theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
+<script type="module" src="/assets/js/common.js"></script>
+<!-- /@head -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "SubnetCalc", "item": "https://subnetcalc.dev/" },
+        { "@type": "ListItem", "position": 2, "name": "Examples", "item": "https://subnetcalc.dev/learn/" },
+        { "@type": "ListItem", "position": 3, "name": "AWS three-tier VPC", "item": "https://subnetcalc.dev/examples/aws-three-tier-vpc/" }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        { "@type": "Question", "name": "How many /24 subnets does a /16 VPC hold?", "acceptedAnswer": { "@type": "Answer", "text": "256. A /16 fixes the first 16 bits, so the remaining 8 bits give 2^8 = 256 /24 blocks. This plan uses six of them and leaves the rest for growth." } },
+        { "@type": "Question", "name": "Why does each subnet show 251 usable addresses instead of 254?", "acceptedAnswer": { "@type": "Answer", "text": "AWS reserves five addresses in every subnet: the first four (network, VPC router, DNS and a future-use address) and the last (broadcast). A /24 therefore has 256 - 5 = 251 usable addresses, and the planner reports the usable range as .4 to .254." } },
+        { "@type": "Question", "name": "Why are the three tiers packed in the same order in each availability zone?", "acceptedAnswer": { "@type": "Answer", "text": "Requests of equal size keep the order you entered, so public, application and data subnets are allocated sequentially in each zone. That makes the mapping from subnet to availability zone and tier predictable in route tables and security groups." } },
+        { "@type": "Question", "name": "Can the same VPC grow beyond two availability zones?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. The plan uses 6 of the 256 /24s in 10.0.0.0/16. A third zone can repeat the same three-tier pattern from 10.0.6.0/24, and the planner shows the remaining free space." } }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+<body data-tool="example">
+<!-- @header -->
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="wrap bar">
+    <a class="brand" href="/"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>SubnetCalc</a>
+    <nav class="site-nav" aria-label="Main">
+      <ul>
+      <li><a href="/">Subnet</a></li>
+      <li><a href="/vlsm/">VLSM</a></li>
+      <li><a href="/cidr/">CIDR</a></li>
+      <li><a href="/ipv6/">IPv6</a></li>
+      <li><a href="/learn/">Learn</a></li>
+      </ul>
+    </nav>
+    <button type="button" class="btn btn-ghost icon-btn theme-toggle" data-theme-toggle aria-label="Switch theme"></button>
+  </div>
+</header>
+<!-- /@header -->
+<main id="main" class="wrap">
+  <nav class="breadcrumb" aria-label="Breadcrumb"><a href="/learn/">Examples</a> / AWS three-tier VPC</nav>
+  <div class="page-head">
+    <p class="eyebrow">Worked example · AWS VPC · two availability zones</p>
+    <h1>AWS Three-Tier VPC Subnet Plan</h1>
+    <p class="lede">A 10.0.0.0/16 VPC split into public, application and data subnets in two availability zones, sized for 250 hosts each and packed under AWS reservations.</p>
+    <div class="btn-row no-print">
+      <a class="btn" href="/vlsm/?p=10.0.0.0/16&amp;r=public-a:250,app-a:250,data-a:250,public-b:250,app-b:250,data-b:250&amp;c=aws">Open this plan in the VLSM planner</a>
+      <a class="btn btn-ghost" href="/examples/azure-hub-spoke/">Azure hub-spoke example</a>
+      <a class="btn btn-ghost" href="/examples/ipv6-48-56-64/">IPv6 /48 example</a>
+    </div>
+  </div>
+
+  <section class="section" aria-labelledby="plan-h" style="padding-top: var(--s5)">
+    <div class="section-head">
+      <h2 id="plan-h">The plan</h2>
+      <span class="meta">AWS rule: 5 reserved per subnet, /16–/28</span>
+    </div>
+    <div id="aws-case-summary"><!-- @prerender:aws-case-summary -->
+<p class="summary-line">
+<span>parent <b>10.0.0.0/16</b></span>
+<span>subnets <b>6</b></span>
+<span>allocated <b>1,536</b> of 65,536 (2.3%)</span>
+<span>free <b>64,000</b></span>
+</p><p class="hint">Largest first: <b>public-a</b> takes the first /24 (256 addresses), so every smaller block that follows starts on a multiple of its own size with no gaps.</p>
+<!-- /@prerender --></div>
+    <div id="aws-case-table"><!-- @prerender:aws-case-table -->
+<div class="table-wrap" tabindex="0"><table class="data">
+<thead><tr><th scope="col">Name</th><th scope="col" class="num">Hosts</th><th scope="col">Subnet</th><th scope="col">Netmask</th><th scope="col">Usable range</th><th scope="col">Broadcast</th><th scope="col" class="num">Usable</th><th scope="col" class="num">Unused</th></tr></thead>
+<tbody>
+<tr>
+<td class="name">public-a</td><td class="num">250</td><td><b>10.0.0.0/24</b></td><td>255.255.255.0</td><td>10.0.0.4 – 10.0.0.254</td><td>10.0.0.255</td><td class="num">251</td><td class="num">1</td>
+</tr>
+<tr>
+<td class="name">app-a</td><td class="num">250</td><td><b>10.0.1.0/24</b></td><td>255.255.255.0</td><td>10.0.1.4 – 10.0.1.254</td><td>10.0.1.255</td><td class="num">251</td><td class="num">1</td>
+</tr>
+<tr>
+<td class="name">data-a</td><td class="num">250</td><td><b>10.0.2.0/24</b></td><td>255.255.255.0</td><td>10.0.2.4 – 10.0.2.254</td><td>10.0.2.255</td><td class="num">251</td><td class="num">1</td>
+</tr>
+<tr>
+<td class="name">public-b</td><td class="num">250</td><td><b>10.0.3.0/24</b></td><td>255.255.255.0</td><td>10.0.3.4 – 10.0.3.254</td><td>10.0.3.255</td><td class="num">251</td><td class="num">1</td>
+</tr>
+<tr>
+<td class="name">app-b</td><td class="num">250</td><td><b>10.0.4.0/24</b></td><td>255.255.255.0</td><td>10.0.4.4 – 10.0.4.254</td><td>10.0.4.255</td><td class="num">251</td><td class="num">1</td>
+</tr>
+<tr>
+<td class="name">data-b</td><td class="num">250</td><td><b>10.0.5.0/24</b></td><td>255.255.255.0</td><td>10.0.5.4 – 10.0.5.254</td><td>10.0.5.255</td><td class="num">251</td><td class="num">1</td>
+</tr>
+</tbody>
+</table></div>
+<!-- /@prerender --></div>
+    <div id="aws-case-free" style="margin-top: var(--s3)"><!-- @prerender:aws-case-free -->
+<p class="hint">Free blocks: <code>10.0.6.0/23</code> <code>10.0.8.0/21</code> <code>10.0.16.0/20</code> <code>10.0.32.0/19</code> <code>10.0.64.0/18</code> <code>10.0.128.0/17</code></p>
+<!-- /@prerender --></div>
+  </section>
+
+  <div class="section prose">
+    <h2>How the plan maps to the VPC</h2>
+    <p>The six subnets are allocated in input order because they are all the same size, so each availability zone gets the same public–application–data sequence:</p>
+    <div class="table-wrap" tabindex="0"><table class="data">
+      <thead><tr><th scope="col">Zone</th><th scope="col">Tier</th><th scope="col">Subnet</th><th scope="col">Typical use</th></tr></thead>
+      <tbody>
+        <tr><td>a</td><td>public</td><td><code>10.0.0.0/24</code></td><td>Load balancer nodes, NAT gateway</td></tr>
+        <tr><td>a</td><td>application</td><td><code>10.0.1.0/24</code></td><td>Application instances</td></tr>
+        <tr><td>a</td><td>data</td><td><code>10.0.2.0/24</code></td><td>Database subnet group</td></tr>
+        <tr><td>b</td><td>public</td><td><code>10.0.3.0/24</code></td><td>Load balancer nodes, NAT gateway</td></tr>
+        <tr><td>b</td><td>application</td><td><code>10.0.4.0/24</code></td><td>Application instances</td></tr>
+        <tr><td>b</td><td>data</td><td><code>10.0.5.0/24</code></td><td>Database subnet group</td></tr>
+      </tbody>
+    </table></div>
+    <p>The 250-host request fits a /24 with room to spare: AWS leaves 251 usable addresses after reserving the first four and the last. The planner reports the usable range as <code>.4</code> to <code>.254</code>, which is the range you can hand to instances.</p>
+    <h2>Why this layout</h2>
+    <ul>
+      <li><strong>Two zones, three tiers.</strong> Each tier exists in both zones, so an application load balancer and a database subnet group can span the VPC without sharing a subnet across zones.</li>
+      <li><strong>Equal /24s.</strong> Same-size requests keep their input order, which keeps the zone and tier mapping readable. Larger tiers can be placed first with their own host counts; the planner always packs largest first.</li>
+      <li><strong>AWS reservations are part of the math.</strong> Capacity rule “AWS VPC” reserves five addresses per subnet and enforces the /16–/28 bounds, so the table and the AWS/CloudFormation exports agree.</li>
+      <li><strong>Growth.</strong> 10.0.0.0/16 holds 256 /24s; this plan uses six, leaving 250 for more zones, endpoints or shared services.</li>
+    </ul>
+    <p>Check the finished ranges in the <a href="/vlsm/">VLSM planner</a>, or inspect a single subnet in the <a href="/?q=10.0.1.0/24">subnet calculator</a>. The Azure version of this exercise is the <a href="/examples/azure-hub-spoke/">hub-spoke example</a>.</p>
+  </div>
+
+  <section class="section faq" aria-labelledby="faq-h">
+    <h2 id="faq-h">Questions</h2>
+    <details>
+      <summary>How many /24 subnets does a /16 VPC hold?</summary>
+      <div class="answer"><p>256. A /16 fixes the first 16 bits, so the remaining 8 bits give 2<sup>8</sup> = 256 /24 blocks. This plan uses six of them and leaves the rest for growth.</p></div>
+    </details>
+    <details>
+      <summary>Why does each subnet show 251 usable addresses instead of 254?</summary>
+      <div class="answer"><p>AWS reserves five addresses in every subnet: the first four (network, VPC router, DNS and a future-use address) and the last (broadcast). A /24 therefore has 256 − 5 = 251 usable addresses, and the planner reports the usable range as <code>.4</code> to <code>.254</code>.</p></div>
+    </details>
+    <details>
+      <summary>Why are the three tiers packed in the same order in each availability zone?</summary>
+      <div class="answer"><p>Requests of equal size keep the order you entered, so public, application and data subnets are allocated sequentially in each zone. That makes the mapping from subnet to availability zone and tier predictable in route tables and security groups.</p></div>
+    </details>
+    <details>
+      <summary>Can the same VPC grow beyond two availability zones?</summary>
+      <div class="answer"><p>Yes. The plan uses 6 of the 256 /24s in <code>10.0.0.0/16</code>. A third zone can repeat the same three-tier pattern from <code>10.0.6.0/24</code>, and the planner shows the remaining free space.</p></div>
+    </details>
+  </section>
+</main>
+<!-- @footer -->
+<footer class="site-footer">
+  <div class="wrap footer-grid">
+    <div>
+      <h2>SubnetCalc</h2>
+      <p class="footer-note">Every calculation runs in your browser. Share links carry the inputs you put in them.</p>
+    </div>
+    <div>
+      <h2>Tools</h2>
+      <ul>
+        <li><a href="/">Subnet calculator</a></li>
+        <li><a href="/vlsm/">VLSM planner</a></li>
+        <li><a href="/cidr/">CIDR aggregation &amp; overlaps</a></li>
+        <li><a href="/ip-range-to-cidr/">IP range to CIDR</a></li>
+        <li><a href="/cidr-overlap-checker/">CIDR overlap checker</a></li>
+        <li><a href="/ipv6/">IPv6 tools</a></li>
+        <li><a href="/ipv6-subnet-plan/">IPv6 subnet plan</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Learn</h2>
+      <ul>
+        <li><a href="/learn/subnetting/">Subnetting, step by step</a></li>
+        <li><a href="/learn/cidr-cheat-sheet/">CIDR cheat sheet</a></li>
+        <li><a href="/learn/ipv6-subnetting/">IPv6 subnetting</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Examples</h2>
+      <ul>
+        <li><a href="/examples/aws-three-tier-vpc/">AWS three-tier VPC</a></li>
+        <li><a href="/examples/azure-hub-spoke/">Azure hub-spoke</a></li>
+        <li><a href="/examples/ipv6-48-56-64/">IPv6 /48 → /56 → /64</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Engine</h2>
+      <ul>
+        <li><a href="/lib/subnet.js">lib/subnet.js</a> · MIT</li>
+        <li><a href="/lib/data/special-purpose.json">IANA special-purpose data</a></li>
+        <li><a href="/verification/">How results are verified</a></li>
+        <li><a href="/privacy/">Privacy</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+<!-- /@footer -->
+</body>
+</html>

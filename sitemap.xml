@@ -3,6 +3,9 @@
   <url><loc>https://subnetcalc.dev/</loc></url>
   <url><loc>https://subnetcalc.dev/cidr-overlap-checker/</loc></url>
   <url><loc>https://subnetcalc.dev/cidr/</loc></url>
+  <url><loc>https://subnetcalc.dev/examples/aws-three-tier-vpc/</loc></url>
+  <url><loc>https://subnetcalc.dev/examples/azure-hub-spoke/</loc></url>
+  <url><loc>https://subnetcalc.dev/examples/ipv6-48-56-64/</loc></url>
   <url><loc>https://subnetcalc.dev/ip-range-to-cidr/</loc></url>
   <url><loc>https://subnetcalc.dev/ipv6-subnet-plan/</loc></url>
   <url><loc>https://subnetcalc.dev/ipv6/</loc></url>

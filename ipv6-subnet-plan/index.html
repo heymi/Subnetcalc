@@ -157,7 +157,7 @@
       <li>The <strong>site</strong> level is one block per location, building or business unit.</li>
       <li>The <strong>LAN</strong> level is one block per VLAN or segment. Keep it at /64: SLAAC and most IPv6 features assume a 64-bit interface ID.</li>
     </ol>
-    <p>RFC 6177 recommends handing end sites at least a /56 rather than a single /64, which is why the default here is /56 sites. For a worked walkthrough of the notation and the /64 rule, read <a href="/learn/ipv6-subnetting/">IPv6 subnetting</a>. To inspect one of the blocks, open it in the <a href="/ipv6/">IPv6 tools</a>, and for IPv4 planning with host counts use the <a href="/vlsm/">VLSM planner</a>.</p>
+    <p>RFC 6177 recommends handing end sites at least a /56 rather than a single /64, which is why the default here is /56 sites. For a worked walkthrough of the notation and the /64 rule, read <a href="/learn/ipv6-subnetting/">IPv6 subnetting</a>. To inspect one of the blocks, open it in the <a href="/ipv6/">IPv6 tools</a>, and for IPv4 planning with host counts use the <a href="/vlsm/">VLSM planner</a>. A fixed plan with every site listed is the <a href="/examples/ipv6-48-56-64/">/48 → /56 → /64 example</a>.</p>
     <h2>Nibble boundaries and reverse DNS</h2>
     <p>Any prefix length routes correctly, but reverse DNS delegations move in 4-bit steps. A /48, /52, /56 or /60 site prefix maps to exactly one <code>ip6.arpa</code> zone; a /55 does not. The planner marks a level that is not on a nibble boundary so the choice is visible before you commit to it.</p>
   </div>
@@ -207,6 +207,14 @@
         <li><a href="/learn/subnetting/">Subnetting, step by step</a></li>
         <li><a href="/learn/cidr-cheat-sheet/">CIDR cheat sheet</a></li>
         <li><a href="/learn/ipv6-subnetting/">IPv6 subnetting</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Examples</h2>
+      <ul>
+        <li><a href="/examples/aws-three-tier-vpc/">AWS three-tier VPC</a></li>
+        <li><a href="/examples/azure-hub-spoke/">Azure hub-spoke</a></li>
+        <li><a href="/examples/ipv6-48-56-64/">IPv6 /48 → /56 → /64</a></li>
       </ul>
     </div>
     <div>

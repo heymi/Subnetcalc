@@ -299,7 +299,7 @@ P2P,2,192.168.1.208/30,255.255.255.252,192.168.1.209,192.168.1.210,192.168.1.211
       <li>Whatever is left is listed as free CIDR blocks. If a request does not fit, the planner names it and suggests the smallest parent that would hold everything.</li>
     </ol>
     <p><strong>Capacity rule</strong> changes the math, not just the label. The generic rule reserves the network and broadcast addresses, and the /31 and /32 options give two-host links and single-host requests (loopbacks, host routes) their smallest legal blocks. AWS VPC and Azure VNet reserve five addresses per subnet (the first four and the last) and enforce a minimum size (/28 and /29); Google Cloud reserves the first two and the last two and enforces /29. The first and last usable address in the table follow those positions, and AWS also caps a subnet at /16, so a request that would need a larger block is rejected. A 60-host request gets a /25 on AWS instead of a /26, and the cloud exports show no warnings because the plan was built under the same rule.</p>
-    <p>To check one of the subnets in detail, open it in the <a href="/?q=192.168.1.192/28">subnet calculator</a>. The <a href="/learn/subnetting/#vlsm">subnetting tutorial</a> works through a VLSM design by hand.</p>
+    <p>To check one of the subnets in detail, open it in the <a href="/?q=192.168.1.192/28">subnet calculator</a>. The <a href="/learn/subnetting/#vlsm">subnetting tutorial</a> works through a VLSM design by hand. For fixed, ready-to-read plans, see the <a href="/examples/aws-three-tier-vpc/">AWS three-tier VPC</a> and <a href="/examples/azure-hub-spoke/">Azure hub-spoke</a> examples.</p>
   </div>
 
   <section class="section faq" aria-labelledby="faq-h">
@@ -355,6 +355,14 @@ P2P,2,192.168.1.208/30,255.255.255.252,192.168.1.209,192.168.1.210,192.168.1.211
         <li><a href="/learn/subnetting/">Subnetting, step by step</a></li>
         <li><a href="/learn/cidr-cheat-sheet/">CIDR cheat sheet</a></li>
         <li><a href="/learn/ipv6-subnetting/">IPv6 subnetting</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Examples</h2>
+      <ul>
+        <li><a href="/examples/aws-three-tier-vpc/">AWS three-tier VPC</a></li>
+        <li><a href="/examples/azure-hub-spoke/">Azure hub-spoke</a></li>
+        <li><a href="/examples/ipv6-48-56-64/">IPv6 /48 → /56 → /64</a></li>
       </ul>
     </div>
     <div>
