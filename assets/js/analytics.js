@@ -1,10 +1,15 @@
-// Sanitized event tracking. No-ops until GA4/Clarity are enabled in common.js.
+// Sanitized event tracking. No-ops until the visitor allows analytics in common.js.
 //
 // Privacy rules: never pass raw addresses, MACs, names, host counts or full URLs.
 // Only short, fixed-shape values from the allowlist below leave the page.
 
 const KEYS = new Set(['tool', 'kind', 'family', 'code', 'format', 'count']);
 const VALUE = /[^a-z0-9 _-]/gi;
+let analyticsEnabled = false;
+
+export const setAnalyticsEnabled = (enabled) => {
+  analyticsEnabled = Boolean(enabled);
+};
 
 // Captured when this module first evaluates, before page scripts can put an input
 // into document.title (the calculator does). Never read the live title for analytics.
@@ -55,6 +60,8 @@ function clean(key, value) {
  * @param {Record<string, string|number>} [params]  allowlisted, sanitized metadata
  */
 export function track(name, params = {}) {
+  if (!analyticsEnabled) return;
+
   const cleanParams = {};
   for (const [k, v] of Object.entries(params)) {
     if (!KEYS.has(k)) continue;
