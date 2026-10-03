@@ -200,12 +200,13 @@ Full Lighthouse JSON reports and browser logs are saved outside the deploy root 
 
 ## Deployment
 
-On 2026-10-03 the production Cloudflare Pages project `subnetcalc` was updated from commit
-`22584a3` by direct upload (`npx wrangler pages deploy . --project-name=subnetcalc --branch=main`).
-After the deploy, `/`, `/vlsm/`, `/privacy/`, `/ipv6-subnet-plan/` and the three `/examples/...`
-pages return 200; `/privacy/` serves the round-5 consent copy and `/assets/js/cidr.js` serves the
-round-6 fix. Before this deploy, production still served `1d77672`, which is why the newer pages
-404ed and the privacy page was stale.
+Production deploys are direct uploads: `npx wrangler pages deploy . --project-name=subnetcalc
+--branch=main`. The project was updated on 2026-10-03 first from `22584a3` (rounds 1–6) and then
+from `bd02739` (round 7). Checks after the second deploy: `/`, `/vlsm/`, `/privacy/`,
+`/ipv6-subnet-plan/` and the three `/examples/...` pages return 200; `/privacy/` serves the
+consent copy; and a browser context that blocks `/assets/js/analytics.js` still gets a working
+consent panel and Share plan on `/vlsm/`. Before the first deploy, production still served
+`1d77672`, which is why the newer pages 404ed and the privacy page was stale.
 
 ## Remaining external gates
 
