@@ -2,7 +2,7 @@
 import { generateUla, parseCidr, networkOf } from '../../lib/subnet.js';
 import { DEFAULTS, renderAddress, renderSplit, renderEui, renderUla, ipv6SummaryText } from './ipv6-render.js';
 import { setParams, param, debounce, setStale, copyText, download } from './ui.js';
-import { track } from './analytics.js';
+import { track } from './site-events.js';
 
 const $ = (s) => document.querySelector(s);
 const v6 = $('#v6');

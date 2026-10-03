@@ -1,7 +1,12 @@
-// Sanitized event tracking. No-ops until the visitor allows analytics in common.js.
+// Sanitized event tracking. Loaded dynamically by site-events.js and no-ops until the
+// visitor allows analytics there, so a blocker for this file never breaks the tools.
 //
 // Privacy rules: never pass raw addresses, MACs, names, host counts or full URLs.
 // Only short, fixed-shape values from the allowlist below leave the page.
+
+import { currentPageContext } from './page-context.js';
+
+export { pageContext, currentPageContext } from './page-context.js';
 
 const KEYS = new Set(['tool', 'kind', 'family', 'code', 'format', 'count']);
 const VALUE = /[^a-z0-9 _-]/gi;
@@ -10,44 +15,6 @@ let analyticsEnabled = false;
 export const setAnalyticsEnabled = (enabled) => {
   analyticsEnabled = Boolean(enabled);
 };
-
-// Captured when this module first evaluates, before page scripts can put an input
-// into document.title (the calculator does). Never read the live title for analytics.
-const PAGE_TITLE = typeof document === 'undefined' ? '' : document.title;
-
-const cleanUrl = (value) => {
-  try {
-    const u = new URL(value);
-    return u.origin + u.pathname;
-  } catch {
-    return '';
-  }
-};
-
-/**
- * Sanitized page fields for analytics: the path only (no query string or fragment,
- * which carry the user's input), an input-free title, and a referrer stripped the same
- * way. GA4 defaults `page_referrer` to document.referrer, which on this site can hold
- * the previous page's input query. Every event gets these, not just page_view.
- */
-export function pageContext(href, title = '', referrer = '') {
-  return {
-    page_location: cleanUrl(href),
-    page_title: String(title ?? ''),
-    page_referrer: referrer ? cleanUrl(referrer) : '',
-  };
-}
-
-/**
- * pageContext for the current document: the title is captured at module load (before a
- * page script can add an input) and the referrer is read live, since it never changes.
- */
-export const currentPageContext = () =>
-  pageContext(
-    typeof location === 'undefined' ? '' : location.href,
-    PAGE_TITLE,
-    typeof document === 'undefined' ? '' : document.referrer,
-  );
 
 function clean(key, value) {
   if (typeof value === 'number' && Number.isFinite(value)) return Math.max(0, Math.trunc(value));

@@ -3,7 +3,7 @@ import { analyze } from '../../lib/subnet.js';
 import { toText, toJSON, toCSV, toExplain } from '../../lib/export.js';
 import { renderResults, renderNotices, renderBinary, renderSteps, describeBit } from './calc-render.js';
 import { esc, setParams, param, copyText, copyShare, download, setStale } from './ui.js';
-import { track } from './analytics.js';
+import { track } from './site-events.js';
 
 const $ = (s) => document.querySelector(s);
 const form = $('[data-calc]');

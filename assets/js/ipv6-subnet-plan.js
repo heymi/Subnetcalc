@@ -1,7 +1,7 @@
 // IPv6 hierarchical subnet plan page.
 import { renderPlan, PLAN_DEFAULTS } from './ipv6-plan-render.js';
 import { param, setParams, debounce, copyText, download } from './ui.js';
-import { track } from './analytics.js';
+import { track } from './site-events.js';
 
 const $ = (s) => document.querySelector(s);
 const parent = $('#plan-parent');

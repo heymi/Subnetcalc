@@ -19,7 +19,7 @@ import {
 } from './vlsm-render.js';
 import { esc, debounce, copyText, download, setStale, toast } from './ui.js';
 import { parsePlanList, removePlan, sanitizePlanName, serializePlans, upsertPlan } from './workspace.js';
-import { track } from './analytics.js';
+import { track } from './site-events.js';
 
 const $ = (s) => document.querySelector(s);
 const form = $('[data-vlsm]');

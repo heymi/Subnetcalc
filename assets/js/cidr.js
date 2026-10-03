@@ -1,7 +1,7 @@
 // CIDR tools page: aggregation, supernet, overlaps, range to CIDR.
 import { DEFAULT_NETS, DEFAULT_RANGE, renderNets, renderRange, rangeSummary } from './cidr-render.js';
 import { debounce, copyText, download, param, setParams } from './ui.js';
-import { track } from './analytics.js';
+import { track } from './site-events.js';
 
 const $ = (s) => document.querySelector(s);
 const nets = $('#nets');
