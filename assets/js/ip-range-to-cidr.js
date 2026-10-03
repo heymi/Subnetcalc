@@ -1,7 +1,7 @@
 // Dedicated IP range to CIDR page.
 import { renderRange, rangeSummary, DEFAULT_RANGE } from './cidr-render.js';
 import { param, setParams, debounce, copyText, download } from './ui.js';
-import { track } from './analytics.js';
+import { track } from './site-events.js';
 
 const $ = (s) => document.querySelector(s);
 const start = $('#range-start');

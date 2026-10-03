@@ -1,6 +1,7 @@
 // Runs on every page: theme toggle, keyboard shortcuts, copy buttons, analytics.
 import { copyText } from './ui.js';
-import { track, toolName, currentPageContext, setAnalyticsEnabled } from './analytics.js';
+import { track, toolName, setAnalyticsEnabled } from './site-events.js';
+import { currentPageContext } from './page-context.js';
 
 // ── Analytics: loaded only after the visitor opts in.
 const GA4_ID = 'G-DRX9HMD89W';

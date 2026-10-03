@@ -1,7 +1,7 @@
 // Dedicated CIDR overlap checker page.
 import { renderOverlapReport, DEFAULT_OVERLAP_NETS } from './cidr-render.js';
 import { param, setParams, debounce, copyText, download } from './ui.js';
-import { track } from './analytics.js';
+import { track } from './site-events.js';
 
 const $ = (s) => document.querySelector(s);
 const nets = $('#overlap-nets');

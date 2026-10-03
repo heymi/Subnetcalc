@@ -1,6 +1,18 @@
-# Verification — 2026-10-03 (round 6)
+# Verification — 2026-10-03 (round 7)
 
 ## Completed
+
+Round 7 (analytics decoupling, commit `822bb84`):
+
+- Page modules no longer import the analytics implementation directly. A small facade
+  (`assets/js/site-events.js`) loads it dynamically, queues events until it is ready and drops
+  them if the file cannot load; the pure page-field helpers moved to
+  `assets/js/page-context.js`. An extension or filter that blocks `analytics.js` now only
+  disables analytics events: the consent panel, calculators and share/copy/download controls
+  keep working. This was reproduced first: blocking `/assets/js/analytics.js` left the VLSM page
+  with no consent panel and no button response before the fix.
+- Browser checks grow to 115: a context that blocks `/assets/js/analytics.js` still renders the
+  consent panel and shares a plan.
 
 Round 6 (URL state fixes, commit `d9b0208`):
 
@@ -146,7 +158,7 @@ establish production-domain performance or analytics delivery.
 
 ## Browser checks
 
-- Chromium (Playwright, headless): 113 checks pass. 17 pages load without JS errors; VLSM paste
+- Chromium (Playwright, headless): 115 checks pass. 17 pages load without JS errors; VLSM paste
   keeps three rows and flags line 2; five malformed VLSM URLs initialize cleanly; CIDR invalid
   lines disable copy and clear the clean-list claim, and fixing the list re-enables it; share
   links for the subnet calculator, VLSM, CIDR, IPv6 (including a fixed ULA), range and overlap
@@ -157,7 +169,8 @@ establish production-domain performance or analytics delivery.
   IPv6 download button disables itself for oversized splits and re-enables after; IPv4 reverse
   rows appear; a saved VLSM plan survives a reload, restores the parent, stores only the query
   string and deletes cleanly; clearing `/cidr/` and the range, overlap and IPv6 plan example
-  buttons keep their state across a reload; analytics stays silent until the consent panel's
+  buttons keep their state across a reload; a blocked `/assets/js/analytics.js` still shows the
+  consent panel and shares a plan; analytics stays silent until the consent panel's
   Allow button, then sends only sanitized page fields and referrer (stubbed gtag under a routed
   `subnetcalc.dev` origin); the three worked example pages render their pre-rendered AWS/Azure/
   IPv6 plans, and each
