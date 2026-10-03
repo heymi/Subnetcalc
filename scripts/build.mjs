@@ -34,6 +34,7 @@ import {
 } from '../assets/js/cidr-render.js';
 import { DEFAULTS as V6, renderAddress, renderSplit, renderEui } from '../assets/js/ipv6-render.js';
 import { PLAN_DEFAULTS, renderPlan } from '../assets/js/ipv6-plan-render.js';
+import { AWS_EXAMPLE, AZURE_HUB_EXAMPLE, AZURE_SPOKE_EXAMPLE, IPV6_EXAMPLE } from '../assets/js/examples.js';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const ORIGIN = 'https://subnetcalc.dev';
@@ -120,6 +121,14 @@ const footer = () => `<footer class="site-footer">
         <li><a href="/learn/subnetting/">Subnetting, step by step</a></li>
         <li><a href="/learn/cidr-cheat-sheet/">CIDR cheat sheet</a></li>
         <li><a href="/learn/ipv6-subnetting/">IPv6 subnetting</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Examples</h2>
+      <ul>
+        <li><a href="/examples/aws-three-tier-vpc/">AWS three-tier VPC</a></li>
+        <li><a href="/examples/azure-hub-spoke/">Azure hub-spoke</a></li>
+        <li><a href="/examples/ipv6-48-56-64/">IPv6 /48 → /56 → /64</a></li>
       </ul>
     </div>
     <div>
@@ -218,6 +227,7 @@ ${rows.join('\n')}
 
 const defaultInfo = () => analyze(DEFAULT_Q).info;
 const defaultPlan = () => planVlsm(DEFAULT_PARENT, DEFAULT_REQUESTS).plan;
+const casePlan = (example) => planVlsm(example.parent, example.requests, example.opts).plan;
 const escHtml = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
 /** IANA snapshot metadata and vector counts, read from the same files the engine and tests use. */
@@ -266,6 +276,16 @@ const PRERENDER = {
   'v6-eui': () => renderEui(V6.mac, V6.eui),
   'v6-split': () => renderSplit(V6.split, V6.newPrefix),
   'ipv6-plan-out': () => renderPlan(PLAN_DEFAULTS.parent, PLAN_DEFAULTS.site, PLAN_DEFAULTS.lan).html,
+  'aws-case-summary': () => renderSummary(casePlan(AWS_EXAMPLE)),
+  'aws-case-table': () => renderTable(casePlan(AWS_EXAMPLE)),
+  'aws-case-free': () => renderFree(casePlan(AWS_EXAMPLE)),
+  'azure-hub-summary': () => renderSummary(casePlan(AZURE_HUB_EXAMPLE)),
+  'azure-hub-table': () => renderTable(casePlan(AZURE_HUB_EXAMPLE)),
+  'azure-hub-free': () => renderFree(casePlan(AZURE_HUB_EXAMPLE)),
+  'azure-spoke-summary': () => renderSummary(casePlan(AZURE_SPOKE_EXAMPLE)),
+  'azure-spoke-table': () => renderTable(casePlan(AZURE_SPOKE_EXAMPLE)),
+  'azure-spoke-free': () => renderFree(casePlan(AZURE_SPOKE_EXAMPLE)),
+  'ipv6-case-plan': () => renderPlan(IPV6_EXAMPLE.parent, IPV6_EXAMPLE.site, IPV6_EXAMPLE.lan).html,
   'prefix-table-v4': prefixTableHtml,
   'slash24-table': slash24Html,
   'mask-octet-table': maskOctetHtml,

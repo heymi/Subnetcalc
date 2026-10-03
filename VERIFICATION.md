@@ -1,8 +1,20 @@
-# Verification — 2026-10-03 (round 3)
+# Verification — 2026-10-03 (round 4)
 
 ## Completed
 
-Round 3 (this pass):
+Round 4 (example pages, branch `site/examples`):
+
+- Three fixed example pages with pre-rendered plans and deep links into the planners:
+  `/examples/aws-three-tier-vpc/` (six /24s across two availability zones under AWS rules),
+  `/examples/azure-hub-spoke/` (hub gateway/firewall/shared-services plus a spoke template) and
+  `/examples/ipv6-48-56-64/` (one /48 into 256 /56 sites of 256 /64 LANs, first and last block
+  per site).
+- An Examples column in the footer on every page, a Worked examples section on `/learn/`, and
+  links from the VLSM planner and the IPv6 subnet plan page.
+- All three pass the site check (canonical, FAQ schema, internal links, sitemap) and Lighthouse:
+  mobile 99 / 100 / 100 / 100, desktop 100 / 100 / 100 / 100.
+
+Round 3 (earlier commit `380ee3e`):
 
 - `/ipv6/` "Download list" is disabled when a split is too large to generate, with a title that
   explains why, instead of doing nothing.
@@ -78,7 +90,7 @@ hierarchy with folded details, the two dedicated pages, verification and privacy
 
 ## Local checks
 
-`npm run check`: 312 tests pass; site check: 14 pages, 0 errors, 0 warnings.
+`npm run check`: 312 tests pass; site check: 17 pages, 0 errors, 0 warnings.
 
 `npm run crosscheck` was not re-run in this pass: the engine vectors and their expected values are
 unchanged, and all 232 still pass in the Node suite. The recorded cross-check used Python 3.13.15
@@ -105,13 +117,16 @@ Performance / Accessibility / Best practices / SEO.
 | `/learn/subnetting/` | 98 / 100 / 100 / 100 | 100 / 100 / 100 / 100 |
 | `/learn/cidr-cheat-sheet/` | 99 / 100 / 100 / 100 | 100 / 100 / 100 / 100 |
 | `/learn/ipv6-subnetting/` | 99 / 100 / 100 / 100 | 100 / 100 / 100 / 100 |
+| `/examples/aws-three-tier-vpc/` | 99 / 100 / 100 / 100 | 100 / 100 / 100 / 100 |
+| `/examples/azure-hub-spoke/` | 99 / 100 / 100 / 100 | 100 / 100 / 100 / 100 |
+| `/examples/ipv6-48-56-64/` | 99 / 100 / 100 / 100 | 100 / 100 / 100 / 100 |
 
 `404.html` is deliberately noindex and excluded from the SEO score gate. These scores do not
 establish production-domain performance or analytics delivery.
 
 ## Browser checks
 
-- Chromium (Playwright, headless): 91 checks pass. 14 pages load without JS errors; VLSM paste
+- Chromium (Playwright, headless): 107 checks pass. 17 pages load without JS errors; VLSM paste
   keeps three rows and flags line 2; five malformed VLSM URLs initialize cleanly; CIDR invalid
   lines disable copy and clear the clean-list claim, and fixing the list re-enables it; share
   links for the subnet calculator, VLSM, CIDR, IPv6 (including a fixed ULA), range and overlap
@@ -128,20 +143,21 @@ establish production-domain performance or analytics delivery.
   (`sandbox_extension_issue_file_to_process ... Operation not permitted`). This is a local
   environment limit, not a site result; a manual Firefox pass remains open.
 
-An acceptance QA pass ran 63 Chromium checks and 15 WebKit checks against the round-3 and 3.1
+An acceptance QA pass ran 72 Chromium checks and 15 WebKit checks against the round-3, 3.1 and 4
 features: cloud reservation ranges (AWS `.4–.30`, GCP `.2–.29`), the AWS `/16` limit, export-side
 provider bounds (AWS/GCP lists, CloudFormation, Bicep), GCP allocation/export/share, `/32` host
 routes, all five new exports (content and file downloads), saved-plan create/load/delete with JSON
 import/export and name escaping, the IPv6 download toggle including stale input, copy-failure
 reporting, sanitized analytics page fields (location, title and referrer) on every event including
-same-site navigation, IPv4 reverse rows, round-2 regressions and a 390px layout pass. All 78 passed;
+same-site navigation, the three example pages (pre-rendered plans, planner deep links, 390px
+layout), IPv4 reverse rows, round-2 regressions and a 390px layout pass. All 87 passed;
 the reports are at
 `../Subnetcalc-artifacts/2026-10-03-round3/qa-report.json`, `qa-webkit.json`, `qa-chromium.txt` and
 `qa-webkit.txt`.
 
 Full Lighthouse JSON reports and browser logs are saved outside the deploy root at
-`../Subnetcalc-artifacts/2026-10-03-round3/` (round 3) and `../Subnetcalc-artifacts/2026-10-03-round2/`
-(round 2) on this machine.
+`../Subnetcalc-artifacts/2026-10-03-round4/` (round 4), `../Subnetcalc-artifacts/2026-10-03-round3/`
+(round 3) and `../Subnetcalc-artifacts/2026-10-03-round2/` (round 2) on this machine.
 
 ## Remaining external gates
 

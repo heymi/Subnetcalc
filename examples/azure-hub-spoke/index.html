@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Azure Hub-Spoke Subnet Example – SubnetCalc</title>
+<meta name="description" content="A worked hub-spoke plan: hub VNet with gateway, firewall and shared services subnets plus a spoke template, sized with Azure reservations.">
+<link rel="canonical" href="https://subnetcalc.dev/examples/azure-hub-spoke/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="SubnetCalc">
+<meta property="og:title" content="Azure Hub-Spoke Subnet Example">
+<meta property="og:description" content="Hub VNet with gateway, firewall and shared services subnets plus a spoke template, sized under Azure reservations.">
+<meta property="og:url" content="https://subnetcalc.dev/examples/azure-hub-spoke/">
+<meta property="og:image" content="https://subnetcalc.dev/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<!-- @head -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="/assets/fonts/ibm-plex-mono-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/ibm-plex-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/css/site.css">
+<meta name="theme-color" content="#f8f9fb" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#14171c" media="(prefers-color-scheme: dark)">
+<script>try{var t=localStorage.getItem('theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
+<script type="module" src="/assets/js/common.js"></script>
+<!-- /@head -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "SubnetCalc", "item": "https://subnetcalc.dev/" },
+        { "@type": "ListItem", "position": 2, "name": "Examples", "item": "https://subnetcalc.dev/learn/" },
+        { "@type": "ListItem", "position": 3, "name": "Azure hub-spoke", "item": "https://subnetcalc.dev/examples/azure-hub-spoke/" }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        { "@type": "Question", "name": "Why is the gateway subnet a /27?", "acceptedAnswer": { "@type": "Answer", "text": "Azure requires a subnet named exactly GatewaySubnet for a VPN or ExpressRoute gateway, and recommends /27 or larger so the gateway can scale. A /27 has 27 usable addresses after Azure reserves five, which is the request this plan gives it." } },
+        { "@type": "Question", "name": "Why does the firewall subnet use a /26?", "acceptedAnswer": { "@type": "Answer", "text": "AzureFirewallSubnet is the reserved name for Azure Firewall, and /26 is the recommended size so the firewall can scale with traffic. A /26 leaves 59 usable addresses under Azure reservations." } },
+        { "@type": "Question", "name": "Why do the spoke VNets use different address ranges?", "acceptedAnswer": { "@type": "Answer", "text": "VNet peering requires non-overlapping address space. The hub uses 10.0.0.0/16, the first spoke 10.1.0.0/16 and the second 10.2.0.0/16, so every spoke can peer with the hub and be summarized with one route." } },
+        { "@type": "Question", "name": "How many addresses does Azure reserve in a subnet?", "acceptedAnswer": { "@type": "Answer", "text": "Azure reserves the first four addresses and the last one in every subnet, the same five as AWS: network, default gateway, two for DNS, and broadcast. The smallest subnet Azure allows is /29, and the planner enforces both bounds in Azure mode." } }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+<body data-tool="example">
+<!-- @header -->
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="wrap bar">
+    <a class="brand" href="/"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>SubnetCalc</a>
+    <nav class="site-nav" aria-label="Main">
+      <ul>
+      <li><a href="/">Subnet</a></li>
+      <li><a href="/vlsm/">VLSM</a></li>
+      <li><a href="/cidr/">CIDR</a></li>
+      <li><a href="/ipv6/">IPv6</a></li>
+      <li><a href="/learn/">Learn</a></li>
+      </ul>
+    </nav>
+    <button type="button" class="btn btn-ghost icon-btn theme-toggle" data-theme-toggle aria-label="Switch theme"></button>
+  </div>
+</header>
+<!-- /@header -->
+<main id="main" class="wrap">
+  <nav class="breadcrumb" aria-label="Breadcrumb"><a href="/learn/">Examples</a> / Azure hub-spoke</nav>
+  <div class="page-head">
+    <p class="eyebrow">Worked example · Azure VNet · hub and spokes</p>
+    <h1>Azure Hub-Spoke Subnet Plan</h1>
+    <p class="lede">A hub VNet with the reserved gateway and firewall subnets plus shared services, and a spoke template for application and data tiers, sized under Azure reservations.</p>
+    <div class="btn-row no-print">
+      <a class="btn" href="/vlsm/?p=10.0.0.0/16&amp;r=SharedServices:200,AzureFirewallSubnet:59,GatewaySubnet:27&amp;c=azure">Open the hub plan in the VLSM planner</a>
+      <a class="btn btn-ghost" href="/vlsm/?p=10.1.0.0/16&amp;r=app:200,data:100&amp;c=azure">Open the spoke plan</a>
+      <a class="btn btn-ghost" href="/examples/aws-three-tier-vpc/">AWS example</a>
+    </div>
+  </div>
+
+  <section class="section" aria-labelledby="hub-h" style="padding-top: var(--s5)">
+    <div class="section-head">
+      <h2 id="hub-h">Hub VNet 10.0.0.0/16</h2>
+      <span class="meta">Azure rule: 5 reserved per subnet, minimum /29</span>
+    </div>
+    <div id="azure-hub-summary"><!-- @prerender:azure-hub-summary -->
+<p class="summary-line">
+<span>parent <b>10.0.0.0/16</b></span>
+<span>subnets <b>3</b></span>
+<span>allocated <b>352</b> of 65,536 (0.5%)</span>
+<span>free <b>65,184</b></span>
+</p><p class="hint">Largest first: <b>SharedServices</b> takes the first /24 (256 addresses), so every smaller block that follows starts on a multiple of its own size with no gaps.</p>
+<!-- /@prerender --></div>
+    <div id="azure-hub-table"><!-- @prerender:azure-hub-table -->
+<div class="table-wrap" tabindex="0"><table class="data">
+<thead><tr><th scope="col">Name</th><th scope="col" class="num">Hosts</th><th scope="col">Subnet</th><th scope="col">Netmask</th><th scope="col">Usable range</th><th scope="col">Broadcast</th><th scope="col" class="num">Usable</th><th scope="col" class="num">Unused</th></tr></thead>
+<tbody>
+<tr>
+<td class="name">SharedServices</td><td class="num">200</td><td><b>10.0.0.0/24</b></td><td>255.255.255.0</td><td>10.0.0.4 – 10.0.0.254</td><td>10.0.0.255</td><td class="num">251</td><td class="num">51</td>
+</tr>
+<tr>
+<td class="name">AzureFirewallSubnet</td><td class="num">59</td><td><b>10.0.1.0/26</b></td><td>255.255.255.192</td><td>10.0.1.4 – 10.0.1.62</td><td>10.0.1.63</td><td class="num">59</td><td class="num">0</td>
+</tr>
+<tr>
+<td class="name">GatewaySubnet</td><td class="num">27</td><td><b>10.0.1.64/27</b></td><td>255.255.255.224</td><td>10.0.1.68 – 10.0.1.94</td><td>10.0.1.95</td><td class="num">27</td><td class="num">0</td>
+</tr>
+</tbody>
+</table></div>
+<!-- /@prerender --></div>
+    <div id="azure-hub-free" style="margin-top: var(--s3)"><!-- @prerender:azure-hub-free -->
+<p class="hint">Free blocks: <code>10.0.1.96/27</code> <code>10.0.1.128/25</code> <code>10.0.2.0/23</code> <code>10.0.4.0/22</code> <code>10.0.8.0/21</code> <code>10.0.16.0/20</code> <code>10.0.32.0/19</code> <code>10.0.64.0/18</code> <code>10.0.128.0/17</code></p>
+<!-- /@prerender --></div>
+  </section>
+
+  <section class="section" aria-labelledby="spoke-h">
+    <div class="section-head">
+      <h2 id="spoke-h">Spoke VNet 10.1.0.0/16</h2>
+      <span class="meta">repeat with 10.2.0.0/16 for the second spoke</span>
+    </div>
+    <div id="azure-spoke-summary"><!-- @prerender:azure-spoke-summary -->
+<p class="summary-line">
+<span>parent <b>10.1.0.0/16</b></span>
+<span>subnets <b>2</b></span>
+<span>allocated <b>384</b> of 65,536 (0.5%)</span>
+<span>free <b>65,152</b></span>
+</p><p class="hint">Largest first: <b>app</b> takes the first /24 (256 addresses), so every smaller block that follows starts on a multiple of its own size with no gaps.</p>
+<!-- /@prerender --></div>
+    <div id="azure-spoke-table"><!-- @prerender:azure-spoke-table -->
+<div class="table-wrap" tabindex="0"><table class="data">
+<thead><tr><th scope="col">Name</th><th scope="col" class="num">Hosts</th><th scope="col">Subnet</th><th scope="col">Netmask</th><th scope="col">Usable range</th><th scope="col">Broadcast</th><th scope="col" class="num">Usable</th><th scope="col" class="num">Unused</th></tr></thead>
+<tbody>
+<tr>
+<td class="name">app</td><td class="num">200</td><td><b>10.1.0.0/24</b></td><td>255.255.255.0</td><td>10.1.0.4 – 10.1.0.254</td><td>10.1.0.255</td><td class="num">251</td><td class="num">51</td>
+</tr>
+<tr>
+<td class="name">data</td><td class="num">100</td><td><b>10.1.1.0/25</b></td><td>255.255.255.128</td><td>10.1.1.4 – 10.1.1.126</td><td>10.1.1.127</td><td class="num">123</td><td class="num">23</td>
+</tr>
+</tbody>
+</table></div>
+<!-- /@prerender --></div>
+    <div id="azure-spoke-free" style="margin-top: var(--s3)"><!-- @prerender:azure-spoke-free -->
+<p class="hint">Free blocks: <code>10.1.1.128/25</code> <code>10.1.2.0/23</code> <code>10.1.4.0/22</code> <code>10.1.8.0/21</code> <code>10.1.16.0/20</code> <code>10.1.32.0/19</code> <code>10.1.64.0/18</code> <code>10.1.128.0/17</code></p>
+<!-- /@prerender --></div>
+  </section>
+
+  <div class="section prose">
+    <h2>Why this layout</h2>
+    <ul>
+      <li><strong>Reserved subnet names and sizes.</strong> Azure looks for a subnet named exactly <code>GatewaySubnet</code> for VPN and ExpressRoute gateways and recommends /27 or larger; <code>AzureFirewallSubnet</code> is reserved for Azure Firewall with a recommended /26. The planner sizes both from the host counts 27 and 59.</li>
+      <li><strong>Shared services next to the gateway.</strong> A /24 holds monitoring, DNS forwarders, jump hosts and other central services without borrowing space from the spokes.</li>
+      <li><strong>Spokes do not overlap.</strong> Peering needs distinct address space, so the hub is 10.0.0.0/16, spoke one is 10.1.0.0/16 and spoke two would be 10.2.0.0/16. Each VNet can be advertised to on-premises as one summary route.</li>
+      <li><strong>Azure reservations are part of the math.</strong> Capacity rule “Azure VNet” reserves the first four and the last address and enforces the /29 minimum, so the table, the Bicep export and the Azure CIDR list agree.</li>
+    </ul>
+    <p>Inspect a finished subnet in the <a href="/?q=10.0.1.0/26">subnet calculator</a>, or check that the three VNets cannot collide with the <a href="/cidr-overlap-checker/">overlap checker</a>. The AWS version of this exercise is the <a href="/examples/aws-three-tier-vpc/">three-tier VPC example</a>.</p>
+  </div>
+
+  <section class="section faq" aria-labelledby="faq-h">
+    <h2 id="faq-h">Questions</h2>
+    <details>
+      <summary>Why is the gateway subnet a /27?</summary>
+      <div class="answer"><p>Azure requires a subnet named exactly <code>GatewaySubnet</code> for a VPN or ExpressRoute gateway, and recommends /27 or larger so the gateway can scale. A /27 has 27 usable addresses after Azure reserves five, which is the request this plan gives it.</p></div>
+    </details>
+    <details>
+      <summary>Why does the firewall subnet use a /26?</summary>
+      <div class="answer"><p><code>AzureFirewallSubnet</code> is the reserved name for Azure Firewall, and /26 is the recommended size so the firewall can scale with traffic. A /26 leaves 59 usable addresses under Azure reservations.</p></div>
+    </details>
+    <details>
+      <summary>Why do the spoke VNets use different address ranges?</summary>
+      <div class="answer"><p>VNet peering requires non-overlapping address space. The hub uses <code>10.0.0.0/16</code>, the first spoke <code>10.1.0.0/16</code> and the second <code>10.2.0.0/16</code>, so every spoke can peer with the hub and be summarized with one route.</p></div>
+    </details>
+    <details>
+      <summary>How many addresses does Azure reserve in a subnet?</summary>
+      <div class="answer"><p>Azure reserves the first four addresses and the last one in every subnet, the same five as AWS: network, default gateway, two for DNS, and broadcast. The smallest subnet Azure allows is /29, and the planner enforces both bounds in Azure mode.</p></div>
+    </details>
+  </section>
+</main>
+<!-- @footer -->
+<footer class="site-footer">
+  <div class="wrap footer-grid">
+    <div>
+      <h2>SubnetCalc</h2>
+      <p class="footer-note">Every calculation runs in your browser. Share links carry the inputs you put in them.</p>
+    </div>
+    <div>
+      <h2>Tools</h2>
+      <ul>
+        <li><a href="/">Subnet calculator</a></li>
+        <li><a href="/vlsm/">VLSM planner</a></li>
+        <li><a href="/cidr/">CIDR aggregation &amp; overlaps</a></li>
+        <li><a href="/ip-range-to-cidr/">IP range to CIDR</a></li>
+        <li><a href="/cidr-overlap-checker/">CIDR overlap checker</a></li>
+        <li><a href="/ipv6/">IPv6 tools</a></li>
+        <li><a href="/ipv6-subnet-plan/">IPv6 subnet plan</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Learn</h2>
+      <ul>
+        <li><a href="/learn/subnetting/">Subnetting, step by step</a></li>
+        <li><a href="/learn/cidr-cheat-sheet/">CIDR cheat sheet</a></li>
+        <li><a href="/learn/ipv6-subnetting/">IPv6 subnetting</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Examples</h2>
+      <ul>
+        <li><a href="/examples/aws-three-tier-vpc/">AWS three-tier VPC</a></li>
+        <li><a href="/examples/azure-hub-spoke/">Azure hub-spoke</a></li>
+        <li><a href="/examples/ipv6-48-56-64/">IPv6 /48 → /56 → /64</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Engine</h2>
+      <ul>
+        <li><a href="/lib/subnet.js">lib/subnet.js</a> · MIT</li>
+        <li><a href="/lib/data/special-purpose.json">IANA special-purpose data</a></li>
+        <li><a href="/verification/">How results are verified</a></li>
+        <li><a href="/privacy/">Privacy</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+<!-- /@footer -->
+</body>
+</html>

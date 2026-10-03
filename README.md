@@ -66,8 +66,8 @@ Bicep, Cisco IOS interface snippets, OSPF network statements, ACL entries and a 
 ## Website
 
 The site is static HTML, CSS and vanilla JS in this repository (`index.html`, `vlsm/`, `cidr/`,
-`ip-range-to-cidr/`, `cidr-overlap-checker/`, `ipv6/`, `ipv6-subnet-plan/`, `learn/`, `verification/`,
-`privacy/`, `assets/`). There is no build step at deploy time. `scripts/build.mjs` keeps the shared
+`ip-range-to-cidr/`, `cidr-overlap-checker/`, `ipv6/`, `ipv6-subnet-plan/`, `examples/`, `learn/`,
+`verification/`, `privacy/`, `assets/`). There is no build step at deploy time. `scripts/build.mjs` keeps the shared
 header, footer and pre-rendered results inside the committed HTML in sync. Run it after you edit a
 partial or a renderer.
 

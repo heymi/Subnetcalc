@@ -73,6 +73,27 @@
       <p>RFC 5952 notation, why LANs are /64, planning a /48 on nibble boundaries, ULA, /127 links and EUI-64 interface IDs.</p>
     </li>
   </ul>
+
+  <section class="section" aria-labelledby="examples-h">
+    <div class="section-head">
+      <h2 id="examples-h">Worked examples</h2>
+      <span class="meta">fixed plans, pre-rendered</span>
+    </div>
+    <ul class="learn-list">
+      <li>
+        <a href="/examples/aws-three-tier-vpc/">AWS three-tier VPC subnet plan</a>
+        <p>A 10.0.0.0/16 VPC across two availability zones with public, application and data subnets, packed under AWS reservations.</p>
+      </li>
+      <li>
+        <a href="/examples/azure-hub-spoke/">Azure hub-spoke subnet plan</a>
+        <p>A hub VNet with gateway, firewall and shared services, plus a spoke template, sized under Azure reservations.</p>
+      </li>
+      <li>
+        <a href="/examples/ipv6-48-56-64/">IPv6 /48 to /56 to /64 plan</a>
+        <p>One /48 split into 256 sites of 256 /64 LANs, with the first and last blocks of each site.</p>
+      </li>
+    </ul>
+  </section>
 </main>
 <!-- @footer -->
 <footer class="site-footer">
@@ -99,6 +120,14 @@
         <li><a href="/learn/subnetting/">Subnetting, step by step</a></li>
         <li><a href="/learn/cidr-cheat-sheet/">CIDR cheat sheet</a></li>
         <li><a href="/learn/ipv6-subnetting/">IPv6 subnetting</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Examples</h2>
+      <ul>
+        <li><a href="/examples/aws-three-tier-vpc/">AWS three-tier VPC</a></li>
+        <li><a href="/examples/azure-hub-spoke/">Azure hub-spoke</a></li>
+        <li><a href="/examples/ipv6-48-56-64/">IPv6 /48 → /56 → /64</a></li>
       </ul>
     </div>
     <div>

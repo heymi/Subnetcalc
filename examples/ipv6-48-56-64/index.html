@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>IPv6 /48 to /56 to /64 Example – SubnetCalc</title>
+<meta name="description" content="One /48 split into 256 /56 sites, each with 256 /64 LANs, with the first and last block of every site and a copyable plan.">
+<link rel="canonical" href="https://subnetcalc.dev/examples/ipv6-48-56-64/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="SubnetCalc">
+<meta property="og:title" content="IPv6 /48 to /56 to /64 Example">
+<meta property="og:description" content="One /48 split into 256 /56 sites, each with 256 /64 LANs, with the first and last block of every site.">
+<meta property="og:url" content="https://subnetcalc.dev/examples/ipv6-48-56-64/">
+<meta property="og:image" content="https://subnetcalc.dev/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<!-- @head -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="/assets/fonts/ibm-plex-mono-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/ibm-plex-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/css/site.css">
+<meta name="theme-color" content="#f8f9fb" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#14171c" media="(prefers-color-scheme: dark)">
+<script>try{var t=localStorage.getItem('theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
+<script type="module" src="/assets/js/common.js"></script>
+<!-- /@head -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "SubnetCalc", "item": "https://subnetcalc.dev/" },
+        { "@type": "ListItem", "position": 2, "name": "Examples", "item": "https://subnetcalc.dev/learn/" },
+        { "@type": "ListItem", "position": 3, "name": "IPv6 /48 to /56 to /64", "item": "https://subnetcalc.dev/examples/ipv6-48-56-64/" }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        { "@type": "Question", "name": "How many /64 LANs are in a /48?", "acceptedAnswer": { "@type": "Answer", "text": "65,536. A /48 leaves 16 bits before the /64 boundary, and 2^16 = 65,536. Splitting the same /48 into /56 sites gives 256 sites with 256 /64s each." } },
+        { "@type": "Question", "name": "Why use /56 for a site instead of /48?", "acceptedAnswer": { "@type": "Answer", "text": "RFC 6177 recommends giving an end site at least a /56 rather than a single /64. A /56 holds 256 /64 LANs, which fits most buildings and homes, and it stays on a nibble boundary for reverse DNS delegation." } },
+        { "@type": "Question", "name": "Why must a LAN stay at /64?", "acceptedAnswer": { "@type": "Answer", "text": "SLAAC assumes a 64-bit interface ID, and RFC 7421 lists the features that break with other LAN sizes. Routed links can be /127 and loopbacks /128, but ordinary LANs are /64." } },
+        { "@type": "Question", "name": "What is the reverse DNS zone for this plan?", "acceptedAnswer": { "@type": "Answer", "text": "Write the /48 as nibbles, reverse them and add ip6.arpa: 2001:db8:acad::/48 becomes d.c.a.8.b.d.0.1.0.0.2.ip6.arpa. Each /56 or /64 site delegates its own zone from that point because every level is nibble aligned." } }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+<body data-tool="example">
+<!-- @header -->
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="wrap bar">
+    <a class="brand" href="/"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>SubnetCalc</a>
+    <nav class="site-nav" aria-label="Main">
+      <ul>
+      <li><a href="/">Subnet</a></li>
+      <li><a href="/vlsm/">VLSM</a></li>
+      <li><a href="/cidr/">CIDR</a></li>
+      <li><a href="/ipv6/">IPv6</a></li>
+      <li><a href="/learn/">Learn</a></li>
+      </ul>
+    </nav>
+    <button type="button" class="btn btn-ghost icon-btn theme-toggle" data-theme-toggle aria-label="Switch theme"></button>
+  </div>
+</header>
+<!-- /@header -->
+<main id="main" class="wrap">
+  <nav class="breadcrumb" aria-label="Breadcrumb"><a href="/learn/">Examples</a> / IPv6 /48 → /56 → /64</nav>
+  <div class="page-head">
+    <p class="eyebrow">Worked example · IPv6 · nibble aligned</p>
+    <h1>IPv6 /48 → /56 → /64 Example</h1>
+    <p class="lede">One /48 split into 256 /56 site blocks, each holding 256 /64 LANs. The table lists the first and last /64 of every site, so each site can be delegated as its own block.</p>
+    <div class="btn-row no-print">
+      <a class="btn" href="/ipv6-subnet-plan/?p=2001:db8:acad::/48&amp;s=56&amp;l=64">Open this plan in the IPv6 planner</a>
+      <a class="btn btn-ghost" href="/learn/ipv6-subnetting/">IPv6 subnetting guide</a>
+      <a class="btn btn-ghost" href="/examples/aws-three-tier-vpc/">AWS example</a>
+    </div>
+  </div>
+
+  <section class="section" aria-labelledby="plan-h" style="padding-top: var(--s5)">
+    <div class="section-head">
+      <h2 id="plan-h">The hierarchy</h2>
+      <span class="meta">2001:db8:acad::/48 · 256 sites · 256 LANs per site</span>
+    </div>
+    <div id="ipv6-case-plan" aria-live="polite"><!-- @prerender:ipv6-case-plan -->
+<div class="row"><span class="k">Hierarchy</span><span><b>2001:db8:acad::/48</b> → /56 sites → /64 LANs</span></div>
+<div class="row"><span class="k">Sites</span><span>256 /56 blocks (2<sup>8</sup>)</span></div>
+<div class="row"><span class="k">LANs per site</span><span>256 /64 blocks (2<sup>8</sup>)</span></div>
+<div class="row"><span class="k">Total /64 LANs</span><span><b>65,536</b> (2<sup>16</sup>)</span></div>
+<div class="table-wrap" tabindex="0" style="margin-top: var(--s3)"><table class="data">
+<thead><tr><th scope="col">Site</th><th scope="col" class="num">/64s</th><th scope="col">First /64</th><th scope="col">Last /64</th></tr></thead>
+<tbody>
+<tr><td><a href="/?q=2001:db8:acad::/56">2001:db8:acad::/56</a></td><td class="num">256</td><td><a href="/?q=2001:db8:acad::/64">2001:db8:acad::/64</a></td><td><a href="/?q=2001:db8:acad:ff::/64">2001:db8:acad:ff::/64</a></td></tr>
+<tr><td><a href="/?q=2001:db8:acad:100::/56">2001:db8:acad:100::/56</a></td><td class="num">256</td><td><a href="/?q=2001:db8:acad:100::/64">2001:db8:acad:100::/64</a></td><td><a href="/?q=2001:db8:acad:1ff::/64">2001:db8:acad:1ff::/64</a></td></tr>
+<tr><td><a href="/?q=2001:db8:acad:200::/56">2001:db8:acad:200::/56</a></td><td class="num">256</td><td><a href="/?q=2001:db8:acad:200::/64">2001:db8:acad:200::/64</a></td><td><a href="/?q=2001:db8:acad:2ff::/64">2001:db8:acad:2ff::/64</a></td></tr>
+<tr><td><a href="/?q=2001:db8:acad:300::/56">2001:db8:acad:300::/56</a></td><td class="num">256</td><td><a href="/?q=2001:db8:acad:300::/64">2001:db8:acad:300::/64</a></td><td><a href="/?q=2001:db8:acad:3ff::/64">2001:db8:acad:3ff::/64</a></td></tr>
+<tr><td><a href="/?q=2001:db8:acad:400::/56">2001:db8:acad:400::/56</a></td><td class="num">256</td><td><a href="/?q=2001:db8:acad:400::/64">2001:db8:acad:400::/64</a></td><td><a href="/?q=2001:db8:acad:4ff::/64">2001:db8:acad:4ff::/64</a></td></tr>
+<tr><td><a href="/?q=2001:db8:acad:500::/56">2001:db8:acad:500::/56</a></td><td class="num">256</td><td><a href="/?q=2001:db8:acad:500::/64">2001:db8:acad:500::/64</a></td><td><a href="/?q=2001:db8:acad:5ff::/64">2001:db8:acad:5ff::/64</a></td></tr>
+<tr><td><a href="/?q=2001:db8:acad:600::/56">2001:db8:acad:600::/56</a></td><td class="num">256</td><td><a href="/?q=2001:db8:acad:600::/64">2001:db8:acad:600::/64</a></td><td><a href="/?q=2001:db8:acad:6ff::/64">2001:db8:acad:6ff::/64</a></td></tr>
+<tr><td><a href="/?q=2001:db8:acad:700::/56">2001:db8:acad:700::/56</a></td><td class="num">256</td><td><a href="/?q=2001:db8:acad:700::/64">2001:db8:acad:700::/64</a></td><td><a href="/?q=2001:db8:acad:7ff::/64">2001:db8:acad:7ff::/64</a></td></tr>
+<tr><td><a href="/?q=2001:db8:acad:800::/56">2001:db8:acad:800::/56</a></td><td class="num">256</td><td><a href="/?q=2001:db8:acad:800::/64">2001:db8:acad:800::/64</a></td><td><a href="/?q=2001:db8:acad:8ff::/64">2001:db8:acad:8ff::/64</a></td></tr>
+<tr><td><a href="/?q=2001:db8:acad:900::/56">2001:db8:acad:900::/56</a></td><td class="num">256</td><td><a href="/?q=2001:db8:acad:900::/64">2001:db8:acad:900::/64</a></td><td><a href="/?q=2001:db8:acad:9ff::/64">2001:db8:acad:9ff::/64</a></td></tr>
+<tr><td><a href="/?q=2001:db8:acad:a00::/56">2001:db8:acad:a00::/56</a></td><td class="num">256</td><td><a href="/?q=2001:db8:acad:a00::/64">2001:db8:acad:a00::/64</a></td><td><a href="/?q=2001:db8:acad:aff::/64">2001:db8:acad:aff::/64</a></td></tr>
+<tr><td><a href="/?q=2001:db8:acad:b00::/56">2001:db8:acad:b00::/56</a></td><td class="num">256</td><td><a href="/?q=2001:db8:acad:b00::/64">2001:db8:acad:b00::/64</a></td><td><a href="/?q=2001:db8:acad:bff::/64">2001:db8:acad:bff::/64</a></td></tr>
+<tr><td><a href="/?q=2001:db8:acad:c00::/56">2001:db8:acad:c00::/56</a></td><td class="num">256</td><td><a href="/?q=2001:db8:acad:c00::/64">2001:db8:acad:c00::/64</a></td><td><a href="/?q=2001:db8:acad:cff::/64">2001:db8:acad:cff::/64</a></td></tr>
+<tr><td><a href="/?q=2001:db8:acad:d00::/56">2001:db8:acad:d00::/56</a></td><td class="num">256</td><td><a href="/?q=2001:db8:acad:d00::/64">2001:db8:acad:d00::/64</a></td><td><a href="/?q=2001:db8:acad:dff::/64">2001:db8:acad:dff::/64</a></td></tr>
+<tr><td><a href="/?q=2001:db8:acad:e00::/56">2001:db8:acad:e00::/56</a></td><td class="num">256</td><td><a href="/?q=2001:db8:acad:e00::/64">2001:db8:acad:e00::/64</a></td><td><a href="/?q=2001:db8:acad:eff::/64">2001:db8:acad:eff::/64</a></td></tr>
+<tr><td><a href="/?q=2001:db8:acad:f00::/56">2001:db8:acad:f00::/56</a></td><td class="num">256</td><td><a href="/?q=2001:db8:acad:f00::/64">2001:db8:acad:f00::/64</a></td><td><a href="/?q=2001:db8:acad:fff::/64">2001:db8:acad:fff::/64</a></td></tr>
+</tbody>
+</table></div>
+<p class="hint" style="margin-top: var(--s2)">Showing the first 16 of 256 sites. Last site: <code>2001:db8:acad:ff00::/56</code>.</p>
+<!-- /@prerender --></div>
+  </section>
+
+  <div class="section prose">
+    <h2>How the split works</h2>
+    <p>A /48 has 80 host bits, 16 of which are before the /64 boundary: 2<sup>16</sup> = 65,536 /64 LANs. Choosing /56 for the site level splits those 16 bits into 8 for the site and 8 for the LAN, giving 256 sites of 256 LANs. Every boundary is a multiple of 4, so the plan reads directly from the hex digits:</p>
+    <pre>2001:0db8:acad:<span class="net">0000</span>:<span class="host">0000:0000:0000:0000</span>   site 0, /56
+2001:0db8:acad:<span class="net">0000</span>:<span class="host">0000:0000:0000:0000</span>   first /64 of site 0
+2001:0db8:acad:<span class="net">00ff</span>:<span class="host">0000:0000:0000:0000</span>   last /64 of site 0
+2001:0db8:acad:<span class="net">ff00</span>:<span class="host">0000:0000:0000:0000</span>   last site, /56</pre>
+    <ul>
+      <li><strong>Site 0</strong> is <code>2001:db8:acad::/56</code>, holding <code>2001:db8:acad::/64</code> through <code>2001:db8:acad:ff::/64</code>.</li>
+      <li><strong>The last site</strong> is <code>2001:db8:acad:ff00::/56</code>, holding the final 256 /64s up to <code>2001:db8:acad:ffff::/64</code>.</li>
+      <li><strong>Reverse DNS</strong> delegates in 4-bit steps: the /48 is one <code>ip6.arpa</code> zone, and each /56 or /64 can be delegated from it without splitting a nibble.</li>
+    </ul>
+    <p>Ordinary LANs stay at /64 because SLAAC assumes a 64-bit interface ID (RFC 4862, analysed in RFC 7421). Router links can use /127 (RFC 6164) and loopbacks /128, but those are separate small blocks, not part of the site plan. RFC 6177 is the reason the site level here is /56 rather than handing each site a single /64.</p>
+    <p>Inspect a block in the <a href="/ipv6/">IPv6 tools</a>, or read the full walk-through in <a href="/learn/ipv6-subnetting/">IPv6 subnetting</a>. For IPv4 planning with host counts, see the <a href="/examples/aws-three-tier-vpc/">AWS three-tier example</a>.</p>
+  </div>
+
+  <section class="section faq" aria-labelledby="faq-h">
+    <h2 id="faq-h">Questions</h2>
+    <details>
+      <summary>How many /64 LANs are in a /48?</summary>
+      <div class="answer"><p>65,536. A /48 leaves 16 bits before the /64 boundary, and 2<sup>16</sup> = 65,536. Splitting the same /48 into /56 sites gives 256 sites with 256 /64s each.</p></div>
+    </details>
+    <details>
+      <summary>Why use /56 for a site instead of /48?</summary>
+      <div class="answer"><p><a href="https://www.rfc-editor.org/rfc/rfc6177">RFC 6177</a> recommends giving an end site at least a /56 rather than a single /64. A /56 holds 256 /64 LANs, which fits most buildings and homes, and it stays on a nibble boundary for reverse DNS delegation.</p></div>
+    </details>
+    <details>
+      <summary>Why must a LAN stay at /64?</summary>
+      <div class="answer"><p>SLAAC assumes a 64-bit interface ID, and <a href="https://www.rfc-editor.org/rfc/rfc7421">RFC 7421</a> lists the features that break with other LAN sizes. Routed links can be /127 and loopbacks /128, but ordinary LANs are /64.</p></div>
+    </details>
+    <details>
+      <summary>What is the reverse DNS zone for this plan?</summary>
+      <div class="answer"><p>Write the /48 as nibbles, reverse them and add <code>ip6.arpa</code>: <code>2001:db8:acad::/48</code> becomes <code>d.c.a.8.b.d.0.1.0.0.2.ip6.arpa</code>. Each /56 or /64 site delegates its own zone from that point because every level is nibble aligned.</p></div>
+    </details>
+  </section>
+</main>
+<!-- @footer -->
+<footer class="site-footer">
+  <div class="wrap footer-grid">
+    <div>
+      <h2>SubnetCalc</h2>
+      <p class="footer-note">Every calculation runs in your browser. Share links carry the inputs you put in them.</p>
+    </div>
+    <div>
+      <h2>Tools</h2>
+      <ul>
+        <li><a href="/">Subnet calculator</a></li>
+        <li><a href="/vlsm/">VLSM planner</a></li>
+        <li><a href="/cidr/">CIDR aggregation &amp; overlaps</a></li>
+        <li><a href="/ip-range-to-cidr/">IP range to CIDR</a></li>
+        <li><a href="/cidr-overlap-checker/">CIDR overlap checker</a></li>
+        <li><a href="/ipv6/">IPv6 tools</a></li>
+        <li><a href="/ipv6-subnet-plan/">IPv6 subnet plan</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Learn</h2>
+      <ul>
+        <li><a href="/learn/subnetting/">Subnetting, step by step</a></li>
+        <li><a href="/learn/cidr-cheat-sheet/">CIDR cheat sheet</a></li>
+        <li><a href="/learn/ipv6-subnetting/">IPv6 subnetting</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Examples</h2>
+      <ul>
+        <li><a href="/examples/aws-three-tier-vpc/">AWS three-tier VPC</a></li>
+        <li><a href="/examples/azure-hub-spoke/">Azure hub-spoke</a></li>
+        <li><a href="/examples/ipv6-48-56-64/">IPv6 /48 → /56 → /64</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Engine</h2>
+      <ul>
+        <li><a href="/lib/subnet.js">lib/subnet.js</a> · MIT</li>
+        <li><a href="/lib/data/special-purpose.json">IANA special-purpose data</a></li>
+        <li><a href="/verification/">How results are verified</a></li>
+        <li><a href="/privacy/">Privacy</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+<!-- /@footer -->
+</body>
+</html>
