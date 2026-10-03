@@ -1,6 +1,26 @@
-# Verification — 2026-10-03 (round 5)
+# Verification — 2026-10-03 (round 6)
 
 ## Completed
+
+Round 6 (URL state fixes, commit `d9b0208`):
+
+- Clear and example buttons now update the URL through the same render path as typing, so a
+  refresh keeps the visible state in `/cidr/`, `/ip-range-to-cidr/`, `/cidr-overlap-checker/` and
+  `/ipv6-subnet-plan/` instead of restoring the previous input. Clearing `/cidr/` drops the list
+  parameter; a refresh then shows the page default, since the URL has no separate empty state.
+- Browser checks grow to 113: clearing `/cidr/` and the range, overlap and IPv6 plan example
+  buttons keep their state across a reload.
+
+Round 5 (analytics consent, commit `ad53bc0`):
+
+- GA4 and Clarity are opt-in. A consent panel (Allow, Reject, Later and a persistent "Analytics
+  settings" button) appears on `subnetcalc.dev`, and the choice is kept in `localStorage`.
+  `track()` no-ops until consent; GA4 uses Consent Mode with ad signals denied and its automatic
+  page view off; Clarity is limited to query-free `/privacy/` and `/learn/` pages whose links
+  carry no query string.
+- Withdrawing consent sends the denied signals and reloads the page, so a provider script that
+  already loaded stops collecting in that tab. The privacy page, README and unit tests cover the
+  new behavior.
 
 Round 4 (example pages, branch `site/examples`):
 
@@ -13,17 +33,6 @@ Round 4 (example pages, branch `site/examples`):
   links from the VLSM planner and the IPv6 subnet plan page.
 - All three pass the site check (canonical, FAQ schema, internal links, sitemap) and Lighthouse:
   mobile 99 / 100 / 100 / 100, desktop 100 / 100 / 100 / 100.
-
-Round 5 (analytics consent, commit `ad53bc0`):
-
-- GA4 and Clarity are opt-in. A consent panel (Allow, Reject, Later and a persistent "Analytics
-  settings" button) appears on `subnetcalc.dev`, and the choice is kept in `localStorage`.
-  `track()` no-ops until consent; GA4 uses Consent Mode with ad signals denied and its automatic
-  page view off; Clarity is limited to query-free `/privacy/` and `/learn/` pages whose links
-  carry no query string.
-- Withdrawing consent sends the denied signals and reloads the page, so a provider script that
-  already loaded stops collecting in that tab. The privacy page, README and unit tests cover the
-  new behavior.
 
 Round 3 (earlier commit `380ee3e`):
 
@@ -137,7 +146,7 @@ establish production-domain performance or analytics delivery.
 
 ## Browser checks
 
-- Chromium (Playwright, headless): 109 checks pass. 17 pages load without JS errors; VLSM paste
+- Chromium (Playwright, headless): 113 checks pass. 17 pages load without JS errors; VLSM paste
   keeps three rows and flags line 2; five malformed VLSM URLs initialize cleanly; CIDR invalid
   lines disable copy and clear the clean-list claim, and fixing the list re-enables it; share
   links for the subnet calculator, VLSM, CIDR, IPv6 (including a fixed ULA), range and overlap
@@ -147,9 +156,11 @@ establish production-domain performance or analytics delivery.
   OSPF, ACL and Route exports render; the IPv6 plan counts and off-nibble note are correct; the
   IPv6 download button disables itself for oversized splits and re-enables after; IPv4 reverse
   rows appear; a saved VLSM plan survives a reload, restores the parent, stores only the query
-  string and deletes cleanly; analytics stays silent until the consent panel's Allow button, then
-  sends only sanitized page fields and referrer (stubbed gtag under a routed `subnetcalc.dev`
-  origin); the three worked example pages render their pre-rendered AWS/Azure/IPv6 plans, and each
+  string and deletes cleanly; clearing `/cidr/` and the range, overlap and IPv6 plan example
+  buttons keep their state across a reload; analytics stays silent until the consent panel's
+  Allow button, then sends only sanitized page fields and referrer (stubbed gtag under a routed
+  `subnetcalc.dev` origin); the three worked example pages render their pre-rendered AWS/Azure/
+  IPv6 plans, and each
   CTA opens the matching planner with the same plan; every page has no horizontal overflow at 390
   CSS pixels.
 - WebKit (Playwright): 19 checks pass. The same pages load without errors and the input fixes,

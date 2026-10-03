@@ -47,6 +47,7 @@ function update() {
   out.innerHTML = renderRange(a, b);
   text = rangeSummary(a, b);
   setActions();
+  syncUrl();
   trackState();
 }
 

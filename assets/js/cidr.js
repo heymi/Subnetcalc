@@ -52,6 +52,7 @@ function updateNets() {
   $('#sup-out').innerHTML = r.sup;
   $('#ovl-out').innerHTML = r.ovl;
   updateActions();
+  syncUrl();
   trackState();
 }
 
@@ -66,6 +67,7 @@ function updateRange() {
   $('#range-out').innerHTML = renderRange(a, b);
   rangeText = rangeSummary(a, b);
   updateActions();
+  syncUrl();
 }
 
 function summaryText() {
