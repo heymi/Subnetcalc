@@ -185,22 +185,30 @@ Full Lighthouse JSON reports and browser logs are saved outside the deploy root 
 `../Subnetcalc-artifacts/2026-10-03-round4/` (round 4), `../Subnetcalc-artifacts/2026-10-03-round3/`
 (round 3) and `../Subnetcalc-artifacts/2026-10-03-round2/` (round 2) on this machine.
 
+## Deployment
+
+On 2026-10-03 the production Cloudflare Pages project `subnetcalc` was updated from commit
+`22584a3` by direct upload (`npx wrangler pages deploy . --project-name=subnetcalc --branch=main`).
+After the deploy, `/`, `/vlsm/`, `/privacy/`, `/ipv6-subnet-plan/` and the three `/examples/...`
+pages return 200; `/privacy/` serves the round-5 consent copy and `/assets/js/cidr.js` serves the
+round-6 fix. Before this deploy, production still served `1d77672`, which is why the newer pages
+404ed and the privacy page was stale.
+
 ## Remaining external gates
 
-1. Provide this site's GA4 Measurement ID and Clarity Project ID; both remain empty, so the
-   analytics scripts are not loaded and the events are no-ops. Before enabling them: keep GA4
-   enhanced measurement's "page changes based on browser history events" disabled (the URL is
-   rewritten as you type; the code sends one sanitized page_view), and set Clarity masking to
-   the strictest level, then verify no input or result text appears in a recording.
-2. Cloudflare Git project creation returned HTTP 401 / error 8000011 in the previous pass:
-   reconnect GitHub in Cloudflare, then create the production Pages project for `heymi/Subnetcalc`,
-   branch `main`, build command `npm run check`, output `/`, Node 24.
-3. Buy/connect `subnetcalc.dev`, verify HTTPS, add its GSC property and submit
-   `https://subnetcalc.dev/sitemap.xml`.
+1. The GA4 Measurement ID and Clarity Project ID are configured (round 5) and load only after
+   consent. Before trusting the reports, confirm in the provider dashboards that GA4 Enhanced
+   Measurement stays off and Clarity uses strict masking with its Cookie setting off, then check
+   that no input or result text appears in a recording.
+2. Cloudflare Pages deploys by direct upload. Cloudflare Git integration is still not connected
+   (the earlier attempt returned HTTP 401 / error 8000011), so pushes to `main` do not
+   auto-deploy; connect GitHub in Cloudflare to switch to Git-based continuous deployment.
+3. `subnetcalc.dev` is connected to the Pages project and serves HTTPS; the GSC property and the
+   sitemap submission at `https://subnetcalc.dev/sitemap.xml` remain open.
 4. The GitHub repository is now public (PR #3 merge); distribution and directory submissions
    remain user-owned.
 5. A human visual pass at 390, 768 and 1440 CSS pixels over the new pages is still worthwhile;
    automated width checks and Lighthouse accessibility pass, but design judgment is not automated.
 
 No domain purchase, production DNS change, repository visibility change, social post or directory
-submission was made.
+submission was made; the round-6 deploy was a direct upload to the existing Pages project.
