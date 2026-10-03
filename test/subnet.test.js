@@ -431,16 +431,55 @@ describe('capacity rules (application policy)', () => {
     assert.deepEqual(p.free.map(formatCidr), ['10.0.0.3/32']);
   });
   test('planVlsm records and applies the provider rule', () => {
-    const p = planVlsm('10.0.0.0/24', [{ name: 'Edge', hosts: 60 }], { reservedHosts: 5, minPrefix: 28, provider: 'aws' }).plan;
+    const p = planVlsm('10.0.0.0/24', [{ name: 'Edge', hosts: 60 }], {
+      reservedHosts: 5,
+      reserveHead: 4,
+      reserveTail: 1,
+      minPrefix: 28,
+      maxPrefix: 16,
+      provider: 'aws',
+    }).plan;
     assert.equal(p.allocations[0].prefix, 25);
     assert.equal(String(p.allocations[0].usableHosts), '123');
     assert.equal(String(p.allocations[0].wasted), '63');
     assert.equal(p.reservedHosts, 5);
+    assert.equal(p.reserveHead, 4);
+    assert.equal(p.reserveTail, 1);
     assert.equal(p.minPrefix, 28);
+    assert.equal(p.maxPrefix, 16);
     assert.equal(p.provider, 'aws');
     const generic = planVlsm('10.0.0.0/24', [{ name: 'Edge', hosts: 60 }]).plan;
     assert.equal(generic.allocations[0].prefix, 26);
     assert.equal(generic.provider, null);
+  });
+  test('reservation positions drive the first and last usable address', () => {
+    const plan = (opts) => planVlsm('10.0.0.0/24', [{ name: 'Edge', hosts: 20 }], opts).plan.allocations[0];
+    const generic = plan({});
+    assert.deepEqual([generic.firstHost, generic.lastHost, String(generic.usableHosts)], ['10.0.0.1', '10.0.0.30', '30']);
+    const aws = plan({ reservedHosts: 5, reserveHead: 4, reserveTail: 1, minPrefix: 28, maxPrefix: 16, provider: 'aws' });
+    assert.equal(aws.cidr, '10.0.0.0/27');
+    assert.deepEqual([aws.firstHost, aws.lastHost, String(aws.usableHosts)], ['10.0.0.4', '10.0.0.30', '27']);
+    const azure = plan({ reservedHosts: 5, reserveHead: 4, reserveTail: 1, minPrefix: 29, provider: 'azure' });
+    assert.deepEqual([azure.firstHost, azure.lastHost], ['10.0.0.4', '10.0.0.30']);
+    const gcp = plan({ reservedHosts: 4, reserveHead: 2, reserveTail: 2, minPrefix: 29, provider: 'gcp' });
+    assert.deepEqual([gcp.firstHost, gcp.lastHost, String(gcp.usableHosts)], ['10.0.0.2', '10.0.0.29', '28']);
+  });
+  test('AWS maximum subnet /16 rejects requests that would need a larger block', () => {
+    const aws = { reservedHosts: 5, reserveHead: 4, reserveTail: 1, minPrefix: 28, maxPrefix: 16, provider: 'aws' };
+    assertCode(() => requiredPrefix(70000, aws), 'PROVIDER_LIMIT');
+    const r = planVlsm('10.0.0.0/8', [{ name: 'Big', hosts: 70000 }], aws);
+    assert.equal(r.ok, false);
+    assert.equal(r.error.code, 'PROVIDER_LIMIT');
+    assert.match(r.error.message, /maximum subnet \/16/);
+    assert.match(r.error.message, /"Big"/);
+    const fits = planVlsm('10.0.0.0/8', [{ name: 'Big', hosts: 65531 }], aws).plan.allocations[0];
+    assert.equal(fits.prefix, 16);
+    assert.equal(fits.firstHost, '10.0.0.4');
+    assert.equal(fits.lastHost, '10.0.255.254');
+  });
+  test('a reservation layout that does not add up is rejected', () => {
+    assertCode(() => requiredPrefix(1, { reservedHosts: 5, reserveHead: 2, reserveTail: 2 }), 'INVALID_RESERVATION');
+    assertCode(() => requiredPrefix(1, { reservedHosts: 2, reserveHead: -1, reserveTail: 3 }), 'INVALID_RESERVATION');
   });
 });
 

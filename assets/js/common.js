@@ -6,6 +6,8 @@ import { track, toolName } from './analytics.js';
 const GA4_ID = ''; // e.g. 'G-XXXXXXXXXX'
 const CLARITY_ID = ''; // e.g. 'abcdefghij'
 const PROD_HOST = 'subnetcalc.dev';
+// Captured before any page script can put an input into the title (the calculator does).
+const PAGE_TITLE = document.title;
 
 // ── Theme: auto (system) → light → dark → auto
 const root = document.documentElement;
@@ -60,13 +62,14 @@ document.addEventListener('keydown', (e) => {
 });
 
 // ── Copy buttons: <button data-copy="text"> or <button data-copy-from="#id">
-document.addEventListener('click', (e) => {
+document.addEventListener('click', async (e) => {
   const b = e.target.closest('[data-copy], [data-copy-from]');
   if (!b || b.disabled) return;
   const src = b.dataset.copyFrom ? document.querySelector(b.dataset.copyFrom) : null;
   const text = src ? (src.value ?? src.textContent) : b.dataset.copy;
-  copyText(text, b.dataset.copyLabel || 'Copied');
+  const ok = await copyText(text, b.dataset.copyLabel || 'Copied');
   track('copy', { tool: toolName(), kind: 'value' });
+  if (!ok) return;
   b.classList.add('is-done');
   setTimeout(() => b.classList.remove('is-done'), 1200);
 });
@@ -91,10 +94,20 @@ function analytics() {
       window.dataLayer.push(arguments);
     };
     window.gtag('js', new Date());
-    window.gtag('config', GA4_ID);
+    // The automatic page_view is off so it cannot carry the input query string, which
+    // this site writes into the URL as you type. The explicit event sends the path only
+    // and the input-free title. Keep GA4 enhanced measurement's "page changes based on
+    // browser history events" disabled in the property for the same reason.
+    window.gtag('config', GA4_ID, { send_page_view: false });
+    window.gtag('event', 'page_view', {
+      page_location: location.origin + location.pathname,
+      page_title: PAGE_TITLE,
+    });
     loadScript(`https://www.googletagmanager.com/gtag/js?id=${GA4_ID}`);
   }
   if (CLARITY_ID) {
+    // Before enabling Clarity, set its masking to the strictest level in the project
+    // settings and verify that no input text or tool result appears in recordings.
     window.clarity =
       window.clarity ||
       function () {

@@ -88,10 +88,28 @@ describe('VLSM share query', () => {
     assert.equal(parseVlsmSearch('?p=10.0.0.0/24&c=gcp').cloud, 'gcp');
     assert.equal(parseVlsmSearch('?p=10.0.0.0/24&c=bogus').cloud, 'generic');
     assert.equal(parseVlsmSearch('?p=10.0.0.0/24').cloud, 'generic');
-    assert.deepEqual(CLOUD_RULES.aws, { provider: 'aws', reservedHosts: 5, minPrefix: 28, label: 'AWS VPC' });
+    assert.deepEqual(CLOUD_RULES.aws, {
+      provider: 'aws',
+      reservedHosts: 5,
+      reserveHead: 4,
+      reserveTail: 1,
+      minPrefix: 28,
+      maxPrefix: 16,
+      label: 'AWS VPC',
+    });
     assert.equal(CLOUD_RULES.azure.minPrefix, 29);
-    assert.deepEqual(CLOUD_RULES.gcp, { provider: 'gcp', reservedHosts: 4, minPrefix: 29, label: 'Google Cloud VPC' });
+    assert.deepEqual(CLOUD_RULES.gcp, {
+      provider: 'gcp',
+      reservedHosts: 4,
+      reserveHead: 2,
+      reserveTail: 2,
+      minPrefix: 29,
+      maxPrefix: 0,
+      label: 'Google Cloud VPC',
+    });
     assert.equal(CLOUD_RULES.generic.reservedHosts, 2);
+    assert.equal(CLOUD_RULES.generic.reserveHead, 1);
+    assert.equal(CLOUD_RULES.generic.reserveTail, 1);
   });
 
   test('the /32 option round-trips in the share query', () => {

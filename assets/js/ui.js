@@ -43,9 +43,15 @@ export function toast(msg) {
   toastTimer = setTimeout(() => toastEl.classList.remove('is-on'), 1400);
 }
 
+/**
+ * Copy text and report whether it actually landed on the clipboard.
+ * @returns {Promise<boolean>}
+ */
 export async function copyText(text, label = 'Copied') {
+  let ok = false;
   try {
     await navigator.clipboard.writeText(text);
+    ok = true;
   } catch {
     try {
       const ta = document.createElement('textarea');
@@ -55,13 +61,14 @@ export async function copyText(text, label = 'Copied') {
       ta.style.opacity = '0';
       document.body.append(ta);
       ta.select();
-      document.execCommand('copy');
+      ok = document.execCommand('copy') === true;
       ta.remove();
     } catch {
-      /* clipboard access can be denied; the toast still confirms the intent */
+      ok = false;
     }
   }
-  toast(label);
+  toast(ok ? label : 'Copy failed - select the text and copy it manually');
+  return ok;
 }
 
 export function download(filename, text, type = 'text/plain') {

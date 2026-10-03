@@ -75,10 +75,10 @@ export const CAPACITY_REQUESTS = [
  * minimum subnet size, so allocation and the AWS/Azure exports agree.
  */
 export const CLOUD_RULES = {
-  generic: { provider: null, reservedHosts: 2, minPrefix: 32, label: 'Generic' },
-  aws: { provider: 'aws', reservedHosts: 5, minPrefix: 28, label: 'AWS VPC' },
-  azure: { provider: 'azure', reservedHosts: 5, minPrefix: 29, label: 'Azure VNet' },
-  gcp: { provider: 'gcp', reservedHosts: 4, minPrefix: 29, label: 'Google Cloud VPC' },
+  generic: { provider: null, reservedHosts: 2, reserveHead: 1, reserveTail: 1, minPrefix: 32, maxPrefix: 0, label: 'Generic' },
+  aws: { provider: 'aws', reservedHosts: 5, reserveHead: 4, reserveTail: 1, minPrefix: 28, maxPrefix: 16, label: 'AWS VPC' },
+  azure: { provider: 'azure', reservedHosts: 5, reserveHead: 4, reserveTail: 1, minPrefix: 29, maxPrefix: 0, label: 'Azure VNet' },
+  gcp: { provider: 'gcp', reservedHosts: 4, reserveHead: 2, reserveTail: 2, minPrefix: 29, maxPrefix: 0, label: 'Google Cloud VPC' },
 };
 
 /**

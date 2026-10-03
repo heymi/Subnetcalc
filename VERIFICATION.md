@@ -20,6 +20,24 @@ Round 3 (this pass):
   the list as JSON. Stored entries contain only the share query; the privacy note now lists this
   alongside the theme preference.
 
+Round 3.1 (QA fixes, still on `site/round-3`):
+
+- Cloud usable ranges now follow the provider reservation layout: AWS/Azure reserve the first
+  four and the last address (usable `.4–.30` in a /27), GCP the first two and the last two
+  (`.2–.29`). The fix covers the results table, CSV/JSON, ticket text and Cisco output.
+- AWS rejects a request that would need a block larger than /16 (`PROVIDER_LIMIT`), and the
+  planner shows it as a provider limit.
+- The ACL export now emits a complete extended-ACL statement with a destination (`permit ip
+  <net> <wildcard> any`), and the header says to replace `any`.
+- Bicep strings escape reserved characters with a backslash (`\'`, `\${`), not doubled quotes.
+- The IPv6 download button tracks whether the last render was fresh, so an incomplete input
+  cannot download a stale list under the new input's filename.
+- Copy actions report the real clipboard result; a failed copy shows a manual-copy message
+  instead of "Copied".
+- Analytics page views are sanitized before any ID is enabled: the automatic GA4 page view is
+  off, the explicit one sends the path only and an input-free title, and the Clarity masking
+  requirement is recorded as a gate.
+
 Round 2 (earlier commit `59d9f9d`):
 
 - VLSM pastes keep every line. An unreadable line becomes a row with a blank host count and is
@@ -50,7 +68,7 @@ hierarchy with folded details, the two dedicated pages, verification and privacy
 
 ## Local checks
 
-`npm run check`: 305 tests pass; site check: 14 pages, 0 errors, 0 warnings.
+`npm run check`: 308 tests pass; site check: 14 pages, 0 errors, 0 warnings.
 
 `npm run crosscheck` was not re-run in this pass: the engine vectors and their expected values are
 unchanged, and all 232 still pass in the Node suite. The recorded cross-check used Python 3.13.15
@@ -64,7 +82,7 @@ Performance / Accessibility / Best practices / SEO.
 
 | Page | Mobile | Desktop |
 | --- | --- | --- |
-| `/` | 97 / 100 / 100 / 100 | 100 / 100 / 100 / 100 |
+| `/` | 96 / 100 / 100 / 100 | 100 / 100 / 100 / 100 |
 | `/vlsm/` | 96 / 100 / 100 / 100 | 100 / 100 / 100 / 100 |
 | `/cidr/` | 97 / 100 / 100 / 100 | 100 / 100 / 100 / 100 |
 | `/ipv6/` | 96 / 100 / 100 / 100 | 100 / 100 / 100 / 100 |
@@ -83,7 +101,7 @@ establish production-domain performance or analytics delivery.
 
 ## Browser checks
 
-- Chromium (Playwright, headless): 80 checks pass. 14 pages load without JS errors; VLSM paste
+- Chromium (Playwright, headless): 85 checks pass. 14 pages load without JS errors; VLSM paste
   keeps three rows and flags line 2; five malformed VLSM URLs initialize cleanly; CIDR invalid
   lines disable copy and clear the clean-list claim, and fixing the list re-enables it; share
   links for the subnet calculator, VLSM, CIDR, IPv6 (including a fixed ULA), range and overlap
@@ -100,11 +118,13 @@ establish production-domain performance or analytics delivery.
   (`sandbox_extension_issue_file_to_process ... Operation not permitted`). This is a local
   environment limit, not a site result; a manual Firefox pass remains open.
 
-An acceptance QA pass ran 49 Chromium checks and 11 WebKit checks against the round-3 features:
-GCP allocation/export/share, `/32` host routes, all five new exports (content and file downloads),
-saved-plan create/load/delete with JSON import/export and name escaping, the IPv6 download toggle,
-IPv4 reverse rows, round-2 regressions and a 390px layout pass. All 60 passed; the reports are at
-`../Subnetcalc-artifacts/2026-10-03-round3/qa-report.json` and `qa-webkit.json`.
+An acceptance QA pass ran 55 Chromium checks and 11 WebKit checks against the round-3 and 3.1
+features: cloud reservation ranges (AWS `.4–.30`, GCP `.2–.29`), the AWS `/16` limit, GCP
+allocation/export/share, `/32` host routes, all five new exports (content and file downloads),
+saved-plan create/load/delete with JSON import/export and name escaping, the IPv6 download toggle
+including stale input, copy-failure reporting, IPv4 reverse rows, round-2 regressions and a 390px
+layout pass. All 66 passed; the reports are at `../Subnetcalc-artifacts/2026-10-03-round3/qa-report.json`
+and `qa-webkit.json`.
 
 Full Lighthouse JSON reports and browser logs are saved outside the deploy root at
 `../Subnetcalc-artifacts/2026-10-03-round3/` (round 3) and `../Subnetcalc-artifacts/2026-10-03-round2/`
@@ -113,7 +133,10 @@ Full Lighthouse JSON reports and browser logs are saved outside the deploy root 
 ## Remaining external gates
 
 1. Provide this site's GA4 Measurement ID and Clarity Project ID; both remain empty, so the
-   analytics scripts are not loaded and the events are no-ops. Update `/privacy/` when IDs exist.
+   analytics scripts are not loaded and the events are no-ops. Before enabling them: keep GA4
+   enhanced measurement's "page changes based on browser history events" disabled (the URL is
+   rewritten as you type; the code sends one sanitized page_view), and set Clarity masking to
+   the strictest level, then verify no input or result text appears in a recording.
 2. Cloudflare Git project creation returned HTTP 401 / error 8000011 in the previous pass:
    reconnect GitHub in Cloudflare, then create the production Pages project for `heymi/Subnetcalc`,
    branch `main`, build command `npm run check`, output `/`, Node 24.

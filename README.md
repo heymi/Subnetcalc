@@ -46,9 +46,10 @@ netmask, and the result has `maskAmbiguous: true`. Pass `{ maskAs: 'wildcard' }`
   parent, gives 2 hosts a /30 unless `allowSlash31` is set, and gives 1 host a /30 unless
   `allowSlash32` is set. Only IPv4 is supported.
 - **Capacity rules** are options, not hard-coded policy: `requiredPrefix()` and `planVlsm()` accept
-  `reservedHosts` and `minPrefix`, so AWS-style (5 reserved, /28), Azure-style (5 reserved, /29)
-  and GCP-style (4 reserved, /29) planning uses the same rule for allocation, the results table
-  and the exports.
+  `reservedHosts`, `reserveHead`/`reserveTail`, `minPrefix` and `maxPrefix`, so AWS-style
+  (4 + 1 reserved, /28 min, /16 max), Azure-style (4 + 1 reserved, /29 min) and GCP-style
+  (2 + 2 reserved, /29 min, primary ranges) planning uses one rule for allocation, the usable
+  range, the results table and the exports.
 - **Special-purpose** data comes from the IANA registries and lives in
   [`lib/data/special-purpose.json`](lib/data/special-purpose.json), with source URLs and the retrieval date.
   Scope and IPv6 type describe the entered address, even when its prefix spans other scopes.

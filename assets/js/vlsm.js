@@ -157,13 +157,7 @@ function render() {
   const list = readRows();
   syncUrl();
   const rule = cloudRule();
-  const opts = {
-    allowSlash31: s31.checked,
-    allowSlash32: s32.checked,
-    reservedHosts: rule.reservedHosts,
-    minPrefix: rule.minPrefix,
-    provider: rule.provider,
-  };
+  const opts = { allowSlash31: s31.checked, allowSlash32: s32.checked, ...rule };
   if (!parent.trim()) {
     status.innerHTML = loadNotice;
     plan = null;
@@ -199,7 +193,8 @@ function render() {
 
 function errorHtml(e, list, opts) {
   if (e.code === 'INCOMPLETE') return '';
-  let s = `<p class="notice is-error"><strong>${e.code === 'INSUFFICIENT_SPACE' ? 'Does not fit:' : 'Check the input:'}</strong> ${esc(e.message)}.`;
+  const heading = e.code === 'INSUFFICIENT_SPACE' ? 'Does not fit:' : e.code === 'PROVIDER_LIMIT' ? 'Provider limit:' : 'Check the input:';
+  let s = `<p class="notice is-error"><strong>${heading}</strong> ${esc(e.message)}.`;
   if (e.code === 'INSUFFICIENT_SPACE') {
     let p = null;
     try {
