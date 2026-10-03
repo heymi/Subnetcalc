@@ -25,7 +25,7 @@ import { renderResults, reverseNameV4, reverseZoneV4 } from '../assets/js/calc-r
 import { ipv6SummaryText } from '../assets/js/ipv6-render.js';
 import { planCounts, renderPlan } from '../assets/js/ipv6-plan-render.js';
 import { MAX_PLANS, parsePlanList, removePlan, sanitizePlanName, serializePlans, upsertPlan } from '../assets/js/workspace.js';
-import { pageContext } from '../assets/js/analytics.js';
+import { pageContext, setAnalyticsEnabled, track } from '../assets/js/analytics.js';
 
 describe('VLSM paste parsing', () => {
   test('keeps every line in order and reports the unreadable one', () => {
@@ -256,6 +256,33 @@ describe('analytics page context', () => {
     );
     assert.equal(pageContext('https://subnetcalc.dev/', 'T', 'not a url').page_referrer, '');
     assert.equal(pageContext('https://subnetcalc.dev/', 'T', '').page_referrer, '');
+  });
+
+  test('tracking stays off until consent and sends only allowlisted event metadata', () => {
+    const previousWindow = globalThis.window;
+    const calls = [];
+    globalThis.window = { gtag: (...args) => calls.push(args) };
+
+    try {
+      setAnalyticsEnabled(false);
+      track('calc_done', { tool: 'subnet', input: '10.77.88.99/24' });
+      assert.equal(calls.length, 0);
+
+      setAnalyticsEnabled(true);
+      track('calc_done', { tool: 'subnet', input: '10.77.88.99/24', count: 3 });
+      assert.equal(calls.length, 1);
+      assert.deepEqual(calls[0][2], {
+        page_location: '',
+        page_title: '',
+        page_referrer: '',
+        tool: 'subnet',
+        count: 3,
+      });
+    } finally {
+      setAnalyticsEnabled(false);
+      if (previousWindow === undefined) delete globalThis.window;
+      else globalThis.window = previousWindow;
+    }
   });
 });
 

@@ -87,8 +87,8 @@ Cloudflare Pages setup:
 - **Output directory:** `/`
 - `_headers` sets caching and security headers. `_redirects` returns 404 for `/test/`, `/scripts/` and `/.github/`.
 
-Analytics: GA4 and Clarity load only on `subnetcalc.dev`, and only once the page is idle. They stay off until
-the IDs in `assets/js/common.js` are filled in.
+Analytics: GA4 and Clarity stay off until a visitor opts in. GA4 sends sanitized page paths and a small
+allowlist of events. Clarity is limited to query-safe privacy and Learn pages; see `/privacy/`.
 
 ## Tests
 
