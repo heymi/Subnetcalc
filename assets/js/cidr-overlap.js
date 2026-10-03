@@ -44,6 +44,7 @@ function update() {
   errors.innerHTML = r.errors;
   out.innerHTML = r.report;
   setActions();
+  syncUrl();
   trackState();
 }
 

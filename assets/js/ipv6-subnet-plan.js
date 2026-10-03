@@ -47,6 +47,7 @@ function update() {
   out.innerHTML = r.html;
   summary = r.summary;
   setActions();
+  syncUrl();
   trackState();
 }
 
