@@ -1,8 +1,54 @@
-# Verification — 2026-10-03 (round 2)
+# Verification — 2026-10-03 (round 3)
 
 ## Completed
 
-Round 2 (this pass):
+Round 3 (this pass):
+
+- `/ipv6/` "Download list" is disabled when a split is too large to generate, with a title that
+  explains why, instead of doing nothing.
+- Google Cloud capacity rule: 4 reserved addresses (network, gateway, second-to-last, broadcast)
+  and a /29 minimum, applied to allocation, the results table and the GCP export like AWS/Azure.
+- New exports: CloudFormation (logical IDs, `CidrBlock`, Name tags), Bicep (subnet resources for an
+  existing VNet), OSPF `network` statements, extended ACL entries and a summary `Null0` route.
+- `/32` option for single-host requests (loopback / host route), alongside the `/31` option, saved
+  in the share URL.
+- IPv4 reverse DNS: PTR name for every address and the `in-addr.arpa` zone when the prefix is
+  octet-aligned, shown in the calculator's details fold.
+- 6to4 is marked "deprecated by RFC 7526" and Teredo "legacy transition mechanism"; the
+  non-contiguous-mask error now explains that Cisco ACL wildcards of that shape do not map to CIDR.
+- The VLSM planner can save plans in `localStorage`, reload them, delete them and export/import
+  the list as JSON. Stored entries contain only the share query; the privacy note now lists this
+  alongside the theme preference.
+
+Round 3.1 (QA fixes, still on `site/round-3`):
+
+- Cloud usable ranges now follow the provider reservation layout: AWS/Azure reserve the first
+  four and the last address (usable `.4–.30` in a /27), GCP the first two and the last two
+  (`.2–.29`). The fix covers the results table, CSV/JSON, ticket text and Cisco output.
+- AWS rejects a request that would need a block larger than /16 (`PROVIDER_LIMIT`), and the
+  planner shows it as a provider limit.
+- The ACL export now emits a complete extended-ACL statement with a destination (`permit ip
+  <net> <wildcard> any`), and the header says to replace `any`.
+- Bicep strings escape reserved characters with a backslash (`\'`, `\${`), not doubled quotes.
+- The IPv6 download button tracks whether the last render was fresh, so an incomplete input
+  cannot download a stale list under the new input's filename.
+- Copy actions report the real clipboard result; a failed copy shows a manual-copy message
+  instead of "Copied".
+- Analytics page views are sanitized before any ID is enabled: the automatic GA4 page view is
+  off, the explicit one sends the path only and an input-free title, and the Clarity masking
+  requirement is recorded as a gate.
+- Every cloud export re-checks provider bounds, not just the provider built for: a generic /15
+  or /30 is flagged in the AWS/GCP lists, CloudFormation (/16–/28) and Bicep (/29 minimum) with
+  a per-subnet WARNING comment.
+- Analytics page context is attached to every event, not only `page_view`: `track()` and the
+  GA4 config both carry `page_location` without the query string, the title captured before
+  page scripts can add an input, and `page_referrer` stripped of its query string and fragment
+  (a same-site link from the calculator would otherwise carry `?q=...`), verified with a
+  stubbed gtag in Chromium and WebKit.
+- `reservedHosts: 0` works again: the default reservation layout is 0 + 0, so a no-reservation
+  plan keeps every address (`requiredPrefix(20, { reservedHosts: 0 })` is /27).
+
+Round 2 (earlier commit `59d9f9d`):
 
 - VLSM pastes keep every line. An unreadable line becomes a row with a blank host count and is
   named by line number in a notice, instead of being dropped silently.
@@ -32,7 +78,7 @@ hierarchy with folded details, the two dedicated pages, verification and privacy
 
 ## Local checks
 
-`npm run check`: 291 tests pass; site check: 14 pages, 0 errors, 0 warnings.
+`npm run check`: 312 tests pass; site check: 14 pages, 0 errors, 0 warnings.
 
 `npm run crosscheck` was not re-run in this pass: the engine vectors and their expected values are
 unchanged, and all 232 still pass in the Node suite. The recorded cross-check used Python 3.13.15
@@ -65,32 +111,52 @@ establish production-domain performance or analytics delivery.
 
 ## Browser checks
 
-- Chromium (Playwright, headless): 60 checks pass. 14 pages load without JS errors; VLSM paste
+- Chromium (Playwright, headless): 91 checks pass. 14 pages load without JS errors; VLSM paste
   keeps three rows and flags line 2; five malformed VLSM URLs initialize cleanly; CIDR invalid
   lines disable copy and clear the clean-list claim, and fixing the list re-enables it; share
   links for the subnet calculator, VLSM, CIDR, IPv6 (including a fixed ULA), range and overlap
   tools reopen with the same result; the AWS rule sizes a 60-host request at /25 and its export
-  has no warning; the IPv6 plan counts and off-nibble note are correct; every page has no
-  horizontal overflow at 390 CSS pixels.
-- WebKit (Playwright): 20 checks pass. The same pages load without errors and the input fixes,
+  has no warning; the GCP rule sizes a 20-host request at /27 and its export has no warning; the
+  `/32` option produces a host route and round-trips in the URL; the new CloudFormation, Bicep,
+  OSPF, ACL and Route exports render; the IPv6 plan counts and off-nibble note are correct; the
+  IPv6 download button disables itself for oversized splits and re-enables after; IPv4 reverse
+  rows appear; a saved VLSM plan survives a reload, restores the parent, stores only the query
+  string and deletes cleanly; every page has no horizontal overflow at 390 CSS pixels.
+- WebKit (Playwright): 19 checks pass. The same pages load without errors and the input fixes,
   cloud rule and share URLs behave identically.
 - Firefox could not be launched in this environment: macOS denied the content-process sandbox
   (`sandbox_extension_issue_file_to_process ... Operation not permitted`). This is a local
   environment limit, not a site result; a manual Firefox pass remains open.
 
+An acceptance QA pass ran 63 Chromium checks and 15 WebKit checks against the round-3 and 3.1
+features: cloud reservation ranges (AWS `.4–.30`, GCP `.2–.29`), the AWS `/16` limit, export-side
+provider bounds (AWS/GCP lists, CloudFormation, Bicep), GCP allocation/export/share, `/32` host
+routes, all five new exports (content and file downloads), saved-plan create/load/delete with JSON
+import/export and name escaping, the IPv6 download toggle including stale input, copy-failure
+reporting, sanitized analytics page fields (location, title and referrer) on every event including
+same-site navigation, IPv4 reverse rows, round-2 regressions and a 390px layout pass. All 78 passed;
+the reports are at
+`../Subnetcalc-artifacts/2026-10-03-round3/qa-report.json`, `qa-webkit.json`, `qa-chromium.txt` and
+`qa-webkit.txt`.
+
 Full Lighthouse JSON reports and browser logs are saved outside the deploy root at
-`../Subnetcalc-artifacts/2026-10-03-round2/` on this machine.
+`../Subnetcalc-artifacts/2026-10-03-round3/` (round 3) and `../Subnetcalc-artifacts/2026-10-03-round2/`
+(round 2) on this machine.
 
 ## Remaining external gates
 
 1. Provide this site's GA4 Measurement ID and Clarity Project ID; both remain empty, so the
-   analytics scripts are not loaded and the events are no-ops. Update `/privacy/` when IDs exist.
+   analytics scripts are not loaded and the events are no-ops. Before enabling them: keep GA4
+   enhanced measurement's "page changes based on browser history events" disabled (the URL is
+   rewritten as you type; the code sends one sanitized page_view), and set Clarity masking to
+   the strictest level, then verify no input or result text appears in a recording.
 2. Cloudflare Git project creation returned HTTP 401 / error 8000011 in the previous pass:
    reconnect GitHub in Cloudflare, then create the production Pages project for `heymi/Subnetcalc`,
    branch `main`, build command `npm run check`, output `/`, Node 24.
 3. Buy/connect `subnetcalc.dev`, verify HTTPS, add its GSC property and submit
    `https://subnetcalc.dev/sitemap.xml`.
-4. The GitHub repository is still private. Public visibility and distribution remain user-owned.
+4. The GitHub repository is now public (PR #3 merge); distribution and directory submissions
+   remain user-owned.
 5. A human visual pass at 390, 768 and 1440 CSS pixels over the new pages is still worthwhile;
    automated width checks and Lighthouse accessibility pass, but design judgment is not automated.
 

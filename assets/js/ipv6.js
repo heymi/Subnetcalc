@@ -86,10 +86,26 @@ const updateEui = () => {
   syncUrl();
   updateSummaryButton();
 };
+// The download button only works for a fresh, fully generated list. `splitReady` is set
+// by the last render, so an incomplete input (which keeps the old DOM) cannot download
+// a stale list under the new input's filename.
+let splitReady = false;
+function syncSplitDownload() {
+  const b = $('[data-download-split]');
+  if (!b) return;
+  const ready = splitReady && Boolean(document.querySelector('#split-out [data-copy]'));
+  b.disabled = !ready;
+  if (ready) b.removeAttribute('title');
+  else b.title = splitReady ? 'The full list is too large to generate; narrow the split first' : 'Enter a complete prefix and a new prefix length first';
+}
+
 const updateSplit = () => {
-  show($('#split-out'), renderSplit(splitIn.value, Number(splitTo.value)));
+  const html = renderSplit(splitIn.value, Number(splitTo.value));
+  splitReady = html !== null;
+  show($('#split-out'), html);
   syncUrl();
   updateSummaryButton();
+  syncSplitDownload();
 };
 
 function setUla(value) {
@@ -147,6 +163,7 @@ document.addEventListener('click', (e) => {
     copyText(ula.prefix, 'ULA prefix copied');
     track('copy', { tool: 'ipv6', kind: 'ula' });
   } else if (t.closest('[data-download-split]')) {
+    if (!splitReady) return;
     const all = document.querySelector('#split-out [data-copy]')?.dataset.copy;
     if (!all) return;
     download('ipv6-split.txt', `IPv6 split of ${splitIn.value.trim()} to /${splitTo.value}\n\n${all}\n`);
@@ -170,5 +187,9 @@ if (n !== null && n !== '') splitTo.value = n;
 if (v6.value !== DEFAULTS.addr) updateAddr();
 if (mac.value !== DEFAULTS.mac || euiPrefix.value !== DEFAULTS.eui) updateEui();
 if (splitIn.value !== DEFAULTS.split || Number(splitTo.value) !== DEFAULTS.newPrefix) updateSplit();
+else {
+  splitReady = true;
+  syncSplitDownload();
+}
 setUla(validUla(u) ?? generateUla());
 flushUrl();

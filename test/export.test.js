@@ -68,7 +68,13 @@ import {
   planToTerraform,
   planToAWS,
   planToAzure,
+  planToGCP,
+  planToCloudFormation,
+  planToBicep,
   planToCisco,
+  planToOspf,
+  planToAcl,
+  planToRoute,
   planToText,
 } from '../lib/export.js';
 
@@ -169,20 +175,140 @@ test('planToAWS and planToAzure warn about provider limits', () => {
 });
 
 test('planToAWS and planToAzure are warning-free under their own capacity rules', () => {
-  const aware = planVlsm('10.0.0.0/24', [{ name: 'Edge', hosts: 60 }], { reservedHosts: 5, minPrefix: 28, provider: 'aws' }).plan;
+  const aware = planVlsm('10.0.0.0/24', [{ name: 'Edge', hosts: 60 }], {
+    reservedHosts: 5,
+    reserveHead: 4,
+    reserveTail: 1,
+    minPrefix: 28,
+    maxPrefix: 16,
+    provider: 'aws',
+  }).plan;
   const aws = planToAWS(aware);
-  assert.match(aws, /Planned with AWS rules: 5 addresses reserved in every subnet, minimum \/28/);
+  assert.match(aws, /Planned with AWS rules: 5 addresses reserved in every subnet, allowed subnet sizes are \/16 to \/28/);
   assert.ok(!aws.includes('WARNING'), aws);
   assert.match(aws, /^10\.0\.0\.0\/25\s+# Edge \(60 hosts\)$/m);
-  const az = planToAzure(planVlsm('10.0.0.0/24', [{ name: 'Edge', hosts: 20 }], { reservedHosts: 5, minPrefix: 29, provider: 'azure' }).plan);
+  const az = planToAzure(
+    planVlsm('10.0.0.0/24', [{ name: 'Edge', hosts: 20 }], {
+      reservedHosts: 5,
+      reserveHead: 4,
+      reserveTail: 1,
+      minPrefix: 29,
+      provider: 'azure',
+    }).plan,
+  );
   assert.ok(!az.includes('WARNING'), az);
 });
 
+test('planToGCP uses 4 reserved addresses and is warning-free under its own rule', () => {
+  const aware = planVlsm('10.0.0.0/24', [{ name: 'Edge', hosts: 20 }], {
+    reservedHosts: 4,
+    reserveHead: 2,
+    reserveTail: 2,
+    minPrefix: 29,
+    provider: 'gcp',
+  }).plan;
+  assert.deepEqual([aware.allocations[0].firstHost, aware.allocations[0].lastHost], ['10.0.0.2', '10.0.0.29']);
+  const gcp = planToGCP(aware);
+  assert.match(gcp, /Planned with GCP rules: 4 addresses reserved in every subnet, minimum \/29/);
+  assert.ok(!gcp.includes('WARNING'), gcp);
+  assert.match(gcp, /^10\.0\.0\.0\/27\s+# Edge \(20 hosts\)$/m);
+  const generic = planToGCP(plan);
+  assert.match(generic, /GCP reserves 4 addresses/);
+  assert.match(generic, /WARNING: \/30 is smaller than the GCP minimum \/29/);
+});
+
+test('every cloud export re-checks provider bounds on a plan built under another rule', () => {
+  const big = planVlsm('10.0.0.0/8', [{ name: 'Big', hosts: 70000 }]).plan; // generic: /15
+  assert.equal(big.allocations[0].cidr, '10.0.0.0/15');
+  assert.match(planToAWS(big), /Big \(70000 hosts\) WARNING: \/15 is larger than the AWS maximum \/16/);
+  assert.match(planToCloudFormation(big), /# WARNING: Big: \/15 is larger than the AWS maximum \/16/);
+  const small = planVlsm('10.0.0.0/24', [{ name: 'P2P', hosts: 2 }]).plan; // generic: /30
+  assert.match(planToCloudFormation(small), /# WARNING: P2P: \/30 is smaller than the AWS minimum \/28/);
+  assert.match(planToBicep(small), /\/\/ WARNING: P2P: \/30 is smaller than the Azure minimum \/29/);
+  // plans built under the provider rule stay warning-free in that provider's template
+  const awsAware = planVlsm('10.0.0.0/24', [{ name: 'P2P', hosts: 2 }], {
+    reservedHosts: 5,
+    reserveHead: 4,
+    reserveTail: 1,
+    minPrefix: 28,
+    maxPrefix: 16,
+    provider: 'aws',
+  }).plan;
+  assert.ok(!planToCloudFormation(awsAware).includes('WARNING'), planToCloudFormation(awsAware));
+  const azureAware = planVlsm('10.0.0.0/24', [{ name: 'P2P', hosts: 2 }], {
+    reservedHosts: 5,
+    reserveHead: 4,
+    reserveTail: 1,
+    minPrefix: 29,
+    provider: 'azure',
+  }).plan;
+  assert.ok(!planToBicep(azureAware).includes('WARNING'), planToBicep(azureAware));
+});
+
+test('planToCloudFormation emits logical IDs, CidrBlock and Name tags', () => {
+  const cfn = planToCloudFormation(plan);
+  assert.match(cfn, /^# CloudFormation subnet resources for 192\.168\.1\.0\/24$/m);
+  assert.match(cfn, /^Resources:$/m);
+  assert.match(cfn, /^  Sales:$/m);
+  assert.match(cfn, /CidrBlock: 192\.168\.1\.0\/25/);
+  assert.match(cfn, /Value: "Sales"/);
+  const dup = planVlsm('10.0.0.0/24', [
+    { name: 'Sales', hosts: 10 },
+    { name: 'Sales', hosts: 5 },
+    { name: 'Sales-2!', hosts: 5 },
+  ]).plan;
+  const ids = [...planToCloudFormation(dup).matchAll(/^  ([A-Za-z0-9]+):$/gm)].map((m) => m[1]);
+  assert.deepEqual(ids, ['Sales', 'Sales2', 'Sales22']);
+  assert.equal(new Set(ids).size, dup.allocations.length);
+});
+
+test('planToCloudFormation and planToBicep escape hostile names', () => {
+  const weird = planVlsm('10.0.0.0/24', [{ name: "O'Brien ${x}", hosts: 10 }]).plan;
+  const cfn = planToCloudFormation(weird);
+  assert.ok(cfn.includes('Value: "O\'Brien ${x}"'), cfn);
+  // Bicep escapes reserved characters with a backslash: \' and \${
+  const bicep = planToBicep(weird);
+  assert.ok(bicep.includes("O\\'Brien"), bicep);
+  assert.ok(bicep.includes('\\${x}'), bicep);
+  assert.ok(!bicep.includes("O''Brien"), 'doubled quotes are not Bicep escaping');
+});
+
+test('planToBicep emits a param and one subnet resource per allocation', () => {
+  const bicep = planToBicep(plan);
+  assert.match(bicep, /^param vnetName string$/m);
+  assert.match(bicep, /^resource Sales 'Microsoft\.Network\/virtualNetworks\/subnets@2023-09-01' = \{$/m);
+  assert.match(bicep, /^  name: '\$\{vnetName\}\/Sales'$/m);
+  assert.match(bicep, /^    addressPrefix: '192\.168\.1\.0\/25'$/m);
+});
+
+test('planToOspf, planToAcl and planToRoute use the inverse mask', () => {
+  const ospf = planToOspf(plan).split('\n');
+  assert.equal(ospf[0], '! OSPF network statements for 192.168.1.0/24');
+  assert.ok(ospf.includes('network 192.168.1.0 0.0.0.127 area 0'));
+  assert.ok(ospf.includes('network 192.168.1.208 0.0.0.3 area 0'));
+  // extended ACL syntax needs a destination; the default is any
+  assert.match(planToAcl(plan), /permit ip 192\.168\.1\.192 0\.0\.0\.15 any {2}! Mgmt/);
+  assert.ok(!/permit ip 192\.168\.1\.192 0\.0\.0\.15\s*$/m.test(planToAcl(plan)), 'ACL line must not end at the source wildcard');
+  assert.equal(planToRoute(plan), '! Summary route for 192.168.1.0/24\nip route 192.168.1.0 255.255.255.0 Null0\n');
+});
+
+test('planToCisco writes a /32 host route with a full mask', () => {
+  const p = planVlsm('10.0.0.0/30', [{ name: 'Lo0', hosts: 1 }], { allowSlash32: true }).plan;
+  assert.ok(planToCisco(p).includes(' ip address 10.0.0.0 255.255.255.255'));
+});
+
 test('planToText states the provider rule and provider-aware usable counts', () => {
-  const aware = planVlsm('10.0.0.0/24', [{ name: 'Edge', hosts: 60 }], { reservedHosts: 5, minPrefix: 28, provider: 'aws' }).plan;
+  const aware = planVlsm('10.0.0.0/24', [{ name: 'Edge', hosts: 60 }], {
+    reservedHosts: 5,
+    reserveHead: 4,
+    reserveTail: 1,
+    minPrefix: 28,
+    maxPrefix: 16,
+    provider: 'aws',
+  }).plan;
   const t = planToText(aware);
-  assert.match(t, /aws capacity rule reserves 5 addresses per subnet with a minimum \/28/);
-  assert.match(t, /Edge -> 10\.0\.0\.0\/25 \(10\.0\.0\.1 - 10\.0\.0\.126, broadcast 10\.0\.0\.127; 123 usable, 63 unused\)/);
+  assert.match(t, /aws capacity rule reserves 5 addresses per subnet \(4 at the start, 1 at the end\) with a minimum \/28/);
+  assert.match(t, /Edge -> 10\.0\.0\.0\/25 \(10\.0\.0\.4 - 10\.0\.0\.126, broadcast 10\.0\.0\.127; 123 usable, 63 unused\)/);
 });
 
 test('planToCisco', () => {
