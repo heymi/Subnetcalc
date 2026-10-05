@@ -12,6 +12,7 @@ import {
   DEFAULT_REQUESTS,
   parseRequestList,
   parseVlsmSearch,
+  renderWorked,
 } from '../assets/js/vlsm-render.js';
 import {
   DEFAULT_OVERLAP_NETS,
@@ -399,5 +400,15 @@ describe('result hierarchy and ticket summaries', () => {
     assert.match(t, /Link -> 192\.168\.1\.112\/30 \(192\.168\.1\.113 - 192\.168\.1\.114, broadcast 192\.168\.1\.115; 2 usable, 0 unused\)/);
     assert.match(t, /Free: 192\.168\.1\.116\/30, 192\.168\.1\.120\/29, 192\.168\.1\.128\/25/);
     assert.match(t, /4 subnets, 116 of 256 addresses allocated, 140 free/);
+  });
+
+  test('renderWorked is quiet with no subnets and does not add reserves on /31', () => {
+    const empty = planVlsm('192.168.1.0/24', []).plan;
+    assert.match(renderWorked(empty), /Add a subnet to see these steps/);
+    assert.doesNotMatch(renderWorked(empty), /largest first/);
+    const link = planVlsm('10.0.0.0/30', [{ name: 'Link', hosts: 2 }], { allowSlash31: true }).plan;
+    const steps = renderWorked(link);
+    assert.match(steps, /no network or broadcast reserved/);
+    assert.doesNotMatch(steps, /2 \+ 2/);
   });
 });

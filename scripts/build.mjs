@@ -328,9 +328,24 @@ function lastmod(file) {
   return statSync(file).mtime.toISOString().slice(0, 10);
 }
 
+/** Dates already committed in sitemap.xml. Checkout mtimes are not a lastmod. */
+function storedLastmod() {
+  let xml = '';
+  try {
+    xml = readFileSync(join(ROOT, 'sitemap.xml'), 'utf8');
+  } catch {
+    return new Map();
+  }
+  const dates = new Map();
+  for (const m of xml.matchAll(/<loc>([^<]+)<\/loc>\s*<lastmod>([^<]+)<\/lastmod>/g)) {
+    dates.set(m[1].slice(ORIGIN.length), m[2]);
+  }
+  return dates;
+}
+
 function sitemap(entries) {
   const urls = entries
-    .filter((u) => u.loc !== '/404.html')
+    .filter((u) => u.loc !== '/404')
     .sort((a, b) => (a.loc === '/' ? -1 : b.loc === '/' ? 1 : a.loc.localeCompare(b.loc)))
     .map((u) => `  <url><loc>${ORIGIN}${u.loc}</loc><lastmod>${u.lastmod}</lastmod></url>`)
     .join('\n');
@@ -341,6 +356,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const files = pages();
   const stale = [];
   const today = new Date().toISOString().slice(0, 10);
+  const previous = storedLastmod();
   const built = files.map((f) => {
     const content = build(f);
     let old = '';
@@ -353,10 +369,10 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   outputs.push([
     join(ROOT, 'sitemap.xml'),
     sitemap(
-      built.map(({ f, changed }) => ({
-        loc: urlPath(f),
-        lastmod: changed ? today : lastmod(f),
-      })),
+      built.map(({ f, changed }) => {
+        const loc = urlPath(f);
+        return { loc, lastmod: changed ? today : previous.get(loc) || lastmod(f) };
+      }),
     ),
   ]);
   outputs.push([join(ROOT, 'learn/cidr-cheat-sheet/cidr-cheat-sheet.png'), sheetPng()]);

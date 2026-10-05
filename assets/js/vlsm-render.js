@@ -224,11 +224,15 @@ export function planTableCSV(plan) {
 /** Step-by-step text for the current plan. The same function pre-renders the default example. */
 export function renderWorked(plan) {
   const alloc = plan.allocations;
+  if (!alloc.length) return '<p class="hint">Add a subnet to see these steps.</p>';
   const reserved = plan.reservedHosts;
   const order = alloc.map((a) => `${esc(a.name)} ${group(a.hostsRequested)}`).join(', ');
   const sized = alloc
     .map((a) => {
       const size = blockSize(a);
+      if (a.prefix >= 31) {
+        return `${esc(a.name)}: ${group(a.hostsRequested)} hosts use ${group(size)} addresses, with no network or broadcast reserved`;
+      }
       const raw = BigInt(a.hostsRequested) + BigInt(reserved);
       let pow = 1n;
       while (pow < raw) pow <<= 1n;
@@ -236,6 +240,9 @@ export function renderWorked(plan) {
       return `${esc(a.name)}: ${group(a.hostsRequested)} + ${reserved} = ${group(raw)} ${tail}`;
     })
     .join('; ');
+  const step2 = alloc.some((a) => a.prefix < 31)
+    ? `Add the ${reserved} reserved ${reserved === 1 ? 'address' : 'addresses'} and round up to a power of two. ${sized}.`
+    : `These blocks do not reserve a network or broadcast address. ${sized}.`;
   const masks = alloc
     .map((a) => `${group(blockSize(a))} addresses is /${a.prefix} (${esc(a.netmask)})`)
     .join('; ');
@@ -252,7 +259,7 @@ export function renderWorked(plan) {
   const total = plan.usedAddresses + plan.freeAddresses;
   return `<ol class="steps">
 <li><span>Sort the requests by host count, largest first: ${order}. Equal sizes keep the order you typed.</span></li>
-<li><span>Add the ${reserved} reserved ${reserved === 1 ? 'address' : 'addresses'} and round up to a power of two. ${sized}.</span></li>
+<li><span>${step2}</span></li>
 <li><span>The block size is the prefix and the mask. ${masks}.</span></li>
 <li><span>Allocate from ${esc(ipv4(plan.parent.value))}. ${placed}</span></li>
 <li><span>This uses ${group(plan.usedAddresses)} of ${group(total)} addresses. ${group(plan.freeAddresses)} remain. ${group(wasted)} ${wasted === 1n ? 'address is' : 'addresses are'} unused inside the subnets (usable hosts above the request).</span></li>
