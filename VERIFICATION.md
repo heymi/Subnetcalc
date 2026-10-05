@@ -1,6 +1,37 @@
-# Verification — 2026-10-03 (round 7)
+# Verification — 2026-10-05 (round 8)
 
 ## Completed
+
+Round 8 (cheat sheet upgrade and `/subnetting-practice/`, uncommitted):
+
+- `/learn/cidr-cheat-sheet/` is retitled "Subnet cheat sheet: Subnet Mask & CIDR Table" across the
+  title, description, Open Graph and JSON-LD headline, matching the terms the page and the site
+  already use. Two lookup tables are pre-rendered from the engine: block size by last mask octet
+  (/25–/30, subnet starts abbreviated past eight) and hosts needed to prefix (2 … 510).
+- The downloadable PDF stays a single A4 page and now carries all three tables: the /0–/32 table,
+  the magic numbers and the host-count lookup. The build throws if the content would run past the
+  bottom margin. The PNG figure keeps the /0–/32 table and its alt text.
+- New page `/subnetting-practice/`: one question at a time from five types (network and hosts,
+  prefix to mask, mask to prefix, hosts to prefix, magic number) and three difficulties, checked in
+  the browser with the answer and the steps after a miss. The seed, index, difficulty, types and
+  timer live in the query string, so a link repeats the same set; the score lives in `localStorage`
+  and counts the first attempt only, so re-checking after reading the answer does not raise it.
+  `N` loads the next question outside an answer box, "Print 10 questions" builds a worksheet with a
+  separate answer list, and ten fixed drills plus the worked magic-number example are pre-rendered
+  for reading without JavaScript.
+- A bug the browser pass caught on the first run: the difficulty/seed line sits outside the quiz
+  form, so `root.querySelector('#practice-meta')` was null, `render()` threw and no answer fields
+  were ever drawn. It now reads the element from the document.
+- Shared type-filter links keep literal commas (`?t=mask-prefix,magic`) instead of `%2C`.
+- The page is in the nav, the footer, `/learn/`, the subnet calculator hints, the VLSM host-count
+  prose and the sitemap. 353 unit tests pass; site check: 18 pages, 0 errors, 0 warnings.
+- 30 checks in Chromium and the same 30 in WebKit pass: the quiz flow (blank refusal, wrong answer
+  with steps, the shown answer accepted on a re-check, first-try scoring against
+  `makeQuestion()` from the engine), reload and back/forward state, the `N` key inside and outside
+  inputs, difficulty and type filters, the timer, the share link, score persistence, the worksheet,
+  the pre-rendered drills, the two new cheat sheet tables, the PDF and PNG, and no horizontal
+  overflow at 390 CSS pixels on `/subnetting-practice/`, `/learn/cidr-cheat-sheet/`, `/learn/` and
+  `/`. Reports: `../Subnetcalc-artifacts/2026-10-05-round8/`.
 
 Round 7 (analytics decoupling, commit `822bb84`):
 
@@ -122,7 +153,7 @@ hierarchy with folded details, the two dedicated pages, verification and privacy
 
 ## Local checks
 
-`npm run check`: 313 tests pass; site check: 17 pages, 0 errors, 0 warnings.
+`npm run check`: 353 tests pass; site check: 18 pages, 0 errors, 0 warnings.
 
 `npm run crosscheck` was not re-run in this pass: the engine vectors and their expected values are
 unchanged, and all 232 still pass in the Node suite. The recorded cross-check used Python 3.13.15
@@ -158,7 +189,8 @@ establish production-domain performance or analytics delivery.
 
 ## Browser checks
 
-- Chromium (Playwright, headless): 115 checks pass. 17 pages load without JS errors; VLSM paste
+- Chromium (Playwright, headless): 115 round-7 checks pass, plus the 30 round-8 checks in
+  `../Subnetcalc-artifacts/2026-10-05-round8/qa-chromium.txt`. 17 pages load without JS errors; VLSM paste
   keeps three rows and flags line 2; five malformed VLSM URLs initialize cleanly; CIDR invalid
   lines disable copy and clear the clean-list claim, and fixing the list re-enables it; share
   links for the subnet calculator, VLSM, CIDR, IPv6 (including a fixed ULA), range and overlap
@@ -176,8 +208,8 @@ establish production-domain performance or analytics delivery.
   IPv6 plans, and each
   CTA opens the matching planner with the same plan; every page has no horizontal overflow at 390
   CSS pixels.
-- WebKit (Playwright): 19 checks pass. The same pages load without errors and the input fixes,
-  cloud rule and share URLs behave identically.
+- WebKit (Playwright): 19 checks pass on the round-7 set, plus the 30 round-8 checks above. The
+  same pages load without errors and the input fixes, cloud rule and share URLs behave identically.
 - Firefox could not be launched in this environment: macOS denied the content-process sandbox
   (`sandbox_extension_issue_file_to_process ... Operation not permitted`). This is a local
   environment limit, not a site result; a manual Firefox pass remains open.
@@ -207,6 +239,10 @@ from `bd02739` (round 7). Checks after the second deploy: `/`, `/vlsm/`, `/priva
 consent copy; and a browser context that blocks `/assets/js/analytics.js` still gets a working
 consent panel and Share plan on `/vlsm/`. Before the first deploy, production still served
 `1d77672`, which is why the newer pages 404ed and the privacy page was stale.
+
+Round 8 (the cheat sheet upgrade and `/subnetting-practice/`) is not deployed yet. Production still
+serves round 7, so `/subnetting-practice/` 404s and the cheat sheet PDF is the old single-table
+page until the next direct upload.
 
 ## Remaining external gates
 

@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Subnetting Practice – Free Questions & Answers | SubnetCalc</title>
+<meta name="description" content="Unlimited subnetting practice questions: find the network, broadcast, host range and mask, check your answer instantly and see how to solve it.">
+<link rel="canonical" href="https://subnetcalc.dev/subnetting-practice/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="SubnetCalc">
+<meta property="og:title" content="Subnetting Practice – Free Questions with Step-by-Step Answers">
+<meta property="og:description" content="Unlimited subnetting practice questions: find the network, broadcast, host range and mask, check your answer instantly and see how to solve it.">
+<meta property="og:url" content="https://subnetcalc.dev/subnetting-practice/">
+<meta property="og:image" content="https://subnetcalc.dev/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<!-- @head -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="/assets/fonts/ibm-plex-mono-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/ibm-plex-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/css/site.css">
+<meta name="theme-color" content="#f8f9fb" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#14171c" media="(prefers-color-scheme: dark)">
+<script>try{var t=localStorage.getItem('theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
+<script type="module" src="/assets/js/common.js"></script>
+<!-- /@head -->
+<link rel="modulepreload" href="/lib/subnet.js">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebApplication",
+      "name": "Subnetting Practice",
+      "url": "https://subnetcalc.dev/subnetting-practice/",
+      "applicationCategory": "EducationalApplication",
+      "operatingSystem": "Any",
+      "browserRequirements": "Requires JavaScript",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "description": "Unlimited subnetting practice questions: find the network, broadcast, host range and mask, check your answer instantly and see how to solve it.",
+      "featureList": [
+        "Network, broadcast and host-range questions",
+        "Prefix and subnet-mask conversion",
+        "Host-count to prefix",
+        "Magic-number subnet questions",
+        "Step-by-step solutions"
+      ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "SubnetCalc", "item": "https://subnetcalc.dev/" },
+        { "@type": "ListItem", "position": 2, "name": "Subnetting Practice", "item": "https://subnetcalc.dev/subnetting-practice/" }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        { "@type": "Question", "name": "How long does it take to learn subnetting?", "acceptedAnswer": { "@type": "Answer", "text": "If you already know what an IP address and a prefix are, the method itself is an evening or two. Speed takes longer. Exam-style questions are timed, so the useful practice is repeating them until the block size and the host range come out without looking them up." } },
+        { "@type": "Question", "name": "Is subnetting on the CCNA exam?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. The CCNA exam topics include configuring and verifying IPv4 addressing and subnetting. The prefixes that come up most often in coursework are /24 through /30, along with the /31 point-to-point case." } },
+        { "@type": "Question", "name": "What is the magic number in subnetting?", "acceptedAnswer": { "@type": "Answer", "text": "The magic number is the block size, 256 minus the mask octet that is not 255. For 255.255.255.192 that octet is 192, so the block size is 64 and subnets start at 0, 64, 128 and 192. An address belongs to the block whose start is the greatest multiple of that size that does not pass the address." } },
+        { "@type": "Question", "name": "How should I practice subnetting?", "acceptedAnswer": { "@type": "Answer", "text": "Write the network, broadcast and host range before you check the answer, then read the steps for anything you missed. A short timed set of ten is closer to an exam than a long untimed session. Keep a cheat sheet nearby until the /25 to /30 block sizes are memorized." } },
+        { "@type": "Question", "name": "What is special about a /31 or a /32?", "acceptedAnswer": { "@type": "Answer", "text": "A /32 is one address, used as a host route or a loopback, so there is no separate broadcast address. A /31 has two addresses and, on a point-to-point link, RFC 3021 makes both of them usable. The usual rule of subtracting two addresses starts at /30." } }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+<body data-tool="practice">
+<!-- @header -->
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="wrap bar">
+    <a class="brand" href="/"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>SubnetCalc</a>
+    <nav class="site-nav" aria-label="Main">
+      <ul>
+      <li><a href="/">Subnet</a></li>
+      <li><a href="/vlsm/">VLSM</a></li>
+      <li><a href="/cidr/">CIDR</a></li>
+      <li><a href="/ipv6/">IPv6</a></li>
+      <li><a href="/subnetting-practice/" aria-current="page">Practice</a></li>
+      <li><a href="/learn/">Learn</a></li>
+      </ul>
+    </nav>
+    <button type="button" class="btn btn-ghost icon-btn theme-toggle" data-theme-toggle aria-label="Switch theme"></button>
+  </div>
+</header>
+<!-- /@header -->
+<main id="main" class="wrap">
+  <div class="page-head">
+    <nav class="breadcrumb" aria-label="Breadcrumb"><a href="/">SubnetCalc</a> / Subnetting Practice</nav>
+    <h1>Subnetting Practice</h1>
+    <p class="lede">Answer a question, see whether it is right, and read the steps. Every answer is calculated in your browser. The block sizes are on the <a href="/learn/cidr-cheat-sheet/">Subnet cheat sheet</a>, and a single subnet opens in the <a href="/">Subnet calculator</a>.</p>
+  </div>
+
+  <section class="section" id="quiz" aria-labelledby="quiz-h">
+    <div class="section-head">
+      <h2 id="quiz-h">Question</h2>
+      <span class="meta" id="practice-meta">easy</span>
+    </div>
+    <noscript><p>The quiz needs JavaScript. The worked questions further down this page are still readable.</p></noscript>
+    <form data-practice action="#quiz" method="post" autocomplete="off">
+      <div class="practice-bar">
+        <div>
+          <label class="field-label" for="practice-diff">Difficulty</label>
+          <select id="practice-diff" class="select">
+            <option value="easy">Easy · /24 to /30</option>
+            <option value="medium">Medium · third octet</option>
+            <option value="hard">Hard · second octet, /31, /32</option>
+          </select>
+        </div>
+        <fieldset data-types>
+          <legend class="field-label">Question types</legend>
+          <div class="choice-row">
+            <label class="check"><input type="checkbox" data-type="network" checked> Network and hosts</label>
+            <label class="check"><input type="checkbox" data-type="prefix-mask" checked> Prefix to mask</label>
+            <label class="check"><input type="checkbox" data-type="mask-prefix" checked> Mask to prefix</label>
+            <label class="check"><input type="checkbox" data-type="hosts" checked> Hosts to prefix</label>
+            <label class="check"><input type="checkbox" data-type="magic" checked> Magic number</label>
+          </div>
+        </fieldset>
+        <label class="check"><input type="checkbox" id="practice-timer"> Time each question</label>
+      </div>
+      <p class="practice-prompt" id="practice-prompt">A question loads here.</p>
+      <div class="practice-fields" id="practice-fields"></div>
+      <div class="btn-row no-print">
+        <button type="submit" class="btn">Check answer</button>
+        <button type="button" class="btn" data-next>Next question <kbd>N</kbd></button>
+        <button type="button" class="btn btn-ghost" data-worksheet>Print 10 questions</button>
+        <button type="button" class="btn btn-ghost" data-share-practice data-copy="">Copy link</button>
+      </div>
+      <p class="hint">Enter checks the answer. <kbd>N</kbd> loads the next question when the cursor is outside an answer box. The link repeats this same set of questions.</p>
+      <p class="meta" id="practice-score" role="status">0 correct of 0 · streak 0</p>
+      <p class="meta" id="practice-time" hidden></p>
+      <p class="practice-result" id="practice-result" role="status" aria-live="polite"></p>
+      <div id="practice-steps"></div>
+    </form>
+  </section>
+
+  <div id="worksheet" class="worksheet"></div>
+
+  <div class="practice-static">
+    <div class="section prose">
+      <h2 id="how">How to practice subnetting</h2>
+      <p>Subnetting gets faster when you work questions, not when you reread a table. Start on easy prefixes, /24 through /30, and write the network, broadcast and host range before you check. When those are comfortable, move the boundary into the third octet, then the second, and add the /31 and /32 cases. Turn the timer on once you can finish a question without looking up the block size. Missed questions are the useful ones: read the steps, then take another from the same seed.</p>
+    </div>
+
+    <div class="section prose">
+      <h2 id="magic">The magic number method</h2>
+      <p>The magic number is the block size in the octet where the mask stops being 255. Subtract that mask octet from 256. Subnets in that octet start at 0 and then on every multiple of the block size. Take the address octet and find the greatest multiple of the block that is still less than or equal to it. That multiple is the network's value in the interesting octet, and every octet to its right is 0.</p>
+      <p>The broadcast address is one less than the next multiple, with the octets to the right set to 255. The first usable host is the address after the network, and the last usable host is the address before the broadcast. Two cases skip that minus-two rule. A /31 uses both of its addresses on a point-to-point link, and a /32 is a single host with no broadcast address.</p>
+<!-- @prerender:practice-magic -->
+<div class="callout"><p><strong>Example.</strong> Which subnet contains 192.168.1.77 with mask 255.255.255.192? Give the network in CIDR notation.</p><p>Answer: <code>192.168.1.64/26</code></p><ol class="steps"><li><span>Mask 255.255.255.192. The interesting octet is octet 4, value 192.</span></li><li><span>Block size = 256 − 192 = 64. Subnets in that octet start on multiples of 64.</span></li><li><span>Address octet 77 falls in the block that starts at 64.</span></li><li><span>Network 192.168.1.64, broadcast 192.168.1.127. Usable hosts run from 192.168.1.65 to 192.168.1.126 (62 of 64).</span></li><li><span>The subnet is 192.168.1.64/26.</span></li></ol></div>
+<!-- /@prerender -->
+    </div>
+
+    <section class="section faq" aria-labelledby="drills-h">
+      <h2 id="drills-h">Subnetting practice questions with answers</h2>
+      <p>These ten stay the same so you can check them on paper. Open a row to see the answer and the steps. The quiz above makes new ones.</p>
+<!-- @prerender:practice-drills -->
+<details>
+<summary>For 192.168.1.37/26, give the network address, broadcast address, first usable host and last usable host. Write none when there is no broadcast address.</summary>
+<div class="answer"><p>Network address: <code>192.168.1.0</code> · Broadcast address: <code>192.168.1.63</code> · First usable host: <code>192.168.1.1</code> · Last usable host: <code>192.168.1.62</code></p><ol class="steps"><li><span>Mask 255.255.255.192. The interesting octet is octet 4, value 192.</span></li><li><span>Block size = 256 − 192 = 64. Subnets in that octet start on multiples of 64.</span></li><li><span>Address octet 37 falls in the block that starts at 0.</span></li><li><span>Network 192.168.1.0, broadcast 192.168.1.63. Usable hosts run from 192.168.1.1 to 192.168.1.62 (62 of 64).</span></li></ol></div>
+</details>
+<details>
+<summary>What is the subnet mask for /27, and how many usable hosts does it have?</summary>
+<div class="answer"><p>Subnet mask: <code>255.255.255.224</code> · Usable hosts: <code>30</code></p><ol class="steps"><li><span>/27 is 255.255.255.224.</span></li><li><span>Total addresses 32, minus the network and broadcast addresses, leaves 30 usable hosts.</span></li></ol></div>
+</details>
+<details>
+<summary>The subnet mask is 255.255.255.128. What prefix length is that?</summary>
+<div class="answer"><p>Prefix length: <code>/25</code></p><ol class="steps"><li><span>255.255.255.128 has 25 leading one-bits, so the prefix is /25.</span></li></ol></div>
+</details>
+<details>
+<summary>A subnet needs 50 usable hosts. What is the smallest prefix length? Reserve the network and broadcast addresses.</summary>
+<div class="answer"><p>Prefix length: <code>/26</code></p><ol class="steps"><li><span>50 usable hosts are required, and the network and broadcast addresses are reserved.</span></li><li><span>The smallest prefix lib/subnet.js returns for that count is /26 (255.255.255.192), with 62 usable hosts.</span></li><li><span>/27 has 30 usable hosts, which is short of 50, so /26 is the smallest that fits.</span></li></ol></div>
+</details>
+<details>
+<summary>Which subnet contains 172.16.5.40 with mask 255.255.255.192? Give the network in CIDR notation.</summary>
+<div class="answer"><p>Network: <code>172.16.5.0/26</code></p><ol class="steps"><li><span>Mask 255.255.255.192. The interesting octet is octet 4, value 192.</span></li><li><span>Block size = 256 − 192 = 64. Subnets in that octet start on multiples of 64.</span></li><li><span>Address octet 40 falls in the block that starts at 0.</span></li><li><span>Network 172.16.5.0, broadcast 172.16.5.63. Usable hosts run from 172.16.5.1 to 172.16.5.62 (62 of 64).</span></li><li><span>The subnet is 172.16.5.0/26.</span></li></ol></div>
+</details>
+<details>
+<summary>Which subnet contains 10.1.4.77 with mask 255.255.252.0? Give the network in CIDR notation.</summary>
+<div class="answer"><p>Network: <code>10.1.4.0/22</code></p><ol class="steps"><li><span>Mask 255.255.252.0. The interesting octet is octet 3, value 252.</span></li><li><span>Block size = 256 − 252 = 4. Subnets in that octet start on multiples of 4.</span></li><li><span>Address octet 4 falls in the block that starts at 4.</span></li><li><span>Octets after octet 3 are 0 in the network address and 255 in the broadcast address.</span></li><li><span>Network 10.1.4.0, broadcast 10.1.7.255. Usable hosts run from 10.1.4.1 to 10.1.7.254 (1,022 of 1,024).</span></li><li><span>The subnet is 10.1.4.0/22.</span></li></ol></div>
+</details>
+<details>
+<summary>For 172.20.19.5/20, give the network address, broadcast address, first usable host and last usable host. Write none when there is no broadcast address.</summary>
+<div class="answer"><p>Network address: <code>172.20.16.0</code> · Broadcast address: <code>172.20.31.255</code> · First usable host: <code>172.20.16.1</code> · Last usable host: <code>172.20.31.254</code></p><ol class="steps"><li><span>Mask 255.255.240.0. The interesting octet is octet 3, value 240.</span></li><li><span>Block size = 256 − 240 = 16. Subnets in that octet start on multiples of 16.</span></li><li><span>Address octet 19 falls in the block that starts at 16.</span></li><li><span>Octets after octet 3 are 0 in the network address and 255 in the broadcast address.</span></li><li><span>Network 172.20.16.0, broadcast 172.20.31.255. Usable hosts run from 172.20.16.1 to 172.20.31.254 (4,094 of 4,096).</span></li></ol></div>
+</details>
+<details>
+<summary>For 192.168.10.7/31, give the network address, broadcast address, first usable host and last usable host. Write none when there is no broadcast address.</summary>
+<div class="answer"><p>Network address: <code>192.168.10.6</code> · Broadcast address: <code>none</code> · First usable host: <code>192.168.10.6</code> · Last usable host: <code>192.168.10.7</code></p><ol class="steps"><li><span>Mask 255.255.255.254. The interesting octet is octet 4, value 254.</span></li><li><span>Block size = 256 − 254 = 2. Subnets in that octet start on multiples of 2.</span></li><li><span>Address octet 7 falls in the block that starts at 6.</span></li><li><span>The network is 192.168.10.6. A /31 has no broadcast address: 192.168.10.6 and 192.168.10.7 are both usable (RFC 3021).</span></li></ol></div>
+</details>
+<details>
+<summary>For 10.0.0.5/32, give the network address, broadcast address, first usable host and last usable host. Write none when there is no broadcast address.</summary>
+<div class="answer"><p>Network address: <code>10.0.0.5</code> · Broadcast address: <code>none</code> · First usable host: <code>10.0.0.5</code> · Last usable host: <code>10.0.0.5</code></p><ol class="steps"><li><span>Mask 255.255.255.255. The interesting octet is octet 4, value 255.</span></li><li><span>Block size = 256 − 255 = 1. Subnets in that octet start on multiples of 1.</span></li><li><span>Address octet 5 falls in the block that starts at 5.</span></li><li><span>A /32 is the single address 10.0.0.5. There is no broadcast address.</span></li></ol></div>
+</details>
+<details>
+<summary>Which subnet contains 10.40.15.9 with mask 255.240.0.0? Give the network in CIDR notation.</summary>
+<div class="answer"><p>Network: <code>10.32.0.0/12</code></p><ol class="steps"><li><span>Mask 255.240.0.0. The interesting octet is octet 2, value 240.</span></li><li><span>Block size = 256 − 240 = 16. Subnets in that octet start on multiples of 16.</span></li><li><span>Address octet 40 falls in the block that starts at 32.</span></li><li><span>Octets after octet 2 are 0 in the network address and 255 in the broadcast address.</span></li><li><span>Network 10.32.0.0, broadcast 10.47.255.255. Usable hosts run from 10.32.0.1 to 10.47.255.254 (1,048,574 of 1,048,576).</span></li><li><span>The subnet is 10.32.0.0/12.</span></li></ol></div>
+</details>
+<!-- /@prerender -->
+    </section>
+  </div>
+
+  <section class="section faq" aria-labelledby="faq-h">
+    <h2 id="faq-h">Questions</h2>
+    <details>
+      <summary>How long does it take to learn subnetting?</summary>
+      <div class="answer"><p>If you already know what an IP address and a prefix are, the method itself is an evening or two. Speed takes longer. Exam-style questions are timed, so the useful practice is repeating them until the block size and the host range come out without looking them up.</p></div>
+    </details>
+    <details>
+      <summary>Is subnetting on the CCNA exam?</summary>
+      <div class="answer"><p>Yes. The CCNA exam topics include configuring and verifying IPv4 addressing and subnetting. The prefixes that come up most often in coursework are /24 through /30, along with the /31 point-to-point case.</p></div>
+    </details>
+    <details>
+      <summary>What is the magic number in subnetting?</summary>
+      <div class="answer"><p>The magic number is the block size, 256 minus the mask octet that is not 255. For 255.255.255.192 that octet is 192, so the block size is 64 and subnets start at 0, 64, 128 and 192. An address belongs to the block whose start is the greatest multiple of that size that does not pass the address.</p></div>
+    </details>
+    <details>
+      <summary>How should I practice subnetting?</summary>
+      <div class="answer"><p>Write the network, broadcast and host range before you check the answer, then read the steps for anything you missed. A short timed set of ten is closer to an exam than a long untimed session. Keep a cheat sheet nearby until the /25 to /30 block sizes are memorized.</p></div>
+    </details>
+    <details>
+      <summary>What is special about a /31 or a /32?</summary>
+      <div class="answer"><p>A /32 is one address, used as a host route or a loopback, so there is no separate broadcast address. A /31 has two addresses and, on a point-to-point link, RFC 3021 makes both of them usable. The usual rule of subtracting two addresses starts at /30.</p></div>
+    </details>
+  </section>
+</main>
+<!-- @footer -->
+<footer class="site-footer">
+  <div class="wrap footer-grid">
+    <div>
+      <h2>SubnetCalc</h2>
+      <p class="footer-note">Every calculation runs in your browser. Share links carry the inputs you put in them.</p>
+    </div>
+    <div>
+      <h2>Tools</h2>
+      <ul>
+        <li><a href="/">Subnet calculator</a></li>
+        <li><a href="/vlsm/">VLSM calculator</a></li>
+        <li><a href="/cidr/">CIDR aggregation &amp; overlaps</a></li>
+        <li><a href="/ip-range-to-cidr/">IP range to CIDR</a></li>
+        <li><a href="/cidr-overlap-checker/">CIDR overlap checker</a></li>
+        <li><a href="/ipv6/">IPv6 tools</a></li>
+        <li><a href="/ipv6-subnet-plan/">IPv6 subnet plan</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Learn</h2>
+      <ul>
+        <li><a href="/learn/subnetting/">Subnetting, step by step</a></li>
+        <li><a href="/learn/cidr-cheat-sheet/">Subnet cheat sheet</a></li>
+        <li><a href="/subnetting-practice/">Subnetting practice</a></li>
+        <li><a href="/learn/ipv6-subnetting/">IPv6 subnetting</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Examples</h2>
+      <ul>
+        <li><a href="/examples/aws-three-tier-vpc/">AWS three-tier VPC</a></li>
+        <li><a href="/examples/azure-hub-spoke/">Azure hub-spoke</a></li>
+        <li><a href="/examples/ipv6-48-56-64/">IPv6 /48 → /56 → /64</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Engine</h2>
+      <ul>
+        <li><a href="/lib/subnet.js">lib/subnet.js</a> · MIT</li>
+        <li><a href="/lib/data/special-purpose.json">IANA special-purpose data</a></li>
+        <li><a href="/verification/">How results are verified</a></li>
+        <li><a href="/privacy/">Privacy</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+<!-- /@footer -->
+<script type="module" src="/assets/js/practice.js"></script>
+</body>
+</html>

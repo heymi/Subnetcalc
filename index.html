@@ -74,6 +74,7 @@
       <li><a href="/vlsm/">VLSM</a></li>
       <li><a href="/cidr/">CIDR</a></li>
       <li><a href="/ipv6/">IPv6</a></li>
+      <li><a href="/subnetting-practice/">Practice</a></li>
       <li><a href="/learn/">Learn</a></li>
       </ul>
     </nav>
@@ -93,7 +94,7 @@
       <input id="q" name="q" type="text" value="192.168.1.37/26" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="done" aria-describedby="q-hint" data-primary-input autofocus>
       <kbd title="Press / to focus">/</kbd>
     </div>
-    <p class="hint" id="q-hint">Type an address with a prefix, netmask or wildcard. Results update as you type. <kbd>Esc</kbd> clears. For subnets of different sizes, use the <a href="/vlsm/">VLSM calculator</a>. Every prefix is on the <a href="/learn/cidr-cheat-sheet/">CIDR cheat sheet</a>.</p>
+    <p class="hint" id="q-hint">Type an address with a prefix, netmask or wildcard. Results update as you type. <kbd>Esc</kbd> clears. For subnets of different sizes, use the <a href="/vlsm/">VLSM calculator</a>. Every prefix is on the <a href="/learn/cidr-cheat-sheet/">Subnet cheat sheet</a>. <a href="/subnetting-practice/">Subnetting practice</a> checks new questions.</p>
     <div class="examples">
       <span>Try</span>
       <button type="button" data-example="10.0.0.0/8">10.0.0.0/8</button>
@@ -173,7 +174,7 @@
       <li>Pick the block that contains your address: <code>.37</code> falls in <code>.0–.63</code>, so the network is <code>192.168.1.0</code> and the broadcast is <code>192.168.1.63</code>.</li>
       <li>Usable hosts = 2<sup>6</sup> − 2 = 62.</li>
     </ol>
-    <p>The <a href="/learn/subnetting/">subnetting tutorial</a> goes through this from binary up to VLSM, with an exercise at each stage. If you need to split one block into subnets of different sizes, use the <a href="/vlsm/">VLSM calculator</a>.</p>
+    <p>The <a href="/learn/subnetting/">subnetting tutorial</a> goes through this from binary up to VLSM, with an exercise at each stage. If you need to split one block into subnets of different sizes, use the <a href="/vlsm/">VLSM calculator</a>. <a href="/subnetting-practice/">Subnetting practice</a> gives you a new question and shows the steps.</p>
   </div>
 
   <section class="section faq" aria-labelledby="faq-h">
@@ -196,7 +197,7 @@
     </details>
     <details>
       <summary>How do I convert a subnet mask to CIDR notation?</summary>
-      <div class="answer"><p>Count the 1 bits in the mask. <code>255.255.255.0</code> has 24 ones, so it is /24. <code>255.255.255.192</code> has 26 ones, so it is /26. The <a href="/learn/cidr-cheat-sheet/">CIDR cheat sheet</a> lists every prefix from /0 to /32.</p></div>
+      <div class="answer"><p>Count the 1 bits in the mask. <code>255.255.255.0</code> has 24 ones, so it is /24. <code>255.255.255.192</code> has 26 ones, so it is /26. The <a href="/learn/cidr-cheat-sheet/">Subnet cheat sheet</a> lists every prefix from /0 to /32.</p></div>
     </details>
     <details>
       <summary>What is the difference between the network address and the first usable host?</summary>
@@ -235,7 +236,8 @@
       <h2>Learn</h2>
       <ul>
         <li><a href="/learn/subnetting/">Subnetting, step by step</a></li>
-        <li><a href="/learn/cidr-cheat-sheet/">CIDR cheat sheet</a></li>
+        <li><a href="/learn/cidr-cheat-sheet/">Subnet cheat sheet</a></li>
+        <li><a href="/subnetting-practice/">Subnetting practice</a></li>
         <li><a href="/learn/ipv6-subnetting/">IPv6 subnetting</a></li>
       </ul>
     </div>
