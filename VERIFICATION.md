@@ -281,6 +281,15 @@ and loads `/assets/js/practice.js`; the cheat sheet page carries both new tables
 Practice nav item; and `sitemap.xml` lists `/subnetting-practice/`. The `/subnetting-practice/`
 404 that a round-7 production served is gone.
 
+A second upload the same day carried only the wording fix from `9c572c8` (deployment URL
+`https://1b61bb67.subnetcalc-84m.pages.dev`, 5 files). Checked after it: a request for a missing
+path serves the Learn card reading "Subnetting tutorial, subnet cheat sheet, IPv6 subnetting.";
+`/cidr/` links to the sheet with the anchor "Subnet cheat sheet"; the `/learn/` description and
+Open Graph description both say "a printable subnet cheat sheet"; the phrase "CIDR cheat sheet"
+appears zero times across the 17 pages read from production; the practice page still serves both
+pre-rendered blocks, the cheat sheet page still carries both new tables, and the PDF and PNG are
+still the 10,265- and 83,580-byte files with `/subnetting-practice/` in the sitemap.
+
 ## Remaining external gates
 
 1. The GA4 Measurement ID and Clarity Project ID are configured (round 5) and load only after
