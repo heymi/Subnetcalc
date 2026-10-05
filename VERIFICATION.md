@@ -2,7 +2,7 @@
 
 ## Completed
 
-Round 8 (cheat sheet upgrade and `/subnetting-practice/`, uncommitted):
+Round 8 (cheat sheet upgrade and `/subnetting-practice/`, commit `3db6c24`, merged in `658c849`):
 
 - `/learn/cidr-cheat-sheet/` is retitled "Subnet cheat sheet: Subnet Mask & CIDR Table" across the
   title, description, Open Graph and JSON-LD headline, matching the terms the page and the site
@@ -240,9 +240,15 @@ consent copy; and a browser context that blocks `/assets/js/analytics.js` still 
 consent panel and Share plan on `/vlsm/`. Before the first deploy, production still served
 `1d77672`, which is why the newer pages 404ed and the privacy page was stale.
 
-Round 8 (the cheat sheet upgrade and `/subnetting-practice/`) is not deployed yet. Production still
-serves round 7, so `/subnetting-practice/` 404s and the cheat sheet PDF is the old single-table
-page until the next direct upload.
+Round 8 (the cheat sheet upgrade and `/subnetting-practice/`) was uploaded on 2026-10-05 from
+`658c849` as a direct upload to the same project, deployment URL
+`https://1a01ec92.subnetcalc-84m.pages.dev`. Checks after the upload, read from
+`https://subnetcalc.dev`: `/`, `/vlsm/`, `/subnetting-practice/`, `/learn/cidr-cheat-sheet/`,
+`/privacy/` and `/ipv6-subnet-plan/` all return 200; `/subnetting-practice/` serves the new title
+and loads `/assets/js/practice.js`; the cheat sheet page carries both new tables; the PDF is the
+10,265-byte three-table file with the magic-number and hosts-lookup headings; `/` shows the
+Practice nav item; and `sitemap.xml` lists `/subnetting-practice/`. The `/subnetting-practice/`
+404 that a round-7 production served is gone.
 
 ## Remaining external gates
 
@@ -259,6 +265,9 @@ page until the next direct upload.
    remain user-owned.
 5. A human visual pass at 390, 768 and 1440 CSS pixels over the new pages is still worthwhile;
    automated width checks and Lighthouse accessibility pass, but design judgment is not automated.
+   `/subnetting-practice/` and the two new cheat sheet tables have had no Lighthouse run yet, and
+   `/subnetting-practice/` is the first page whose whole purpose depends on JavaScript, so the
+   no-JavaScript path deserves a look beyond the pre-rendered drills.
 
 No domain purchase, production DNS change, repository visibility change, social post or directory
-submission was made; the round-6 deploy was a direct upload to the existing Pages project.
+submission was made; the round-8 deploy was a direct upload to the existing Pages project.
