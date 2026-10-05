@@ -95,25 +95,25 @@
 <!-- /@prerender --></div>
     <div id="aws-case-table"><!-- @prerender:aws-case-table -->
 <div class="table-wrap" tabindex="0"><table class="data">
-<thead><tr><th scope="col">Name</th><th scope="col" class="num">Hosts</th><th scope="col">Subnet</th><th scope="col">Netmask</th><th scope="col">Usable range</th><th scope="col">Broadcast</th><th scope="col" class="num">Usable</th><th scope="col" class="num">Unused</th></tr></thead>
+<thead><tr><th scope="col">Subnet</th><th scope="col" class="num">Hosts needed</th><th scope="col" class="num">Block size</th><th scope="col">Prefix</th><th scope="col">Network</th><th scope="col">First usable</th><th scope="col">Last usable</th><th scope="col">Broadcast</th><th scope="col">Subnet mask</th><th scope="col" class="num">Wasted</th></tr></thead>
 <tbody>
 <tr>
-<td class="name">public-a</td><td class="num">250</td><td><b>10.0.0.0/24</b></td><td>255.255.255.0</td><td>10.0.0.4 – 10.0.0.254</td><td>10.0.0.255</td><td class="num">251</td><td class="num">1</td>
+<td class="name">public-a</td><td class="num">250</td><td class="num">256</td><td>/24</td><td>10.0.0.0</td><td>10.0.0.4</td><td>10.0.0.254</td><td>10.0.0.255</td><td>255.255.255.0</td><td class="num">1</td>
 </tr>
 <tr>
-<td class="name">app-a</td><td class="num">250</td><td><b>10.0.1.0/24</b></td><td>255.255.255.0</td><td>10.0.1.4 – 10.0.1.254</td><td>10.0.1.255</td><td class="num">251</td><td class="num">1</td>
+<td class="name">app-a</td><td class="num">250</td><td class="num">256</td><td>/24</td><td>10.0.1.0</td><td>10.0.1.4</td><td>10.0.1.254</td><td>10.0.1.255</td><td>255.255.255.0</td><td class="num">1</td>
 </tr>
 <tr>
-<td class="name">data-a</td><td class="num">250</td><td><b>10.0.2.0/24</b></td><td>255.255.255.0</td><td>10.0.2.4 – 10.0.2.254</td><td>10.0.2.255</td><td class="num">251</td><td class="num">1</td>
+<td class="name">data-a</td><td class="num">250</td><td class="num">256</td><td>/24</td><td>10.0.2.0</td><td>10.0.2.4</td><td>10.0.2.254</td><td>10.0.2.255</td><td>255.255.255.0</td><td class="num">1</td>
 </tr>
 <tr>
-<td class="name">public-b</td><td class="num">250</td><td><b>10.0.3.0/24</b></td><td>255.255.255.0</td><td>10.0.3.4 – 10.0.3.254</td><td>10.0.3.255</td><td class="num">251</td><td class="num">1</td>
+<td class="name">public-b</td><td class="num">250</td><td class="num">256</td><td>/24</td><td>10.0.3.0</td><td>10.0.3.4</td><td>10.0.3.254</td><td>10.0.3.255</td><td>255.255.255.0</td><td class="num">1</td>
 </tr>
 <tr>
-<td class="name">app-b</td><td class="num">250</td><td><b>10.0.4.0/24</b></td><td>255.255.255.0</td><td>10.0.4.4 – 10.0.4.254</td><td>10.0.4.255</td><td class="num">251</td><td class="num">1</td>
+<td class="name">app-b</td><td class="num">250</td><td class="num">256</td><td>/24</td><td>10.0.4.0</td><td>10.0.4.4</td><td>10.0.4.254</td><td>10.0.4.255</td><td>255.255.255.0</td><td class="num">1</td>
 </tr>
 <tr>
-<td class="name">data-b</td><td class="num">250</td><td><b>10.0.5.0/24</b></td><td>255.255.255.0</td><td>10.0.5.4 – 10.0.5.254</td><td>10.0.5.255</td><td class="num">251</td><td class="num">1</td>
+<td class="name">data-b</td><td class="num">250</td><td class="num">256</td><td>/24</td><td>10.0.5.0</td><td>10.0.5.4</td><td>10.0.5.254</td><td>10.0.5.255</td><td>255.255.255.0</td><td class="num">1</td>
 </tr>
 </tbody>
 </table></div>
@@ -179,7 +179,7 @@
       <h2>Tools</h2>
       <ul>
         <li><a href="/">Subnet calculator</a></li>
-        <li><a href="/vlsm/">VLSM planner</a></li>
+        <li><a href="/vlsm/">VLSM calculator</a></li>
         <li><a href="/cidr/">CIDR aggregation &amp; overlaps</a></li>
         <li><a href="/ip-range-to-cidr/">IP range to CIDR</a></li>
         <li><a href="/cidr-overlap-checker/">CIDR overlap checker</a></li>

@@ -1,19 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://subnetcalc.dev/</loc></url>
-  <url><loc>https://subnetcalc.dev/cidr-overlap-checker/</loc></url>
-  <url><loc>https://subnetcalc.dev/cidr/</loc></url>
-  <url><loc>https://subnetcalc.dev/examples/aws-three-tier-vpc/</loc></url>
-  <url><loc>https://subnetcalc.dev/examples/azure-hub-spoke/</loc></url>
-  <url><loc>https://subnetcalc.dev/examples/ipv6-48-56-64/</loc></url>
-  <url><loc>https://subnetcalc.dev/ip-range-to-cidr/</loc></url>
-  <url><loc>https://subnetcalc.dev/ipv6-subnet-plan/</loc></url>
-  <url><loc>https://subnetcalc.dev/ipv6/</loc></url>
-  <url><loc>https://subnetcalc.dev/learn/</loc></url>
-  <url><loc>https://subnetcalc.dev/learn/cidr-cheat-sheet/</loc></url>
-  <url><loc>https://subnetcalc.dev/learn/ipv6-subnetting/</loc></url>
-  <url><loc>https://subnetcalc.dev/learn/subnetting/</loc></url>
-  <url><loc>https://subnetcalc.dev/privacy/</loc></url>
-  <url><loc>https://subnetcalc.dev/verification/</loc></url>
-  <url><loc>https://subnetcalc.dev/vlsm/</loc></url>
+  <url><loc>https://subnetcalc.dev/</loc><lastmod>2026-10-05</lastmod></url>
+  <url><loc>https://subnetcalc.dev/404</loc><lastmod>2026-10-05</lastmod></url>
+  <url><loc>https://subnetcalc.dev/cidr-overlap-checker/</loc><lastmod>2026-10-05</lastmod></url>
+  <url><loc>https://subnetcalc.dev/cidr/</loc><lastmod>2026-10-05</lastmod></url>
+  <url><loc>https://subnetcalc.dev/examples/aws-three-tier-vpc/</loc><lastmod>2026-10-05</lastmod></url>
+  <url><loc>https://subnetcalc.dev/examples/azure-hub-spoke/</loc><lastmod>2026-10-05</lastmod></url>
+  <url><loc>https://subnetcalc.dev/examples/ipv6-48-56-64/</loc><lastmod>2026-10-05</lastmod></url>
+  <url><loc>https://subnetcalc.dev/ip-range-to-cidr/</loc><lastmod>2026-10-05</lastmod></url>
+  <url><loc>https://subnetcalc.dev/ipv6-subnet-plan/</loc><lastmod>2026-10-05</lastmod></url>
+  <url><loc>https://subnetcalc.dev/ipv6/</loc><lastmod>2026-10-05</lastmod></url>
+  <url><loc>https://subnetcalc.dev/learn/</loc><lastmod>2026-10-05</lastmod></url>
+  <url><loc>https://subnetcalc.dev/learn/cidr-cheat-sheet/</loc><lastmod>2026-10-05</lastmod></url>
+  <url><loc>https://subnetcalc.dev/learn/ipv6-subnetting/</loc><lastmod>2026-10-05</lastmod></url>
+  <url><loc>https://subnetcalc.dev/learn/subnetting/</loc><lastmod>2026-10-05</lastmod></url>
+  <url><loc>https://subnetcalc.dev/privacy/</loc><lastmod>2026-10-05</lastmod></url>
+  <url><loc>https://subnetcalc.dev/verification/</loc><lastmod>2026-10-05</lastmod></url>
+  <url><loc>https://subnetcalc.dev/vlsm/</loc><lastmod>2026-10-05</lastmod></url>
 </urlset>

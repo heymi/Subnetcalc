@@ -393,8 +393,11 @@ describe('result hierarchy and ticket summaries', () => {
     const t = planToText(plan);
     assert.match(t, /^VLSM plan for 192\.168\.1\.0\/24$/m);
     assert.match(t, /largest request first/);
-    assert.match(t, /Sales -> 192\.168\.1\.0\/25 \(192\.168\.1\.1 - 192\.168\.1\.126, broadcast 192\.168\.1\.127; 126 usable, 6 unused\)/);
-    assert.match(t, /Free: 192\.168\.1\.212\/30, 192\.168\.1\.216\/29, 192\.168\.1\.224\/27/);
-    assert.match(t, /4 subnets, 212 of 256 addresses allocated, 44 free/);
+    assert.match(t, /LAN -> 192\.168\.1\.0\/26 \(192\.168\.1\.1 - 192\.168\.1\.62, broadcast 192\.168\.1\.63; 62 usable, 2 unused\)/);
+    assert.match(t, /Staff -> 192\.168\.1\.64\/27 \(192\.168\.1\.65 - 192\.168\.1\.94, broadcast 192\.168\.1\.95; 30 usable, 0 unused\)/);
+    assert.match(t, /Lab -> 192\.168\.1\.96\/28 \(192\.168\.1\.97 - 192\.168\.1\.110, broadcast 192\.168\.1\.111; 14 usable, 2 unused\)/);
+    assert.match(t, /Link -> 192\.168\.1\.112\/30 \(192\.168\.1\.113 - 192\.168\.1\.114, broadcast 192\.168\.1\.115; 2 usable, 0 unused\)/);
+    assert.match(t, /Free: 192\.168\.1\.116\/30, 192\.168\.1\.120\/29, 192\.168\.1\.128\/25/);
+    assert.match(t, /4 subnets, 116 of 256 addresses allocated, 140 free/);
   });
 });

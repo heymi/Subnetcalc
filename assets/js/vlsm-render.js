@@ -56,10 +56,10 @@ export function parseVlsmSearch(search) {
 
 export const DEFAULT_PARENT = '192.168.1.0/24';
 export const DEFAULT_REQUESTS = [
-  { name: 'Sales', hosts: 120 },
-  { name: 'Eng', hosts: 50 },
-  { name: 'Mgmt', hosts: 10 },
-  { name: 'P2P', hosts: 2 },
+  { name: 'LAN', hosts: 60 },
+  { name: 'Staff', hosts: 30 },
+  { name: 'Lab', hosts: 12 },
+  { name: 'Link', hosts: 2 },
 ];
 
 /** Fixed capacity example: four /26 requests do not fit a /28. */
@@ -172,20 +172,91 @@ function lastAddress(plan) {
   return [24n, 16n, 8n, 0n].map((s) => String((v >> s) & 0xffn)).join('.');
 }
 
+const blockSize = (a) => 1n << BigInt(32 - a.prefix);
+
+function ipv4(v) {
+  return [24n, 16n, 8n, 0n].map((s) => String((v >> s) & 0xffn)).join('.');
+}
+
+const COLS = ['Subnet', 'Hosts needed', 'Block size', 'Prefix', 'Network', 'First usable', 'Last usable', 'Broadcast', 'Subnet mask', 'Wasted'];
+
+function planRows(plan) {
+  return plan.allocations.map((a) => [
+    a.name,
+    group(a.hostsRequested),
+    group(blockSize(a)),
+    `/${a.prefix}`,
+    a.network,
+    a.firstHost,
+    a.lastHost,
+    a.broadcast || '—',
+    a.netmask,
+    group(a.wasted),
+  ]);
+}
+
 export function renderTable(plan) {
-  const rows = plan.allocations
+  const rows = planRows(plan)
     .map(
-      (a) => `<tr>
-<td class="name">${esc(a.name)}</td><td class="num">${group(a.hostsRequested)}</td><td><b>${esc(a.cidr)}</b></td><td>${esc(a.netmask)}</td><td>${esc(a.firstHost)} – ${esc(a.lastHost)}</td><td>${a.broadcast ? esc(a.broadcast) : '—'}</td><td class="num">${group(a.usableHosts)}</td><td class="num">${group(a.wasted)}</td>
+      (c) => `<tr>
+<td class="name">${esc(c[0])}</td><td class="num">${c[1]}</td><td class="num">${c[2]}</td><td>${c[3]}</td><td>${esc(c[4])}</td><td>${esc(c[5])}</td><td>${esc(c[6])}</td><td>${esc(c[7])}</td><td>${esc(c[8])}</td><td class="num">${c[9]}</td>
 </tr>`,
     )
     .join('\n');
   return `<div class="table-wrap" tabindex="0"><table class="data">
-<thead><tr><th scope="col">Name</th><th scope="col" class="num">Hosts</th><th scope="col">Subnet</th><th scope="col">Netmask</th><th scope="col">Usable range</th><th scope="col">Broadcast</th><th scope="col" class="num">Usable</th><th scope="col" class="num">Unused</th></tr></thead>
+<thead><tr>${COLS.map((h, i) => `<th scope="col"${i === 1 || i === 2 || i === 9 ? ' class="num"' : ''}>${h}</th>`).join('')}</tr></thead>
 <tbody>
 ${rows}
 </tbody>
 </table></div>`;
+}
+
+/** Tab-separated rows for pasting into a spreadsheet. */
+export function planTableTSV(plan) {
+  return [COLS.join('\t'), ...planRows(plan).map((r) => r.join('\t'))].join('\n');
+}
+
+export function planTableCSV(plan) {
+  const cell = (s) => (/[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s);
+  return [COLS.join(','), ...planRows(plan).map((r) => r.map(cell).join(','))].join('\n');
+}
+
+/** Step-by-step text for the current plan. The same function pre-renders the default example. */
+export function renderWorked(plan) {
+  const alloc = plan.allocations;
+  const reserved = plan.reservedHosts;
+  const order = alloc.map((a) => `${esc(a.name)} ${group(a.hostsRequested)}`).join(', ');
+  const sized = alloc
+    .map((a) => {
+      const size = blockSize(a);
+      const raw = BigInt(a.hostsRequested) + BigInt(reserved);
+      let pow = 1n;
+      while (pow < raw) pow <<= 1n;
+      const tail = size === pow ? `rounds up to ${group(size)}` : `would round to ${group(pow)}, and this rule assigns ${group(size)}`;
+      return `${esc(a.name)}: ${group(a.hostsRequested)} + ${reserved} = ${group(raw)} ${tail}`;
+    })
+    .join('; ');
+  const masks = alloc
+    .map((a) => `${group(blockSize(a))} addresses is /${a.prefix} (${esc(a.netmask)})`)
+    .join('; ');
+  const placed = alloc
+    .map((a, i) => {
+      const size = blockSize(a);
+      const end = a.block.value + size - 1n;
+      const next = ipv4(a.block.value + size);
+      const tail = i === alloc.length - 1 ? '' : ` The next subnet starts at ${next}.`;
+      return `${esc(a.name)} takes ${esc(a.network)}–${ipv4(end)}.${tail}`;
+    })
+    .join(' ');
+  const wasted = alloc.reduce((n, a) => n + a.wasted, 0n);
+  const total = plan.usedAddresses + plan.freeAddresses;
+  return `<ol class="steps">
+<li><span>Sort the requests by host count, largest first: ${order}. Equal sizes keep the order you typed.</span></li>
+<li><span>Add the ${reserved} reserved ${reserved === 1 ? 'address' : 'addresses'} and round up to a power of two. ${sized}.</span></li>
+<li><span>The block size is the prefix and the mask. ${masks}.</span></li>
+<li><span>Allocate from ${esc(ipv4(plan.parent.value))}. ${placed}</span></li>
+<li><span>This uses ${group(plan.usedAddresses)} of ${group(total)} addresses. ${group(plan.freeAddresses)} remain. ${group(wasted)} ${wasted === 1n ? 'address is' : 'addresses are'} unused inside the subnets (usable hosts above the request).</span></li>
+</ol>`;
 }
 
 export function renderFree(plan) {

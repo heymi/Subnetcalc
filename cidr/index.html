@@ -164,42 +164,42 @@
       <span class="meta"><a href="/learn/cidr-cheat-sheet/">printable cheat sheet</a></span>
     </div>
 <!-- @prerender:prefix-table-v4 -->
-<div class="table-wrap" tabindex="0"><table class="data">
-<thead><tr><th scope="col">Prefix</th><th scope="col">Netmask</th><th scope="col">Wildcard</th><th scope="col" class="num">Addresses</th><th scope="col" class="num">Usable hosts</th></tr></thead>
+<div class="table-wrap sheet-table" tabindex="0"><table class="data">
+<thead><tr><th scope="col">Prefix</th><th scope="col">Subnet mask</th><th scope="col">Wildcard mask</th><th scope="col" class="num">Total addresses</th><th scope="col" class="num">Usable hosts</th><th scope="col" class="num">/24s</th></tr></thead>
 <tbody>
-<tr id="p0"><td>/0</td><td>0.0.0.0</td><td>255.255.255.255</td><td class="num">4,294,967,296</td><td class="num">4,294,967,294</td></tr>
-<tr id="p1"><td>/1</td><td>128.0.0.0</td><td>127.255.255.255</td><td class="num">2,147,483,648</td><td class="num">2,147,483,646</td></tr>
-<tr id="p2"><td>/2</td><td>192.0.0.0</td><td>63.255.255.255</td><td class="num">1,073,741,824</td><td class="num">1,073,741,822</td></tr>
-<tr id="p3"><td>/3</td><td>224.0.0.0</td><td>31.255.255.255</td><td class="num">536,870,912</td><td class="num">536,870,910</td></tr>
-<tr id="p4"><td>/4</td><td>240.0.0.0</td><td>15.255.255.255</td><td class="num">268,435,456</td><td class="num">268,435,454</td></tr>
-<tr id="p5"><td>/5</td><td>248.0.0.0</td><td>7.255.255.255</td><td class="num">134,217,728</td><td class="num">134,217,726</td></tr>
-<tr id="p6"><td>/6</td><td>252.0.0.0</td><td>3.255.255.255</td><td class="num">67,108,864</td><td class="num">67,108,862</td></tr>
-<tr id="p7"><td>/7</td><td>254.0.0.0</td><td>1.255.255.255</td><td class="num">33,554,432</td><td class="num">33,554,430</td></tr>
-<tr id="p8"><td>/8</td><td>255.0.0.0</td><td>0.255.255.255</td><td class="num">16,777,216</td><td class="num">16,777,214</td></tr>
-<tr id="p9"><td>/9</td><td>255.128.0.0</td><td>0.127.255.255</td><td class="num">8,388,608</td><td class="num">8,388,606</td></tr>
-<tr id="p10"><td>/10</td><td>255.192.0.0</td><td>0.63.255.255</td><td class="num">4,194,304</td><td class="num">4,194,302</td></tr>
-<tr id="p11"><td>/11</td><td>255.224.0.0</td><td>0.31.255.255</td><td class="num">2,097,152</td><td class="num">2,097,150</td></tr>
-<tr id="p12"><td>/12</td><td>255.240.0.0</td><td>0.15.255.255</td><td class="num">1,048,576</td><td class="num">1,048,574</td></tr>
-<tr id="p13"><td>/13</td><td>255.248.0.0</td><td>0.7.255.255</td><td class="num">524,288</td><td class="num">524,286</td></tr>
-<tr id="p14"><td>/14</td><td>255.252.0.0</td><td>0.3.255.255</td><td class="num">262,144</td><td class="num">262,142</td></tr>
-<tr id="p15"><td>/15</td><td>255.254.0.0</td><td>0.1.255.255</td><td class="num">131,072</td><td class="num">131,070</td></tr>
-<tr id="p16"><td>/16</td><td>255.255.0.0</td><td>0.0.255.255</td><td class="num">65,536</td><td class="num">65,534</td></tr>
-<tr id="p17"><td>/17</td><td>255.255.128.0</td><td>0.0.127.255</td><td class="num">32,768</td><td class="num">32,766</td></tr>
-<tr id="p18"><td>/18</td><td>255.255.192.0</td><td>0.0.63.255</td><td class="num">16,384</td><td class="num">16,382</td></tr>
-<tr id="p19"><td>/19</td><td>255.255.224.0</td><td>0.0.31.255</td><td class="num">8,192</td><td class="num">8,190</td></tr>
-<tr id="p20"><td>/20</td><td>255.255.240.0</td><td>0.0.15.255</td><td class="num">4,096</td><td class="num">4,094</td></tr>
-<tr id="p21"><td>/21</td><td>255.255.248.0</td><td>0.0.7.255</td><td class="num">2,048</td><td class="num">2,046</td></tr>
-<tr id="p22"><td>/22</td><td>255.255.252.0</td><td>0.0.3.255</td><td class="num">1,024</td><td class="num">1,022</td></tr>
-<tr id="p23"><td>/23</td><td>255.255.254.0</td><td>0.0.1.255</td><td class="num">512</td><td class="num">510</td></tr>
-<tr id="p24"><td>/24</td><td>255.255.255.0</td><td>0.0.0.255</td><td class="num">256</td><td class="num">254</td></tr>
-<tr id="p25"><td>/25</td><td>255.255.255.128</td><td>0.0.0.127</td><td class="num">128</td><td class="num">126</td></tr>
-<tr id="p26"><td>/26</td><td>255.255.255.192</td><td>0.0.0.63</td><td class="num">64</td><td class="num">62</td></tr>
-<tr id="p27"><td>/27</td><td>255.255.255.224</td><td>0.0.0.31</td><td class="num">32</td><td class="num">30</td></tr>
-<tr id="p28"><td>/28</td><td>255.255.255.240</td><td>0.0.0.15</td><td class="num">16</td><td class="num">14</td></tr>
-<tr id="p29"><td>/29</td><td>255.255.255.248</td><td>0.0.0.7</td><td class="num">8</td><td class="num">6</td></tr>
-<tr id="p30"><td>/30</td><td>255.255.255.252</td><td>0.0.0.3</td><td class="num">4</td><td class="num">2</td></tr>
-<tr id="p31"><td>/31</td><td>255.255.255.254</td><td>0.0.0.1</td><td class="num">2</td><td class="num">2</td></tr>
-<tr id="p32"><td>/32</td><td>255.255.255.255</td><td>0.0.0.0</td><td class="num">1</td><td class="num">1</td></tr>
+<tr id="p0"><td><a href="/?q=10.0.0.0/0">/0</a></td><td>0.0.0.0</td><td>255.255.255.255</td><td class="num">4,294,967,296</td><td class="num">4,294,967,294</td><td class="num">16,777,216</td></tr>
+<tr id="p1"><td><a href="/?q=10.0.0.0/1">/1</a></td><td>128.0.0.0</td><td>127.255.255.255</td><td class="num">2,147,483,648</td><td class="num">2,147,483,646</td><td class="num">8,388,608</td></tr>
+<tr id="p2"><td><a href="/?q=10.0.0.0/2">/2</a></td><td>192.0.0.0</td><td>63.255.255.255</td><td class="num">1,073,741,824</td><td class="num">1,073,741,822</td><td class="num">4,194,304</td></tr>
+<tr id="p3"><td><a href="/?q=10.0.0.0/3">/3</a></td><td>224.0.0.0</td><td>31.255.255.255</td><td class="num">536,870,912</td><td class="num">536,870,910</td><td class="num">2,097,152</td></tr>
+<tr id="p4"><td><a href="/?q=10.0.0.0/4">/4</a></td><td>240.0.0.0</td><td>15.255.255.255</td><td class="num">268,435,456</td><td class="num">268,435,454</td><td class="num">1,048,576</td></tr>
+<tr id="p5"><td><a href="/?q=10.0.0.0/5">/5</a></td><td>248.0.0.0</td><td>7.255.255.255</td><td class="num">134,217,728</td><td class="num">134,217,726</td><td class="num">524,288</td></tr>
+<tr id="p6"><td><a href="/?q=10.0.0.0/6">/6</a></td><td>252.0.0.0</td><td>3.255.255.255</td><td class="num">67,108,864</td><td class="num">67,108,862</td><td class="num">262,144</td></tr>
+<tr id="p7"><td><a href="/?q=10.0.0.0/7">/7</a></td><td>254.0.0.0</td><td>1.255.255.255</td><td class="num">33,554,432</td><td class="num">33,554,430</td><td class="num">131,072</td></tr>
+<tr id="p8"><td><a href="/?q=10.0.0.0/8">/8</a></td><td>255.0.0.0</td><td>0.255.255.255</td><td class="num">16,777,216</td><td class="num">16,777,214</td><td class="num">65,536</td></tr>
+<tr id="p9"><td><a href="/?q=10.0.0.0/9">/9</a></td><td>255.128.0.0</td><td>0.127.255.255</td><td class="num">8,388,608</td><td class="num">8,388,606</td><td class="num">32,768</td></tr>
+<tr id="p10"><td><a href="/?q=10.0.0.0/10">/10</a></td><td>255.192.0.0</td><td>0.63.255.255</td><td class="num">4,194,304</td><td class="num">4,194,302</td><td class="num">16,384</td></tr>
+<tr id="p11"><td><a href="/?q=10.0.0.0/11">/11</a></td><td>255.224.0.0</td><td>0.31.255.255</td><td class="num">2,097,152</td><td class="num">2,097,150</td><td class="num">8,192</td></tr>
+<tr id="p12"><td><a href="/?q=10.0.0.0/12">/12</a></td><td>255.240.0.0</td><td>0.15.255.255</td><td class="num">1,048,576</td><td class="num">1,048,574</td><td class="num">4,096</td></tr>
+<tr id="p13"><td><a href="/?q=10.0.0.0/13">/13</a></td><td>255.248.0.0</td><td>0.7.255.255</td><td class="num">524,288</td><td class="num">524,286</td><td class="num">2,048</td></tr>
+<tr id="p14"><td><a href="/?q=10.0.0.0/14">/14</a></td><td>255.252.0.0</td><td>0.3.255.255</td><td class="num">262,144</td><td class="num">262,142</td><td class="num">1,024</td></tr>
+<tr id="p15"><td><a href="/?q=10.0.0.0/15">/15</a></td><td>255.254.0.0</td><td>0.1.255.255</td><td class="num">131,072</td><td class="num">131,070</td><td class="num">512</td></tr>
+<tr id="p16"><td><a href="/?q=10.0.0.0/16">/16</a></td><td>255.255.0.0</td><td>0.0.255.255</td><td class="num">65,536</td><td class="num">65,534</td><td class="num">256</td></tr>
+<tr id="p17"><td><a href="/?q=10.0.0.0/17">/17</a></td><td>255.255.128.0</td><td>0.0.127.255</td><td class="num">32,768</td><td class="num">32,766</td><td class="num">128</td></tr>
+<tr id="p18"><td><a href="/?q=10.0.0.0/18">/18</a></td><td>255.255.192.0</td><td>0.0.63.255</td><td class="num">16,384</td><td class="num">16,382</td><td class="num">64</td></tr>
+<tr id="p19"><td><a href="/?q=10.0.0.0/19">/19</a></td><td>255.255.224.0</td><td>0.0.31.255</td><td class="num">8,192</td><td class="num">8,190</td><td class="num">32</td></tr>
+<tr id="p20"><td><a href="/?q=10.0.0.0/20">/20</a></td><td>255.255.240.0</td><td>0.0.15.255</td><td class="num">4,096</td><td class="num">4,094</td><td class="num">16</td></tr>
+<tr id="p21"><td><a href="/?q=10.0.0.0/21">/21</a></td><td>255.255.248.0</td><td>0.0.7.255</td><td class="num">2,048</td><td class="num">2,046</td><td class="num">8</td></tr>
+<tr id="p22"><td><a href="/?q=10.0.0.0/22">/22</a></td><td>255.255.252.0</td><td>0.0.3.255</td><td class="num">1,024</td><td class="num">1,022</td><td class="num">4</td></tr>
+<tr id="p23"><td><a href="/?q=10.0.0.0/23">/23</a></td><td>255.255.254.0</td><td>0.0.1.255</td><td class="num">512</td><td class="num">510</td><td class="num">2</td></tr>
+<tr id="p24"><td><a href="/?q=10.0.0.0/24">/24</a></td><td>255.255.255.0</td><td>0.0.0.255</td><td class="num">256</td><td class="num">254</td><td class="num">1</td></tr>
+<tr id="p25"><td><a href="/?q=10.0.0.0/25">/25</a></td><td>255.255.255.128</td><td>0.0.0.127</td><td class="num">128</td><td class="num">126</td><td class="num">1/2</td></tr>
+<tr id="p26"><td><a href="/?q=10.0.0.0/26">/26</a></td><td>255.255.255.192</td><td>0.0.0.63</td><td class="num">64</td><td class="num">62</td><td class="num">1/4</td></tr>
+<tr id="p27"><td><a href="/?q=10.0.0.0/27">/27</a></td><td>255.255.255.224</td><td>0.0.0.31</td><td class="num">32</td><td class="num">30</td><td class="num">1/8</td></tr>
+<tr id="p28"><td><a href="/?q=10.0.0.0/28">/28</a></td><td>255.255.255.240</td><td>0.0.0.15</td><td class="num">16</td><td class="num">14</td><td class="num">1/16</td></tr>
+<tr id="p29"><td><a href="/?q=10.0.0.0/29">/29</a></td><td>255.255.255.248</td><td>0.0.0.7</td><td class="num">8</td><td class="num">6</td><td class="num">1/32</td></tr>
+<tr id="p30"><td><a href="/?q=10.0.0.0/30">/30</a></td><td>255.255.255.252</td><td>0.0.0.3</td><td class="num">4</td><td class="num">2</td><td class="num">1/64</td></tr>
+<tr id="p31"><td><a href="/?q=10.0.0.0/31">/31</a></td><td>255.255.255.254</td><td>0.0.0.1</td><td class="num">2</td><td class="num">2</td><td class="num">1/128</td></tr>
+<tr id="p32"><td><a href="/?q=10.0.0.0/32">/32</a></td><td>255.255.255.255</td><td>0.0.0.0</td><td class="num">1</td><td class="num">1</td><td class="num">1/256</td></tr>
 </tbody>
 </table></div>
 <!-- /@prerender -->
@@ -252,7 +252,7 @@
       <h2>Tools</h2>
       <ul>
         <li><a href="/">Subnet calculator</a></li>
-        <li><a href="/vlsm/">VLSM planner</a></li>
+        <li><a href="/vlsm/">VLSM calculator</a></li>
         <li><a href="/cidr/">CIDR aggregation &amp; overlaps</a></li>
         <li><a href="/ip-range-to-cidr/">IP range to CIDR</a></li>
         <li><a href="/cidr-overlap-checker/">CIDR overlap checker</a></li>
