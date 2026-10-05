@@ -1,4 +1,4 @@
-// One-page CIDR cheat sheet PDF and a ~1200px PNG. No dependencies:
+// One-page subnet cheat sheet PDF and a ~1200px PNG. No dependencies:
 // PDF uses the built-in Helvetica font; the PNG is drawn from scripts/data/sheet-font.json.
 import { readFileSync } from 'node:fs';
 import { deflateSync } from 'node:zlib';
