@@ -178,7 +178,8 @@ Performance / Accessibility / Best practices / SEO.
 | `/privacy/` | 99 / 100 / 100 / 100 | 100 / 100 / 100 / 100 |
 | `/learn/` | 99 / 100 / 100 / 100 | 100 / 100 / 100 / 100 |
 | `/learn/subnetting/` | 98 / 100 / 100 / 100 | 100 / 100 / 100 / 100 |
-| `/learn/cidr-cheat-sheet/` | 99 / 100 / 100 / 100 | 100 / 100 / 100 / 100 |
+| `/learn/cidr-cheat-sheet/` | 96 / 100 / 100 / 100 | 100 / 100 / 100 / 100 |
+| `/subnetting-practice/` | 95 / 100 / 100 / 100 | 100 / 100 / 100 / 100 |
 | `/learn/ipv6-subnetting/` | 99 / 100 / 100 / 100 | 100 / 100 / 100 / 100 |
 | `/examples/aws-three-tier-vpc/` | 99 / 100 / 100 / 100 | 100 / 100 / 100 / 100 |
 | `/examples/azure-hub-spoke/` | 99 / 100 / 100 / 100 | 100 / 100 / 100 / 100 |
@@ -187,7 +188,37 @@ Performance / Accessibility / Best practices / SEO.
 `404.html` is deliberately noindex and excluded from the SEO score gate. These scores do not
 establish production-domain performance or analytics delivery.
 
+The two round-8 pages were measured in the same pass. `/subnetting-practice/` scores 95 mobile
+(LCP 2.6 s, TBT 0 ms, CLS 0) and 100 desktop; `/learn/cidr-cheat-sheet/` scores 96 mobile against
+99 in the earlier table, on LCP 2.7 s against 2.3 s. The unchanged `/learn/subnetting/` measured
+98 in the same run, so the two-point difference is local throttling noise on a larger HTML payload,
+not a regression: TBT is 0 ms and CLS is 0 on both pages. Reports are in
+`../Subnetcalc-artifacts/2026-10-05-round8/lighthouse/`.
+
+## Structured data
+
+Google's Rich Results Test is a browser form with no public API, so it cannot be run from here and
+a human still has to paste the two URLs into it. As a substitute, every page's JSON-LD was parsed
+and checked against the properties Google documents as required (`WebApplication`, `TechArticle`,
+`BreadcrumbList`, `FAQPage`, `Question`, `Answer`, `ListItem`), breadcrumb positions and absolute
+items were verified against each canonical, every FAQ answer and question was matched against the
+rendered page text, and off-site URLs inside the schema were rejected. All 18 pages pass. The only
+note: the three `TechArticle` pages have no in-schema `image` and rely on `og:image`, which Google
+lists as recommended rather than required.
+
 ## Browser checks
+
+An acceptance pass against the round-8 checklist ran 16 checks in Chromium and the same 16 in
+WebKit, all passing (`../Subnetcalc-artifacts/2026-10-05-round8/qa-acceptance-chromium.txt` and
+`qa-acceptance-webkit.txt`): with JavaScript
+disabled, the cheat sheet page keeps all three tables (89 rows), its figure with dimensions and the
+download links, and all eight worked-example headings, while the practice page keeps the `noscript`
+note, ten drills with answers and steps, the magic-number example, the how-to prose and 15 FAQ
+rows. With JavaScript on, all 15 type × difficulty combinations produce a question, accept the
+answer the engine gives, mark every field correct and print between one and six steps; a wrong
+answer marks the field and still prints the steps for all five types; the same seed and index
+repeat the same question while a different seed does not, and a ten-question worksheet repeats for
+its seed.
 
 - Chromium (Playwright, headless): 115 round-7 checks pass, plus the 30 round-8 checks in
   `../Subnetcalc-artifacts/2026-10-05-round8/qa-chromium.txt`. 17 pages load without JS errors; VLSM paste
