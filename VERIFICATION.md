@@ -197,14 +197,27 @@ not a regression: TBT is 0 ms and CLS is 0 on both pages. Reports are in
 
 ## Structured data
 
-Google's Rich Results Test is a browser form with no public API, so it cannot be run from here and
-a human still has to paste the two URLs into it. As a substitute, every page's JSON-LD was parsed
-and checked against the properties Google documents as required (`WebApplication`, `TechArticle`,
-`BreadcrumbList`, `FAQPage`, `Question`, `Answer`, `ListItem`), breadcrumb positions and absolute
-items were verified against each canonical, every FAQ answer and question was matched against the
-rendered page text, and off-site URLs inside the schema were rejected. All 18 pages pass. The only
-note: the three `TechArticle` pages have no in-schema `image` and rely on `og:image`, which Google
-lists as recommended rather than required.
+Google's Rich Results Test is a browser form with no public API, and an unauthenticated headless
+browser is turned away: the tester posts to an internal Search Console RPC and rejects it, with the
+page's own analytics event reporting `recaptcha-error` for `INSPECT-URL`. A signed-in run by the
+owner on 2026-10-05 reported "2 valid items detected" and no errors for both round-8 pages:
+`/learn/cidr-cheat-sheet/` with Articles 1 and Breadcrumbs 1, `/subnetting-practice/` with Software
+apps 1 and Breadcrumbs 1, both crawled successfully.
+
+Two things in that output are policy, not defects. The practice page's FAQ does not appear because
+Google deprecated the FAQ rich result on 2026-05-07 and dropped it from the types the tool reports,
+so the visible FAQ and its `FAQPage` markup stay for readers and AI surfaces only. Its remaining
+`Software apps` warning needs an `aggregateRating` or a `review`, which this site will not invent, so
+that item is valid but not badge-eligible.
+
+As a repeatable substitute, every page's JSON-LD was parsed and checked against the properties
+Google documents as required (`WebApplication`, `TechArticle`, `BreadcrumbList`, `FAQPage`,
+`Question`, `Answer`, `ListItem`), breadcrumb positions and absolute items were verified against
+each canonical, every FAQ answer and question was matched against the rendered page text, and
+off-site URLs inside the schema were rejected. All 18 pages pass. Each of the three `TechArticle`
+pages now declares an in-schema `image`, a `mainEntityOfPage` pointing at itself, and
+`datePublished` 2026-10-02 (the date the page first shipped, from git) with `dateModified`
+2026-10-05, the same value the sitemap carries.
 
 ## Browser checks
 
@@ -282,7 +295,13 @@ Practice nav item; and `sitemap.xml` lists `/subnetting-practice/`. The `/subnet
 404 that a round-7 production served is gone.
 
 A second upload the same day carried only the wording fix from `9c572c8` (deployment URL
-`https://1b61bb67.subnetcalc-84m.pages.dev`, 5 files). Checked after it: a request for a missing
+`https://1b61bb67.subnetcalc-84m.pages.dev`, 5 files), and a third carried the completed
+`TechArticle` markup from `3573358` (deployment URL `https://42f98871.subnetcalc-84m.pages.dev`).
+After the third, the live `TechArticle` on `/learn/cidr-cheat-sheet/` reads `@type, headline,
+description, image, url, mainEntityOfPage, datePublished, dateModified, inLanguage, author,
+publisher`, with the `ImageObject` at 1196x994 matching both the `<img>` attributes and the PNG
+header; `/learn/subnetting/` and `/learn/ipv6-subnetting/` carry the same new fields; all five pages
+return 200; the PDF and PNG are unchanged at 10,265 and 83,580 bytes; the sitemap still has 17 URLs. Checked after it: a request for a missing
 path serves the Learn card reading "Subnetting tutorial, subnet cheat sheet, IPv6 subnetting.";
 `/cidr/` links to the sheet with the anchor "Subnet cheat sheet"; the `/learn/` description and
 Open Graph description both say "a printable subnet cheat sheet"; the phrase "CIDR cheat sheet"
