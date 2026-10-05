@@ -210,6 +210,13 @@ so the visible FAQ and its `FAQPage` markup stay for readers and AI surfaces onl
 `Software apps` warning needs an `aggregateRating` or a `review`, which this site will not invent, so
 that item is valid but not badge-eligible.
 
+The first fix for those warnings was the wrong one. Adding `image`, `mainEntityOfPage` and bare
+dates cleared nothing, and expanding the Articles item in the tester showed why: Google rejected
+`2026-10-02` and `2026-10-05` as *"Invalid datetime value"* and *"missing a time zone"*, and reported
+*"Missing field 'url'"* on the author. The dates now read `2026-10-02T00:00:00+08:00` and
+`2026-10-05T00:00:00+08:00`, and both `author` and `publisher` link to the site root. The lesson for
+this repo: a non-critical warning has to be read in the tester, not inferred from a field list.
+
 As a repeatable substitute, every page's JSON-LD was parsed and checked against the properties
 Google documents as required (`WebApplication`, `TechArticle`, `BreadcrumbList`, `FAQPage`,
 `Question`, `Answer`, `ListItem`), breadcrumb positions and absolute items were verified against
@@ -296,7 +303,9 @@ Practice nav item; and `sitemap.xml` lists `/subnetting-practice/`. The `/subnet
 
 A second upload the same day carried only the wording fix from `9c572c8` (deployment URL
 `https://1b61bb67.subnetcalc-84m.pages.dev`, 5 files), and a third carried the completed
-`TechArticle` markup from `3573358` (deployment URL `https://42f98871.subnetcalc-84m.pages.dev`).
+`TechArticle` markup from `3573358` (deployment URL `https://42f98871.subnetcalc-84m.pages.dev`), and
+a fourth carried the corrected dates and author link from `7428e73` (deployment URL
+`https://c1de56a0.subnetcalc-84m.pages.dev`).
 After the third, the live `TechArticle` on `/learn/cidr-cheat-sheet/` reads `@type, headline,
 description, image, url, mainEntityOfPage, datePublished, dateModified, inLanguage, author,
 publisher`, with the `ImageObject` at 1196x994 matching both the `<img>` attributes and the PNG
