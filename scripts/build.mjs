@@ -36,7 +36,8 @@ import {
 import { DEFAULTS as V6, renderAddress, renderSplit, renderEui } from '../assets/js/ipv6-render.js';
 import { PLAN_DEFAULTS, renderPlan } from '../assets/js/ipv6-plan-render.js';
 import { AWS_EXAMPLE, AZURE_HUB_EXAMPLE, AZURE_SPOKE_EXAMPLE, IPV6_EXAMPLE } from '../assets/js/examples.js';
-import { sheetFigureHtml, sheetPdf, sheetPng } from './cheat-sheet-assets.mjs';
+import { hostsPrefixHtml, magicOctetHtml, sheetFigureHtml, sheetPdf, sheetPng } from './cheat-sheet-assets.mjs';
+import { magicExampleHtml, practiceDrillsHtml } from '../assets/js/practice-core.js';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const ORIGIN = 'https://subnetcalc.dev';
@@ -67,6 +68,7 @@ const NAV = [
   ['/vlsm/', 'VLSM'],
   ['/cidr/', 'CIDR'],
   ['/ipv6/', 'IPv6'],
+  ['/subnetting-practice/', 'Practice'],
   ['/learn/', 'Learn'],
 ];
 
@@ -121,7 +123,8 @@ const footer = () => `<footer class="site-footer">
       <h2>Learn</h2>
       <ul>
         <li><a href="/learn/subnetting/">Subnetting, step by step</a></li>
-        <li><a href="/learn/cidr-cheat-sheet/">CIDR cheat sheet</a></li>
+        <li><a href="/learn/cidr-cheat-sheet/">Subnet cheat sheet</a></li>
+        <li><a href="/subnetting-practice/">Subnetting practice</a></li>
         <li><a href="/learn/ipv6-subnetting/">IPv6 subnetting</a></li>
       </ul>
     </div>
@@ -296,6 +299,10 @@ const PRERENDER = {
   'ipv6-case-plan': () => renderPlan(IPV6_EXAMPLE.parent, IPV6_EXAMPLE.site, IPV6_EXAMPLE.lan).html,
   'prefix-table-v4': prefixTableHtml,
   'cidr-sheet-figure': sheetFigureHtml,
+  'magic-octet-table': magicOctetHtml,
+  'hosts-prefix-table': hostsPrefixHtml,
+  'practice-drills': practiceDrillsHtml,
+  'practice-magic': magicExampleHtml,
   'slash24-table': slash24Html,
   'mask-octet-table': maskOctetHtml,
   'prefix-table-v6': ipv6PrefixTableHtml,

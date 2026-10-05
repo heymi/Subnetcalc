@@ -2,13 +2,13 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>CIDR Cheat Sheet – Subnet Mask Table /0 to /32 | SubnetCalc</title>
-<meta name="description" content="CIDR notation cheat sheet: every prefix from /0 to /32 with subnet mask, wildcard, total addresses and usable hosts. Printable PDF included.">
+<title>Subnet Mask Cheat Sheet – CIDR Table /0 to /32 (PDF) | SubnetCalc</title>
+<meta name="description" content="Subnet cheat sheet with every CIDR prefix from /0 to /32: subnet mask, wildcard, total addresses and usable hosts. Free printable PDF.">
 <link rel="canonical" href="https://subnetcalc.dev/learn/cidr-cheat-sheet/">
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="SubnetCalc">
-<meta property="og:title" content="CIDR Cheat Sheet – Subnet Mask Table /0 to /32">
-<meta property="og:description" content="CIDR notation cheat sheet: every prefix from /0 to /32 with subnet mask, wildcard, total addresses and usable hosts. Printable PDF included.">
+<meta property="og:title" content="Subnet Mask Cheat Sheet – CIDR Table /0 to /32 (PDF)">
+<meta property="og:description" content="Subnet cheat sheet with every CIDR prefix from /0 to /32: subnet mask, wildcard, total addresses and usable hosts. Free printable PDF.">
 <meta property="og:url" content="https://subnetcalc.dev/learn/cidr-cheat-sheet/">
 <meta property="og:image" content="https://subnetcalc.dev/og.png">
 <meta name="twitter:card" content="summary_large_image">
@@ -40,8 +40,8 @@
   "@graph": [
     {
       "@type": "TechArticle",
-      "headline": "CIDR Cheat Sheet",
-      "description": "CIDR notation cheat sheet: every prefix from /0 to /32 with subnet mask, wildcard, total addresses and usable hosts. Printable PDF included.",
+      "headline": "Subnet Cheat Sheet: Subnet Mask & CIDR Table",
+      "description": "Subnet cheat sheet with every CIDR prefix from /0 to /32: subnet mask, wildcard, total addresses and usable hosts. Free printable PDF.",
       "url": "https://subnetcalc.dev/learn/cidr-cheat-sheet/",
       "inLanguage": "en",
       "author": { "@type": "Organization", "name": "SubnetCalc" },
@@ -52,7 +52,7 @@
       "itemListElement": [
         { "@type": "ListItem", "position": 1, "name": "SubnetCalc", "item": "https://subnetcalc.dev/" },
         { "@type": "ListItem", "position": 2, "name": "Learn", "item": "https://subnetcalc.dev/learn/" },
-        { "@type": "ListItem", "position": 3, "name": "CIDR Cheat Sheet", "item": "https://subnetcalc.dev/learn/cidr-cheat-sheet/" }
+        { "@type": "ListItem", "position": 3, "name": "Subnet Cheat Sheet", "item": "https://subnetcalc.dev/learn/cidr-cheat-sheet/" }
       ]
     }
   ]
@@ -71,6 +71,7 @@
       <li><a href="/vlsm/">VLSM</a></li>
       <li><a href="/cidr/">CIDR</a></li>
       <li><a href="/ipv6/">IPv6</a></li>
+      <li><a href="/subnetting-practice/">Practice</a></li>
       <li><a href="/learn/" aria-current="page">Learn</a></li>
       </ul>
     </nav>
@@ -80,11 +81,11 @@
 <!-- /@header -->
 <main id="main" class="wrap">
   <div class="page-head">
-    <nav class="breadcrumb" aria-label="Breadcrumb"><a href="/">SubnetCalc</a> / <a href="/learn/">Learn</a> / CIDR Cheat Sheet</nav>
-    <h1>CIDR Cheat Sheet</h1>
-    <p class="lede">This CIDR notation cheat sheet lists every IPv4 prefix from /0 to /32. Each prefix opens in the <a href="/">Subnet calculator</a>. To size subnets from host counts, use the <a href="/vlsm/">VLSM calculator</a>.</p>
+    <nav class="breadcrumb" aria-label="Breadcrumb"><a href="/">SubnetCalc</a> / <a href="/learn/">Learn</a> / Subnet Cheat Sheet</nav>
+    <h1>Subnet Cheat Sheet: Subnet Mask &amp; CIDR Table</h1>
+    <p class="lede">This subnet mask cheat sheet lists every IPv4 prefix from /0 to /32. Each prefix opens in the <a href="/">Subnet calculator</a>. To size several subnets from host counts, use the <a href="/vlsm/">VLSM calculator</a>, or drill the steps on <a href="/subnetting-practice/">subnetting practice</a>.</p>
     <div class="btn-row no-print" style="margin-top: var(--s2)">
-      <a class="btn" href="/learn/cidr-cheat-sheet/cidr-cheat-sheet.pdf">Download the CIDR cheat sheet (PDF)</a>
+      <a class="btn" href="/learn/cidr-cheat-sheet/cidr-cheat-sheet.pdf">Download the subnet cheat sheet (PDF)</a>
       <button type="button" class="btn" data-print>Print this page</button>
     </div>
   </div>
@@ -135,7 +136,51 @@
 </table></div>
 <!-- /@prerender -->
 <!-- @prerender:cidr-sheet-figure -->
-<img class="sheet-fig" src="/learn/cidr-cheat-sheet/cidr-cheat-sheet.png" width="1196" height="994" alt="CIDR cheat sheet: subnet mask table from /0 to /32">
+<img class="sheet-fig" src="/learn/cidr-cheat-sheet/cidr-cheat-sheet.png" width="1196" height="994" alt="Subnet mask cheat sheet: CIDR table from /0 to /32">
+<!-- /@prerender -->
+  </section>
+
+  <section class="section" aria-labelledby="octet-sheet-h">
+    <div class="section-head">
+      <h2 id="octet-sheet-h">Subnetting cheat sheet by octet</h2>
+      <span class="meta">block size = 256 − last mask octet</span>
+    </div>
+    <p>For /25 to /30 the mask changes only in the last octet. That value is the magic number's source: subtract it from 256 to get the block size, then the subnet starts are the multiples of the block.</p>
+<!-- @prerender:magic-octet-table -->
+<div class="table-wrap" tabindex="0"><table class="data">
+<thead><tr><th scope="col">Prefix</th><th scope="col" class="num">Last mask octet</th><th scope="col" class="num">Block size</th><th scope="col">Subnet starts</th></tr></thead>
+<tbody>
+<tr><td><a href="/?q=10.0.0.0/25">/25</a></td><td class="num">128</td><td class="num">128</td><td>0, 128</td></tr>
+<tr><td><a href="/?q=10.0.0.0/26">/26</a></td><td class="num">192</td><td class="num">64</td><td>0, 64, 128, 192</td></tr>
+<tr><td><a href="/?q=10.0.0.0/27">/27</a></td><td class="num">224</td><td class="num">32</td><td>0, 32, 64, 96, 128, 160, 192, 224</td></tr>
+<tr><td><a href="/?q=10.0.0.0/28">/28</a></td><td class="num">240</td><td class="num">16</td><td>0, 16, 32, 48, … 240</td></tr>
+<tr><td><a href="/?q=10.0.0.0/29">/29</a></td><td class="num">248</td><td class="num">8</td><td>0, 8, 16, 24, … 248</td></tr>
+<tr><td><a href="/?q=10.0.0.0/30">/30</a></td><td class="num">252</td><td class="num">4</td><td>0, 4, 8, 12, … 252</td></tr>
+</tbody>
+</table></div>
+<!-- /@prerender -->
+  </section>
+
+  <section class="section" aria-labelledby="hosts-sheet-h">
+    <div class="section-head">
+      <h2 id="hosts-sheet-h">Hosts to prefix</h2>
+      <span class="meta">network and broadcast reserved</span>
+    </div>
+    <p>Pick the row whose usable hosts cover what you need. A count that is not listed rounds up to the next row: 50 hosts use the 62-host /26.</p>
+<!-- @prerender:hosts-prefix-table -->
+<div class="table-wrap" tabindex="0"><table class="data">
+<thead><tr><th scope="col" class="num">Hosts needed</th><th scope="col">Prefix</th><th scope="col">Subnet mask</th><th scope="col" class="num">Usable hosts</th></tr></thead>
+<tbody>
+<tr><td class="num">2</td><td><a href="/?q=10.0.0.0/30">/30</a></td><td>255.255.255.252</td><td class="num">2</td></tr>
+<tr><td class="num">6</td><td><a href="/?q=10.0.0.0/29">/29</a></td><td>255.255.255.248</td><td class="num">6</td></tr>
+<tr><td class="num">14</td><td><a href="/?q=10.0.0.0/28">/28</a></td><td>255.255.255.240</td><td class="num">14</td></tr>
+<tr><td class="num">30</td><td><a href="/?q=10.0.0.0/27">/27</a></td><td>255.255.255.224</td><td class="num">30</td></tr>
+<tr><td class="num">62</td><td><a href="/?q=10.0.0.0/26">/26</a></td><td>255.255.255.192</td><td class="num">62</td></tr>
+<tr><td class="num">126</td><td><a href="/?q=10.0.0.0/25">/25</a></td><td>255.255.255.128</td><td class="num">126</td></tr>
+<tr><td class="num">254</td><td><a href="/?q=10.0.0.0/24">/24</a></td><td>255.255.255.0</td><td class="num">254</td></tr>
+<tr><td class="num">510</td><td><a href="/?q=10.0.0.0/23">/23</a></td><td>255.255.254.0</td><td class="num">510</td></tr>
+</tbody>
+</table></div>
 <!-- /@prerender -->
   </section>
 
@@ -255,7 +300,7 @@
 
   <div class="section prose sheet-rest">
     <h2>Using the tables</h2>
-    <p>To size a subnet, find the first row whose usable hosts cover what you need: 50 hosts need a /26 (62 usable). To find the network an address belongs to, take the block size from the mask octet table and round the address down to a multiple of it: <code>192.168.1.77/27</code> has block size 32, and 77 rounds down to 64, so the network is <a href="/?q=192.168.1.77/27">192.168.1.64/27</a>. The <a href="/learn/subnetting/">subnetting tutorial</a> explains each step, and the <a href="/vlsm/">VLSM calculator</a> does it for a whole list of subnets. The same prefix table is on the <a href="/">Subnet calculator</a> when you type an address.</p>
+    <p>Use the main table as a CIDR notation cheat sheet: the prefix is enough to read off the mask, the wildcard and the host count. To size a subnet, find the first row whose usable hosts cover what you need: 50 hosts need a /26 (62 usable). To find the network an address belongs to, take the block size from the mask octet table and round the address down to a multiple of it: <code>192.168.1.77/27</code> has block size 32, and 77 rounds down to 64, so the network is <a href="/?q=192.168.1.77/27">192.168.1.64/27</a>. The <a href="/learn/subnetting/">subnetting tutorial</a> explains each step, and the <a href="/vlsm/">VLSM calculator</a> does it for a whole list of subnets. The same prefix table is on the <a href="/">Subnet calculator</a> when you type an address.</p>
   </div>
 </main>
 <!-- @footer -->
@@ -281,7 +326,8 @@
       <h2>Learn</h2>
       <ul>
         <li><a href="/learn/subnetting/">Subnetting, step by step</a></li>
-        <li><a href="/learn/cidr-cheat-sheet/">CIDR cheat sheet</a></li>
+        <li><a href="/learn/cidr-cheat-sheet/">Subnet cheat sheet</a></li>
+        <li><a href="/subnetting-practice/">Subnetting practice</a></li>
         <li><a href="/learn/ipv6-subnetting/">IPv6 subnetting</a></li>
       </ul>
     </div>

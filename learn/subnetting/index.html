@@ -45,6 +45,7 @@
       <li><a href="/vlsm/">VLSM</a></li>
       <li><a href="/cidr/">CIDR</a></li>
       <li><a href="/ipv6/">IPv6</a></li>
+      <li><a href="/subnetting-practice/">Practice</a></li>
       <li><a href="/learn/" aria-current="page">Learn</a></li>
       </ul>
     </nav>
@@ -182,7 +183,7 @@ Broadcast   <span class="net">11000000.10101000.00000001.00</span><span class="h
           <tr><td>/32</td><td><code>255.255.255.255</code></td><td class="num">0</td><td class="num">1</td><td class="num">1</td></tr>
         </tbody>
       </table></div>
-      <p>The <a href="/learn/cidr-cheat-sheet/">CIDR cheat sheet</a> lists every prefix from /0 to /32.</p>
+      <p>The <a href="/learn/cidr-cheat-sheet/">Subnet cheat sheet</a> lists every prefix from /0 to /32. New questions are on <a href="/subnetting-practice/">subnetting practice</a>.</p>
 
       <h3>The /31 and /32 exceptions</h3>
       <p>The formula breaks down at the small end. A /31 has one host bit and two addresses, and 2<sup>1</sup> − 2 would leave no hosts at all. <a href="https://www.rfc-editor.org/rfc/rfc3021">RFC 3021</a> allows a /31 on point-to-point links. Both addresses are assigned, one to each end, and the subnet has no network or broadcast address. A link with only two devices has no need for a broadcast. In <a class="try" href="/?q=10.0.0.0/31">10.0.0.0/31</a> the two hosts are 10.0.0.0 and 10.0.0.1.</p>
@@ -407,7 +408,8 @@ Subnet 3   192.168.10.<span class="net">11</span><span class="host">000000</span
       <h2>Learn</h2>
       <ul>
         <li><a href="/learn/subnetting/">Subnetting, step by step</a></li>
-        <li><a href="/learn/cidr-cheat-sheet/">CIDR cheat sheet</a></li>
+        <li><a href="/learn/cidr-cheat-sheet/">Subnet cheat sheet</a></li>
+        <li><a href="/subnetting-practice/">Subnetting practice</a></li>
         <li><a href="/learn/ipv6-subnetting/">IPv6 subnetting</a></li>
       </ul>
     </div>

@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { deflateSync } from 'node:zlib';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { prefixTable } from '../lib/subnet.js';
+import { prefixTable, requiredPrefix } from '../lib/subnet.js';
 import { group } from '../assets/js/ui.js';
 
 const FONT = JSON.parse(readFileSync(join(dirname(fileURLToPath(import.meta.url)), 'data/sheet-font.json'), 'utf8'));
@@ -26,6 +26,62 @@ export function sheetRows() {
     usable: group(r.usableHosts),
     per24: per24(r.prefix),
   }));
+}
+
+/** /25–/30 last-octet magic numbers. Starts are abbreviated once a row has more than eight. */
+export function magicSheetRows() {
+  return prefixTable(4)
+    .filter((r) => r.prefix >= 25 && r.prefix <= 30)
+    .map((r) => {
+      const last = Number(r.netmask.split('.')[3]);
+      const block = 256 - last;
+      const starts = [];
+      for (let i = 0; i < 256; i += block) starts.push(i);
+      const list = starts.length > 8 ? `${starts.slice(0, 4).join(', ')}, … ${starts.at(-1)}` : starts.join(', ');
+      return { prefix: r.prefix, last, block, starts: list, startsAscii: list.replace('…', '...') };
+    });
+}
+
+export function magicOctetHtml() {
+  const rows = magicSheetRows()
+    .map(
+      (r) =>
+        `<tr><td><a href="/?q=10.0.0.0/${r.prefix}">/${r.prefix}</a></td><td class="num">${r.last}</td><td class="num">${r.block}</td><td>${r.starts}</td></tr>`,
+    )
+    .join('\n');
+  return `<div class="table-wrap" tabindex="0"><table class="data">
+<thead><tr><th scope="col">Prefix</th><th scope="col" class="num">Last mask octet</th><th scope="col" class="num">Block size</th><th scope="col">Subnet starts</th></tr></thead>
+<tbody>
+${rows}
+</tbody>
+</table></div>`;
+}
+
+const HOSTS_NEEDED = [2, 6, 14, 30, 62, 126, 254, 510];
+
+/** Smallest prefix that still leaves `hosts` usable, one row per common host count. */
+export function hostsSheetRows() {
+  const table = prefixTable(4);
+  return HOSTS_NEEDED.map((hosts) => {
+    const prefix = requiredPrefix(hosts);
+    const row = table[prefix];
+    return { hosts, prefix, mask: row.netmask, usable: group(row.usableHosts) };
+  });
+}
+
+export function hostsPrefixHtml() {
+  const rows = hostsSheetRows()
+    .map(
+      (r) =>
+        `<tr><td class="num">${r.hosts}</td><td><a href="/?q=10.0.0.0/${r.prefix}">/${r.prefix}</a></td><td>${r.mask}</td><td class="num">${r.usable}</td></tr>`,
+    )
+    .join('\n');
+  return `<div class="table-wrap" tabindex="0"><table class="data">
+<thead><tr><th scope="col" class="num">Hosts needed</th><th scope="col">Prefix</th><th scope="col">Subnet mask</th><th scope="col" class="num">Usable hosts</th></tr></thead>
+<tbody>
+${rows}
+</tbody>
+</table></div>`;
 }
 
 const COLS = [
@@ -132,7 +188,7 @@ export function sheetPng() {
   const ink = [22, 28, 36];
   const muted = [70, 84, 98];
   fill(rgb, w, 0, 0, w, h, [255, 255, 255]);
-  drawText(rgb, w, PAD, PAD, 'CIDR cheat sheet', ink);
+  drawText(rgb, w, PAD, PAD, 'Subnet cheat sheet', ink);
   drawText(rgb, w, PAD, PAD + 22, 'Subnet mask, wildcard, addresses and usable hosts, /0 to /32', muted);
   const headY = PAD + TITLE;
   fill(rgb, w, PAD, headY, w - PAD * 2, ROW, [27, 58, 75]);
@@ -161,7 +217,7 @@ function pdfEscape(s) {
   return s.replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)');
 }
 
-/** Single A4 page. Helvetica, six columns, /0 through /32. */
+/** Single A4 page: the /0–/32 table, the /25–/30 magic numbers and the host-count lookup. */
 export function sheetPdf() {
   const pageW = 595.28;
   const pageH = 841.89;
@@ -169,21 +225,54 @@ export function sheetPdf() {
   const cols = [32, 78, 188, 308, 430, 510];
   const lines = [];
   lines.push('BT');
-  lines.push('/F2 14 Tf');
-  lines.push(`1 0 0 1 ${left} 806 Tm (${pdfEscape('CIDR cheat sheet')}) Tj`);
-  lines.push('/F1 8 Tf');
-  lines.push(`1 0 0 1 ${left} 790 Tm (${pdfEscape('Subnet mask, wildcard, total addresses and usable hosts for /0 to /32.')}) Tj`);
-  lines.push('/F2 8 Tf');
+  lines.push('/F2 13 Tf');
+  lines.push(`1 0 0 1 ${left} 812 Tm (${pdfEscape('Subnet cheat sheet')}) Tj`);
+  lines.push('/F1 7.5 Tf');
+  lines.push(`1 0 0 1 ${left} 798 Tm (${pdfEscape('Subnet mask, wildcard, total addresses and usable hosts for /0 to /32.')}) Tj`);
+  lines.push('/F2 7.5 Tf');
   const heads = ['Prefix', 'Subnet mask', 'Wildcard', 'Addresses', 'Usable hosts', '/24s'];
-  heads.forEach((h, i) => lines.push(`1 0 0 1 ${cols[i]} 770 Tm (${pdfEscape(h)}) Tj`));
-  lines.push('/F1 8 Tf');
+  heads.forEach((h, i) => lines.push(`1 0 0 1 ${cols[i]} 784 Tm (${pdfEscape(h)}) Tj`));
+  lines.push('/F1 7.5 Tf');
   const rows = sheetRows();
   rows.forEach((row, i) => {
-    const y = 756 - i * 16.15;
+    const y = 772 - i * 15.15;
     const vals = [row.prefix, row.mask, row.wild, row.total, row.usable, row.per24];
     vals.forEach((v, c) => lines.push(`1 0 0 1 ${cols[c]} ${y.toFixed(2)} Tm (${pdfEscape(v)}) Tj`));
   });
+  const magicTop = 772 - 32 * 15.15 - 22;
+  lines.push('/F2 9 Tf');
+  lines.push(`1 0 0 1 ${left} ${magicTop.toFixed(2)} Tm (${pdfEscape('Magic number, /25 to /30')}) Tj`);
+  lines.push('/F2 7.5 Tf');
+  const mHeadY = magicTop - 14;
+  const mCols = [32, 90, 170, 250];
+  ['Prefix', 'Last octet', 'Block size', 'Subnet starts'].forEach((h, i) =>
+    lines.push(`1 0 0 1 ${mCols[i]} ${mHeadY.toFixed(2)} Tm (${pdfEscape(h)}) Tj`),
+  );
+  lines.push('/F1 7.5 Tf');
+  const magicLow = mHeadY - 12 - 5 * 11;
+  magicSheetRows().forEach((row, i) => {
+    const y = mHeadY - 12 - i * 11;
+    const vals = [`/${row.prefix}`, String(row.last), String(row.block), row.startsAscii];
+    vals.forEach((v, c) => lines.push(`1 0 0 1 ${mCols[c]} ${y.toFixed(2)} Tm (${pdfEscape(v)}) Tj`));
+  });
+  const hostsTop = magicLow - 20;
+  lines.push('/F2 9 Tf');
+  lines.push(`1 0 0 1 ${left} ${hostsTop.toFixed(2)} Tm (${pdfEscape('Hosts needed to prefix')}) Tj`);
+  lines.push('/F2 7.5 Tf');
+  const hHeadY = hostsTop - 14;
+  ['Hosts needed', 'Prefix', 'Subnet mask', 'Usable hosts'].forEach((h, i) =>
+    lines.push(`1 0 0 1 ${mCols[i]} ${hHeadY.toFixed(2)} Tm (${pdfEscape(h)}) Tj`),
+  );
+  lines.push('/F1 7.5 Tf');
+  const hostsRows = hostsSheetRows();
+  hostsRows.forEach((row, i) => {
+    const y = hHeadY - 12 - i * 11;
+    const vals = [group(row.hosts), `/${row.prefix}`, row.mask, row.usable];
+    vals.forEach((v, c) => lines.push(`1 0 0 1 ${mCols[c]} ${y.toFixed(2)} Tm (${pdfEscape(v)}) Tj`));
+  });
   lines.push('ET');
+  const lowest = hHeadY - 12 - (hostsRows.length - 1) * 11;
+  if (lowest < 28) throw new Error(`cheat sheet PDF content ends at y=${lowest}`);
   const stream = lines.join('\n');
   const objects = [];
   const add = (body) => {
@@ -215,5 +304,5 @@ export function sheetPdf() {
 }
 
 export function sheetFigureHtml() {
-  return `<img class="sheet-fig" src="/learn/cidr-cheat-sheet/cidr-cheat-sheet.png" width="${SHEET_W}" height="${SHEET_H}" alt="CIDR cheat sheet: subnet mask table from /0 to /32">`;
+  return `<img class="sheet-fig" src="/learn/cidr-cheat-sheet/cidr-cheat-sheet.png" width="${SHEET_W}" height="${SHEET_H}" alt="Subnet mask cheat sheet: CIDR table from /0 to /32">`;
 }

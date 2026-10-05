@@ -77,6 +77,7 @@
       <li><a href="/vlsm/" aria-current="page">VLSM</a></li>
       <li><a href="/cidr/">CIDR</a></li>
       <li><a href="/ipv6/">IPv6</a></li>
+      <li><a href="/subnetting-practice/">Practice</a></li>
       <li><a href="/learn/">Learn</a></li>
       </ul>
     </nav>
@@ -331,7 +332,7 @@ Link,2,192.168.1.112/30,255.255.255.252,192.168.1.113,192.168.1.114,192.168.1.11
         <tr><td class="num">254</td><td class="num">256</td><td class="num">256</td><td>/24</td><td>255.255.255.0</td></tr>
       </tbody>
     </table></div>
-    <p>60 hosts are not a row of their own: 62 rounds up to the same 64-address block as 62 hosts, so the mask is still <code>255.255.255.192</code>. Open any row in the <a href="/">Subnet calculator</a>, or look up the prefix on the <a href="/learn/cidr-cheat-sheet/">CIDR cheat sheet</a>.</p>
+    <p>60 hosts are not a row of their own: 62 rounds up to the same 64-address block as 62 hosts, so the mask is still <code>255.255.255.192</code>. Open any row in the <a href="/">Subnet calculator</a>, look up the prefix on the <a href="/learn/cidr-cheat-sheet/">Subnet cheat sheet</a>, or try the same sizes on <a href="/subnetting-practice/">subnetting practice</a>.</p>
     <p><strong>Capacity rule</strong> changes the math, not just the label. The generic rule reserves the network and broadcast addresses, and the /31 and /32 options give two-host links and single-host requests (loopbacks, host routes) their smallest legal blocks. AWS VPC and Azure VNet reserve five addresses per subnet (the first four and the last) and enforce a minimum size (/28 and /29); Google Cloud reserves the first two and the last two and enforces /29. The first and last usable address in the table follow those positions, and AWS also caps a subnet at /16, so a request that would need a larger block is rejected. A 60-host request gets a /25 on AWS instead of a /26, and the cloud exports show no warnings because the plan was built under the same rule.</p>
     <p>To check one of the subnets in detail, open it in the <a href="/?q=192.168.1.96/28">subnet calculator</a>. The <a href="/learn/subnetting/#vlsm">subnetting tutorial</a> works through a VLSM design by hand. For fixed, ready-to-read plans, see the <a href="/examples/aws-three-tier-vpc/">AWS three-tier VPC</a> and <a href="/examples/azure-hub-spoke/">Azure hub-spoke</a> examples.</p>
   </div>
@@ -383,7 +384,8 @@ Link,2,192.168.1.112/30,255.255.255.252,192.168.1.113,192.168.1.114,192.168.1.11
       <h2>Learn</h2>
       <ul>
         <li><a href="/learn/subnetting/">Subnetting, step by step</a></li>
-        <li><a href="/learn/cidr-cheat-sheet/">CIDR cheat sheet</a></li>
+        <li><a href="/learn/cidr-cheat-sheet/">Subnet cheat sheet</a></li>
+        <li><a href="/subnetting-practice/">Subnetting practice</a></li>
         <li><a href="/learn/ipv6-subnetting/">IPv6 subnetting</a></li>
       </ul>
     </div>
