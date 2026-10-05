@@ -1,5 +1,5 @@
 // VLSM planner page.
-import { planVlsm, requiredPrefix, formatCidr } from '../../lib/subnet.js';
+import { analyze, planVlsm, requiredPrefix, formatCidr } from '../../lib/subnet.js';
 import { planToText } from '../../lib/export.js';
 import {
   DEFAULT_PARENT,
@@ -15,9 +15,12 @@ import {
   renderTable,
   renderFree,
   renderTree,
+  renderWorked,
+  planTableTSV,
+  planTableCSV,
   fittingPrefix,
 } from './vlsm-render.js';
-import { esc, debounce, copyText, download, setStale, toast } from './ui.js';
+import { esc, group, debounce, copyText, download, setStale, toast } from './ui.js';
 import { parsePlanList, removePlan, sanitizePlanName, serializePlans, upsertPlan } from './workspace.js';
 import { track } from './site-events.js';
 
@@ -33,6 +36,7 @@ const out = {
   summary: $('#vlsm-summary'),
   map: $('#vlsm-map'),
   table: $('#vlsm-table'),
+  steps: $('#vlsm-steps'),
   free: $('#vlsm-free'),
   tree: $('#vlsm-tree'),
   export: $('#export-out'),
@@ -148,8 +152,10 @@ function trackState(ok, code) {
 }
 
 function setPlanActions() {
-  const b = $('[data-copy-plan]');
-  if (b) b.disabled = !plan;
+  for (const sel of ['[data-copy-plan]', '[data-copy-table]', '[data-copy-csv]']) {
+    const b = $(sel);
+    if (b) b.disabled = !plan;
+  }
 }
 
 function render() {
@@ -183,6 +189,7 @@ function render() {
   out.summary.innerHTML = renderSummary(plan);
   out.map.innerHTML = renderMap(plan);
   out.table.innerHTML = renderTable(plan);
+  if (out.steps) out.steps.innerHTML = renderWorked(plan);
   out.free.innerHTML = renderFree(plan);
   // keep folds that still exist in the new tree
   out.tree.innerHTML = renderTree(plan, collapsed);
@@ -196,13 +203,32 @@ function errorHtml(e, list, opts) {
   const heading = e.code === 'INSUFFICIENT_SPACE' ? 'Does not fit:' : e.code === 'PROVIDER_LIMIT' ? 'Provider limit:' : 'Check the input:';
   let s = `<p class="notice is-error"><strong>${heading}</strong> ${esc(e.message)}.`;
   if (e.code === 'INSUFFICIENT_SPACE') {
+    if (e.needed != null && e.available != null) {
+      const shortNow = e.needed - e.available;
+      s += ` That subnet is short by <strong>${group(shortNow)}</strong> ${shortNow === 1n ? 'address' : 'addresses'} (${group(e.available)} left, ${group(e.needed)} required).`;
+    }
+    let total = null;
+    let parentSize = null;
+    try {
+      total = 0n;
+      for (const r of list) {
+        if (!Number.isInteger(r.hosts) || r.hosts < 1) continue;
+        total += 1n << BigInt(32 - requiredPrefix(r.hosts, opts));
+      }
+      parentSize = analyze(parentIn.value.trim()).info.totalAddresses;
+    } catch {
+      total = null;
+    }
+    if (total != null && parentSize != null && total > parentSize) {
+      s += ` Together the subnets need ${group(total)} addresses and this block has ${group(parentSize)}, so the plan is short by <strong>${group(total - parentSize)}</strong>.`;
+    }
     let p = null;
     try {
       p = fittingPrefix(list, (x) => requiredPrefix(x.hosts, opts));
     } catch {}
     const base = parentIn.value.trim().split(/[\s/]/)[0];
     if (p !== null) {
-      s += ` Everything fits in a <strong>/${p}</strong>. <button type="button" data-set-prefix="${p}">Use ${esc(base)}/${p}</button>`;
+      s += ` The smallest prefix that holds them is <strong>/${p}</strong>. <button type="button" data-set-prefix="${p}">Use ${esc(base)}/${p}</button>`;
     }
   }
   return s + '</p>';
@@ -337,6 +363,12 @@ document.addEventListener('click', (e) => {
   } else if (t.closest('[data-export-plans]')) {
     download('subnetcalc-vlsm-plans.json', serializePlans(plans));
     track('download', { tool: 'vlsm', format: 'plans' });
+  } else if (t.closest('[data-copy-table]') && plan) {
+    copyText(planTableTSV(plan), 'Table copied');
+    track('copy', { tool: 'vlsm', kind: 'table' });
+  } else if (t.closest('[data-copy-csv]') && plan) {
+    copyText(planTableCSV(plan), 'CSV copied');
+    track('copy', { tool: 'vlsm', kind: 'csv' });
   } else if (t.closest('[data-copy-plan]') && plan) {
     copyText(planToText(plan), 'Plan summary copied');
     track('copy', { tool: 'vlsm', kind: 'summary' });

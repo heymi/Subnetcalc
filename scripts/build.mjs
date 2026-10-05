@@ -22,6 +22,7 @@ import {
   renderTable,
   renderFree,
   renderTree,
+  renderWorked,
 } from '../assets/js/vlsm-render.js';
 import { planVlsm } from '../lib/subnet.js';
 import {
@@ -35,6 +36,7 @@ import {
 import { DEFAULTS as V6, renderAddress, renderSplit, renderEui } from '../assets/js/ipv6-render.js';
 import { PLAN_DEFAULTS, renderPlan } from '../assets/js/ipv6-plan-render.js';
 import { AWS_EXAMPLE, AZURE_HUB_EXAMPLE, AZURE_SPOKE_EXAMPLE, IPV6_EXAMPLE } from '../assets/js/examples.js';
+import { sheetFigureHtml, sheetPdf, sheetPng } from './cheat-sheet-assets.mjs';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const ORIGIN = 'https://subnetcalc.dev';
@@ -107,7 +109,7 @@ const footer = () => `<footer class="site-footer">
       <h2>Tools</h2>
       <ul>
         <li><a href="/">Subnet calculator</a></li>
-        <li><a href="/vlsm/">VLSM planner</a></li>
+        <li><a href="/vlsm/">VLSM calculator</a></li>
         <li><a href="/cidr/">CIDR aggregation &amp; overlaps</a></li>
         <li><a href="/ip-range-to-cidr/">IP range to CIDR</a></li>
         <li><a href="/cidr-overlap-checker/">CIDR overlap checker</a></li>
@@ -143,15 +145,20 @@ const footer = () => `<footer class="site-footer">
   </div>
 </footer>`;
 
+function per24(prefix) {
+  if (prefix <= 24) return group(1n << BigInt(24 - prefix));
+  return `1/${1 << (prefix - 24)}`;
+}
+
 function prefixTableHtml() {
   const rows = prefixTable(4)
     .map(
       (r) =>
-        `<tr id="p${r.prefix}"><td>/${r.prefix}</td><td>${r.netmask}</td><td>${r.wildcard}</td><td class="num">${group(r.totalAddresses)}</td><td class="num">${group(r.usableHosts)}</td></tr>`,
+        `<tr id="p${r.prefix}"><td><a href="/?q=10.0.0.0/${r.prefix}">/${r.prefix}</a></td><td>${r.netmask}</td><td>${r.wildcard}</td><td class="num">${group(r.totalAddresses)}</td><td class="num">${group(r.usableHosts)}</td><td class="num">${per24(r.prefix)}</td></tr>`,
     )
     .join('\n');
-  return `<div class="table-wrap" tabindex="0"><table class="data">
-<thead><tr><th scope="col">Prefix</th><th scope="col">Netmask</th><th scope="col">Wildcard</th><th scope="col" class="num">Addresses</th><th scope="col" class="num">Usable hosts</th></tr></thead>
+  return `<div class="table-wrap sheet-table" tabindex="0"><table class="data">
+<thead><tr><th scope="col">Prefix</th><th scope="col">Subnet mask</th><th scope="col">Wildcard mask</th><th scope="col" class="num">Total addresses</th><th scope="col" class="num">Usable hosts</th><th scope="col" class="num">/24s</th></tr></thead>
 <tbody>
 ${rows}
 </tbody>
@@ -263,6 +270,7 @@ const PRERENDER = {
   'vlsm-map': () => renderMap(defaultPlan()),
   'vlsm-table': () => renderTable(defaultPlan()),
   'vlsm-free': () => renderFree(defaultPlan()),
+  'vlsm-steps': () => renderWorked(defaultPlan()),
   'vlsm-tree': () => renderTree(defaultPlan()),
   'vlsm-export': () => escHtml(EXPORTS[0].fn(defaultPlan()).trimEnd()),
   'cidr-agg': () => renderNets(DEFAULT_NETS).agg,
@@ -287,6 +295,7 @@ const PRERENDER = {
   'azure-spoke-free': () => renderFree(casePlan(AZURE_SPOKE_EXAMPLE)),
   'ipv6-case-plan': () => renderPlan(IPV6_EXAMPLE.parent, IPV6_EXAMPLE.site, IPV6_EXAMPLE.lan).html,
   'prefix-table-v4': prefixTableHtml,
+  'cidr-sheet-figure': sheetFigureHtml,
   'slash24-table': slash24Html,
   'mask-octet-table': maskOctetHtml,
   'prefix-table-v6': ipv6PrefixTableHtml,
@@ -315,12 +324,30 @@ function build(file) {
   return html;
 }
 
-function sitemap(files) {
-  const urls = files
-    .filter((f) => !f.endsWith('404.html'))
-    .map(urlPath)
-    .sort((a, b) => (a === '/' ? -1 : b === '/' ? 1 : a.localeCompare(b)))
-    .map((u) => `  <url><loc>${ORIGIN}${u}</loc></url>`)
+function lastmod(file) {
+  return statSync(file).mtime.toISOString().slice(0, 10);
+}
+
+/** Dates already committed in sitemap.xml. Checkout mtimes are not a lastmod. */
+function storedLastmod() {
+  let xml = '';
+  try {
+    xml = readFileSync(join(ROOT, 'sitemap.xml'), 'utf8');
+  } catch {
+    return new Map();
+  }
+  const dates = new Map();
+  for (const m of xml.matchAll(/<loc>([^<]+)<\/loc>\s*<lastmod>([^<]+)<\/lastmod>/g)) {
+    dates.set(m[1].slice(ORIGIN.length), m[2]);
+  }
+  return dates;
+}
+
+function sitemap(entries) {
+  const urls = entries
+    .filter((u) => u.loc !== '/404')
+    .sort((a, b) => (a.loc === '/' ? -1 : b.loc === '/' ? 1 : a.loc.localeCompare(b.loc)))
+    .map((u) => `  <url><loc>${ORIGIN}${u.loc}</loc><lastmod>${u.lastmod}</lastmod></url>`)
     .join('\n');
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`;
 }
@@ -328,14 +355,36 @@ function sitemap(files) {
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const files = pages();
   const stale = [];
-  const outputs = files.map((f) => [f, build(f)]);
-  outputs.push([join(ROOT, 'sitemap.xml'), sitemap(files)]);
-  for (const [f, content] of outputs) {
+  const today = new Date().toISOString().slice(0, 10);
+  const previous = storedLastmod();
+  const built = files.map((f) => {
+    const content = build(f);
     let old = '';
     try {
       old = readFileSync(f, 'utf8');
     } catch {}
-    if (old !== content) {
+    return { f, content, changed: old !== content };
+  });
+  const outputs = built.map(({ f, content }) => [f, content]);
+  outputs.push([
+    join(ROOT, 'sitemap.xml'),
+    sitemap(
+      built.map(({ f, changed }) => {
+        const loc = urlPath(f);
+        return { loc, lastmod: changed ? today : previous.get(loc) || lastmod(f) };
+      }),
+    ),
+  ]);
+  outputs.push([join(ROOT, 'learn/cidr-cheat-sheet/cidr-cheat-sheet.png'), sheetPng()]);
+  outputs.push([join(ROOT, 'learn/cidr-cheat-sheet/cidr-cheat-sheet.pdf'), sheetPdf()]);
+  for (const [f, content] of outputs) {
+    const binary = Buffer.isBuffer(content);
+    let old = binary ? null : '';
+    try {
+      old = readFileSync(f);
+    } catch {}
+    const same = binary ? old && old.equals(content) : old && old.toString('utf8') === content;
+    if (!same) {
       stale.push(relative(ROOT, f));
       if (!CHECK) writeFileSync(f, content);
     }

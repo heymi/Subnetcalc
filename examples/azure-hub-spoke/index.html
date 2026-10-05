@@ -95,16 +95,16 @@
 <!-- /@prerender --></div>
     <div id="azure-hub-table"><!-- @prerender:azure-hub-table -->
 <div class="table-wrap" tabindex="0"><table class="data">
-<thead><tr><th scope="col">Name</th><th scope="col" class="num">Hosts</th><th scope="col">Subnet</th><th scope="col">Netmask</th><th scope="col">Usable range</th><th scope="col">Broadcast</th><th scope="col" class="num">Usable</th><th scope="col" class="num">Unused</th></tr></thead>
+<thead><tr><th scope="col">Subnet</th><th scope="col" class="num">Hosts needed</th><th scope="col" class="num">Block size</th><th scope="col">Prefix</th><th scope="col">Network</th><th scope="col">First usable</th><th scope="col">Last usable</th><th scope="col">Broadcast</th><th scope="col">Subnet mask</th><th scope="col" class="num">Wasted</th></tr></thead>
 <tbody>
 <tr>
-<td class="name">SharedServices</td><td class="num">200</td><td><b>10.0.0.0/24</b></td><td>255.255.255.0</td><td>10.0.0.4 – 10.0.0.254</td><td>10.0.0.255</td><td class="num">251</td><td class="num">51</td>
+<td class="name">SharedServices</td><td class="num">200</td><td class="num">256</td><td>/24</td><td>10.0.0.0</td><td>10.0.0.4</td><td>10.0.0.254</td><td>10.0.0.255</td><td>255.255.255.0</td><td class="num">51</td>
 </tr>
 <tr>
-<td class="name">AzureFirewallSubnet</td><td class="num">59</td><td><b>10.0.1.0/26</b></td><td>255.255.255.192</td><td>10.0.1.4 – 10.0.1.62</td><td>10.0.1.63</td><td class="num">59</td><td class="num">0</td>
+<td class="name">AzureFirewallSubnet</td><td class="num">59</td><td class="num">64</td><td>/26</td><td>10.0.1.0</td><td>10.0.1.4</td><td>10.0.1.62</td><td>10.0.1.63</td><td>255.255.255.192</td><td class="num">0</td>
 </tr>
 <tr>
-<td class="name">GatewaySubnet</td><td class="num">27</td><td><b>10.0.1.64/27</b></td><td>255.255.255.224</td><td>10.0.1.68 – 10.0.1.94</td><td>10.0.1.95</td><td class="num">27</td><td class="num">0</td>
+<td class="name">GatewaySubnet</td><td class="num">27</td><td class="num">32</td><td>/27</td><td>10.0.1.64</td><td>10.0.1.68</td><td>10.0.1.94</td><td>10.0.1.95</td><td>255.255.255.224</td><td class="num">0</td>
 </tr>
 </tbody>
 </table></div>
@@ -129,13 +129,13 @@
 <!-- /@prerender --></div>
     <div id="azure-spoke-table"><!-- @prerender:azure-spoke-table -->
 <div class="table-wrap" tabindex="0"><table class="data">
-<thead><tr><th scope="col">Name</th><th scope="col" class="num">Hosts</th><th scope="col">Subnet</th><th scope="col">Netmask</th><th scope="col">Usable range</th><th scope="col">Broadcast</th><th scope="col" class="num">Usable</th><th scope="col" class="num">Unused</th></tr></thead>
+<thead><tr><th scope="col">Subnet</th><th scope="col" class="num">Hosts needed</th><th scope="col" class="num">Block size</th><th scope="col">Prefix</th><th scope="col">Network</th><th scope="col">First usable</th><th scope="col">Last usable</th><th scope="col">Broadcast</th><th scope="col">Subnet mask</th><th scope="col" class="num">Wasted</th></tr></thead>
 <tbody>
 <tr>
-<td class="name">app</td><td class="num">200</td><td><b>10.1.0.0/24</b></td><td>255.255.255.0</td><td>10.1.0.4 – 10.1.0.254</td><td>10.1.0.255</td><td class="num">251</td><td class="num">51</td>
+<td class="name">app</td><td class="num">200</td><td class="num">256</td><td>/24</td><td>10.1.0.0</td><td>10.1.0.4</td><td>10.1.0.254</td><td>10.1.0.255</td><td>255.255.255.0</td><td class="num">51</td>
 </tr>
 <tr>
-<td class="name">data</td><td class="num">100</td><td><b>10.1.1.0/25</b></td><td>255.255.255.128</td><td>10.1.1.4 – 10.1.1.126</td><td>10.1.1.127</td><td class="num">123</td><td class="num">23</td>
+<td class="name">data</td><td class="num">100</td><td class="num">128</td><td>/25</td><td>10.1.1.0</td><td>10.1.1.4</td><td>10.1.1.126</td><td>10.1.1.127</td><td>255.255.255.128</td><td class="num">23</td>
 </tr>
 </tbody>
 </table></div>
@@ -187,7 +187,7 @@
       <h2>Tools</h2>
       <ul>
         <li><a href="/">Subnet calculator</a></li>
-        <li><a href="/vlsm/">VLSM planner</a></li>
+        <li><a href="/vlsm/">VLSM calculator</a></li>
         <li><a href="/cidr/">CIDR aggregation &amp; overlaps</a></li>
         <li><a href="/ip-range-to-cidr/">IP range to CIDR</a></li>
         <li><a href="/cidr-overlap-checker/">CIDR overlap checker</a></li>
